@@ -32,7 +32,7 @@ jobs:
         if: ${{ inputs.probe_page != '' && inputs.probe_page != null }}
         env:
           PAGE: ${{ inputs.probe_page }}
-        run: for u in $PAGE; do echo "===== $u"; node tools/crawl.js --probe "$u"; sleep 2; done
+        run: for u in $PAGE; do echo "===== $u"; node tools/crawl.js --probe "$u" || true; sleep 2; done
       - name: Try a feed (nothing is saved)
         if: ${{ inputs.test_feed != '' && inputs.test_feed != null }}
         env:
