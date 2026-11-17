@@ -1,0 +1,150 @@
+{
+ "updatedAt": "2026-11-17T04:16:07.146Z",
+ "from": "https://www.nottingham.edu.cn",
+ "events": [
+  {
+   "id": "650acb1d-25ab-43fc-a5bd-1e2c2aac61e3",
+   "title": "3rd Loctek UoN Campus Innovation Design Competition",
+   "start": "2026-11-05T00:00",
+   "end": "2027-05-31T23:59",
+   "location": "University of Nottingham UK, China, Malaysia",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/Events/Event.aspx?id=650acb1d-25ab-43fc-a5bd-1e2c2aac61e3&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-Events/Engineering/3rd-Loctek-UoN-Campus-Innovation-Design-Competition-thumbnail.x7e0798ed.jpg",
+   "source": "fse-events"
+  },
+  {
+   "id": "fa9c201b-dd32-4484-9356-6930bad603c7",
+   "title": "The 2nd International Conference on Data Science and Edge Computing",
+   "start": "2026-12-04T00:00",
+   "end": "2026-12-06T23:59",
+   "location": "UNNC",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/Events/Event.aspx?id=fa9c201b-dd32-4484-9356-6930bad603c7&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-Events/Engineering/ICDSEC-new.xb26bf4ad.jpg",
+   "source": "fse-events"
+  }
+ ],
+ "news": [
+  {
+   "id": "f75343bb-8c1a-4bb2-8e52-5796e0b4e078",
+   "kind": "news",
+   "title": "UNNC and British Council sign strategic partnership to enhance international education",
+   "date": "2026-10-30",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=f75343bb-8c1a-4bb2-8e52-5796e0b4e078&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261030British-Council-sign-strategic-partnership/UNNC-signs-strategic-partnership-with-British-Council-image1.xec8209d4.jpg",
+   "source": "news"
+  },
+  {
+   "id": "55422558-cf48-4aeb-ac2c-be44507c567e",
+   "kind": "news",
+   "title": "Zhejiang Initiative launched at UNNC to turn Asia-Pacific sustainability ambitions into action",
+   "date": "2026-10-27",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=55422558-cf48-4aeb-ac2c-be44507c567e&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/261027Zhejiang-Initiative-launched-at-UNNC/Zhejiang-Initiative-launched-at-UNNC-image4.x2326eb79.jpg",
+   "source": "news"
+  },
+  {
+   "id": "31fcc94e-d81a-4ea0-9b0d-bdee708283d2",
+   "kind": "news",
+   "title": "Record number of UNNC scholars recognised among the World’s Top 2% Scientists",
+   "date": "2026-10-22",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=31fcc94e-d81a-4ea0-9b0d-bdee708283d2&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261022-The-Worlds-Top-2-Scientists/The-World's-Top-2-Scientists.jpg.xd1f2ba58.jpg",
+   "source": "news"
+  },
+  {
+   "id": "aa8d098e-a123-4c1e-9722-6a9ed6022b34",
+   "kind": "news",
+   "title": "UNNC Hosts Premier International Engineering Vibration Conference in China for the First Time",
+   "date": "2026-10-18",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=aa8d098e-a123-4c1e-9722-6a9ed6022b34&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261018Engineering-Vibration-Conference/International-Engineering-Vibration-Conference-image1.x29b5e5df.png",
+   "source": "news"
+  },
+  {
+   "id": "5e753266-65fd-481f-9eb3-79edeb2c9a2c",
+   "kind": "news",
+   "title": "Top universities meet UNNC students on campus at Further Study Fair",
+   "date": "2026-10-17",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=5e753266-65fd-481f-9eb3-79edeb2c9a2c&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261017Further-Study-Fair/Further-Study-Fair-image1.xe790ba0b.jpg",
+   "source": "news"
+  },
+  {
+   "id": "e81b45b0-0284-45a6-a010-fc9d6b219edf",
+   "kind": "news",
+   "title": "UNNC team’s 3D-printed ceramic jewellery design shines at the Red Dot Award: Design Concept 2026",
+   "date": "2026-10-15",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=e81b45b0-0284-45a6-a010-fc9d6b219edf&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20251018-Red-Dot-Awards/Red-Dot-Awards-image1.x69160611.jpg",
+   "source": "news"
+  },
+  {
+   "id": "ef1998d3-2640-42b5-85c9-16d7701d78a9",
+   "kind": "news",
+   "title": "UNNC Team Wins Global Championship in AI-Powered Surgical Recognition",
+   "date": "2026-10-12",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=ef1998d3-2640-42b5-85c9-16d7701d78a9&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261012MICCAI/MICCAI-2026-image1.xf9aacbc4.jpg",
+   "source": "news"
+  },
+  {
+   "id": "1f361414-e56f-45a8-a8c8-a304c6735cd8",
+   "kind": "news",
+   "title": "UNNC PhD student named 2026 River Messenger after winning International Youth River Exchange",
+   "date": "2026-10-10",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=1f361414-e56f-45a8-a8c8-a304c6735cd8&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261010International-Youth-River-Exchange/International-Youth-River-Exchange-2026-image4.xc1007f0c.jpg",
+   "source": "news"
+  },
+  {
+   "id": "58865e6f-5267-486b-846a-14380b476dde",
+   "kind": "news",
+   "title": "UNNC brings global innovation together at 2026 Global Pitch",
+   "date": "2026-09-22",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=58865e6f-5267-486b-846a-14380b476dde&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260921global-pitch/Global-Pitch-image1.xdfb5b7f2.jpg",
+   "source": "news"
+  },
+  {
+   "id": "71e7c925-74ec-410f-b1b3-a7d0d3adc26f",
+   "kind": "news",
+   "title": "Speech at the 2026 New Student Welcome Ceremony",
+   "date": "2026-09-21",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=71e7c925-74ec-410f-b1b3-a7d0d3adc26f&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260921Speech-at-New-Student-Welcome-Ceremony/Speech-at-the-2026-New-Student-Welcome-Ceremony.x38e2bf9c.jpg",
+   "source": "news"
+  },
+  {
+   "id": "761b07a1-7679-4a46-bf22-9672714f0eeb",
+   "kind": "news",
+   "title": "UNNC researchers develop AI technology to reduce radiation in PET scans",
+   "date": "2026-09-16",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=761b07a1-7679-4a46-bf22-9672714f0eeb&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260916AI-technology-to-reduce-radiation-in-PET/AI-technology-to-reduce-radiation-in-PET-scans-image4.x8a5857ae.jpg",
+   "source": "news"
+  },
+  {
+   "id": "edca1104-9841-453f-b1e1-5137f726cbc2",
+   "kind": "news",
+   "title": "Bridging distances, reaching rural classrooms: UNNC supports English teachers across China",
+   "date": "2026-09-10",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=edca1104-9841-453f-b1e1-5137f726cbc2&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260910-rural-classrooms/Rural-classrooms-image1.x252c8bf5.jpg",
+   "source": "news"
+  }
+ ]
+}
