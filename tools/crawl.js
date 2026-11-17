@@ -304,12 +304,12 @@ async function main() {
       const items = parse(html, src).map((x) => Object.assign(x, { lang: src.lang || "en" }))
         .sort((a, b) => String(b.date || b.start).localeCompare(String(a.date || a.start))).slice(0, src.max || 100);
       report[src.id] = { ok: true, items: items.length };
-      (src.type === "news" ? news : src.type === "keyDates" ? dates : events).push(...items);
+      (src.type === "news" || src.type === "list" ? news : src.type === "keyDates" ? dates : events).push(...items);
     } catch (e) {
       // Keep what we had from this source last time, so one bad page doesn't empty the app.
       report[src.id] = { ok: false, error: String(e.message || e) };
       const keep = (list) => (list || []).filter((x) => x.source === src.id);
-      if (src.type === "news") news.push(...keep(prev.news)); else if (src.type === "keyDates") dates.push(...keep(prev.dates)); else events.push(...keep(prev.events));
+      if (src.type === "news" || src.type === "list") news.push(...keep(prev.news)); else if (src.type === "keyDates") dates.push(...keep(prev.dates)); else events.push(...keep(prev.events));
     }
     await new Promise((r) => setTimeout(r, 3000)); // a polite pause between pages
   }
