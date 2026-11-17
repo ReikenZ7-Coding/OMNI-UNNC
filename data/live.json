@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-17T05:22:41.062Z",
+ "updatedAt": "2026-11-17T06:23:47.459Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -11,7 +11,8 @@
    "organiser": "Faculty of Science and Engineering",
    "url": "https://www.nottingham.edu.cn/en/science-engineering/Events/Event.aspx?id=650acb1d-25ab-43fc-a5bd-1e2c2aac61e3&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-Events/Engineering/3rd-Loctek-UoN-Campus-Innovation-Design-Competition-thumbnail.x7e0798ed.jpg",
-   "source": "fse-events"
+   "source": "fse-events",
+   "lang": "en"
   },
   {
    "id": "fa9c201b-dd32-4484-9356-6930bad603c7",
@@ -22,10 +23,44 @@
    "organiser": "Faculty of Science and Engineering",
    "url": "https://www.nottingham.edu.cn/en/science-engineering/Events/Event.aspx?id=fa9c201b-dd32-4484-9356-6930bad603c7&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-Events/Engineering/ICDSEC-new.xb26bf4ad.jpg",
-   "source": "fse-events"
+   "source": "fse-events",
+   "lang": "en"
   }
  ],
  "news": [
+  {
+   "id": "netease-unnc-1c0ry84",
+   "kind": "news",
+   "title": "下一种可能，由你开启 ｜ 宁波诺丁汉大学举行2026届冬季毕业典礼",
+   "date": "2026-11-14",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LBNDPUNJ05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-17k1daw",
+   "kind": "news",
+   "title": "名企携岗进校园！宁诺硕士专场释放3600余个岗位",
+   "date": "2026-11-13",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LBL39FLI05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-2a1cqx",
+   "kind": "news",
+   "title": "市委副书记、市长沈铭权调研宁波诺丁汉大学",
+   "date": "2026-11-10",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LBD3HT6K05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
   {
    "id": "2679487e-57ff-4b8d-b19b-3634c32f2245",
    "kind": "news",
@@ -34,7 +69,20 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=2679487e-57ff-4b8d-b19b-3634c32f2245&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/INTERCITY-HACK-Hangzhou–Ningbo–Wenzhou-Hackathon3.x76d394ef.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en",
+   "titleZh": "宁诺学子获杭甬温三城黑客松AI+硬件赛道一等奖，一盏台灯实现5种智能交互"
+  },
+  {
+   "id": "netease-unnc-1cozdpv",
+   "kind": "news",
+   "title": "宁诺这堂 \"赚到真钱\" 的课，让学生跑出创新创业“加速度”",
+   "date": "2026-11-04",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LATLR1QK05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "ea78379c-8013-4e35-9249-bd554594c752",
@@ -44,7 +92,20 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=ea78379c-8013-4e35-9249-bd554594c752&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/IHCI-2026.x212a75e3.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en",
+   "titleZh": "宁诺举办第十八届智能人机交互国际会议，200余位全球学者共探“人本智能”"
+  },
+  {
+   "id": "netease-unnc-1pfeonz",
+   "kind": "news",
+   "title": "一根麦秆也能助力飞机“加油”？ 宁诺学子研究登上权威期刊",
+   "date": "2026-11-03",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LAR534MR05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "f75343bb-8c1a-4bb2-8e52-5796e0b4e078",
@@ -54,7 +115,20 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=f75343bb-8c1a-4bb2-8e52-5796e0b4e078&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261030British-Council-sign-strategic-partnership/UNNC-signs-strategic-partnership-with-British-Council-image1.xec8209d4.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "重量级合作+1！中国首个雅思官方教师培训体系高阶版将落地宁诺"
+  },
+  {
+   "id": "netease-unnc-43o4gz",
+   "kind": "news",
+   "title": "重量级合作+1！中国首个雅思官方教师培训体系高阶版将落地宁诺",
+   "date": "2026-10-30",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LAH41G9L05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "55422558-cf48-4aeb-ac2c-be44507c567e",
@@ -64,7 +138,9 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=55422558-cf48-4aeb-ac2c-be44507c567e&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/261027Zhejiang-Initiative-launched-at-UNNC/Zhejiang-Initiative-launched-at-UNNC-image4.x2326eb79.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "《浙江倡议》重磅发布！宁诺深度参与，加速联合国可持续发展目标落地"
   },
   {
    "id": "b978e42e-f59e-4543-9ef2-1c7bc565d543",
@@ -74,7 +150,31 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=b978e42e-f59e-4543-9ef2-1c7bc565d543&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/Qushan-Island-Exploration.xee1cb361.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en",
+   "titleZh": "Design Studio 3A 学生通过实地考察探索衢山岛的未来"
+  },
+  {
+   "id": "netease-unnc-15y1rim",
+   "kind": "news",
+   "title": "《浙江倡议》重磅发布！宁诺深度参与，加速联合国可持续发展目标落地",
+   "date": "2026-10-27",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LA8K4I1C05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-3effd4",
+   "kind": "news",
+   "title": "废料爆改！宁诺本科生参与企业研发项目，作品获金奖",
+   "date": "2026-10-23",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L9UTVMCI05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "31fcc94e-d81a-4ea0-9b0d-bdee708283d2",
@@ -84,7 +184,20 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=31fcc94e-d81a-4ea0-9b0d-bdee708283d2&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261022-The-Worlds-Top-2-Scientists/The-World's-Top-2-Scientists.jpg.xd1f2ba58.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "近百人次上榜！“全球前2%顶尖科学家”榜单发布，宁诺人数创新高"
+  },
+  {
+   "id": "netease-unnc-1ped0f6",
+   "kind": "news",
+   "title": "近百人次上榜！“全球前2%顶尖科学家”榜单发布，宁诺人数创新高",
+   "date": "2026-10-22",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L9RR3URT05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "c1a3b5aa-b8e0-4759-8065-4ffaf5fe0661",
@@ -94,7 +207,9 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=c1a3b5aa-b8e0-4759-8065-4ffaf5fe0661&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/mathematical-modeling3.xb667baa8.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en",
+   "titleZh": "省赛捷报！宁诺理工34支队伍在数学建模竞赛中斩获佳绩，背后有这支“导师团”"
   },
   {
    "id": "0481087b-0d7a-437c-8e60-3291d618b5c2",
@@ -104,7 +219,8 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=0481087b-0d7a-437c-8e60-3291d618b5c2&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/New-Ningbo-Olympic-Sports-Centre-Construction-Site-Visiting2.x0be2157b.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en"
   },
   {
    "id": "ddc78870-8ebc-4977-8a63-0f6404aac248",
@@ -114,7 +230,31 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=ddc78870-8ebc-4977-8a63-0f6404aac248&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/ICoEV2.x9a86269d.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en",
+   "titleZh": "院士领衔、全球学者云集：这场工程振动国际大会首次来华，为何选择宁诺？"
+  },
+  {
+   "id": "netease-unnc-1jd6i98",
+   "kind": "news",
+   "title": "这场国际大会首次来华，云集300多位专家及院士，就在宁诺",
+   "date": "2026-10-20",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L9MVGQ9F05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-4s03we",
+   "kind": "news",
+   "title": "北大、上交、新国立等名校都来宁诺了！百余位院校代表面对面聊“双轨升学”",
+   "date": "2026-10-19",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L9KK2UQ005369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "aa8d098e-a123-4c1e-9722-6a9ed6022b34",
@@ -124,7 +264,9 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=aa8d098e-a123-4c1e-9722-6a9ed6022b34&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261018Engineering-Vibration-Conference/International-Engineering-Vibration-Conference-image1.x29b5e5df.png",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "这场国际大会首次来华，云集300多位专家及院士，就在宁诺"
   },
   {
    "id": "5e753266-65fd-481f-9eb3-79edeb2c9a2c",
@@ -134,7 +276,9 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=5e753266-65fd-481f-9eb3-79edeb2c9a2c&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261017Further-Study-Fair/Further-Study-Fair-image1.xe790ba0b.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "北大、上交、新国立等名校都来宁诺了！百余位院校代表面对面聊“双轨升学”"
   },
   {
    "id": "93035dce-4424-4177-ae5d-14c0ca8d4980",
@@ -144,7 +288,19 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=93035dce-4424-4177-ae5d-14c0ca8d4980&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Confucius-Institute/20261018-10th-anniversary/10.x55b0a595.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en"
+  },
+  {
+   "id": "netease-unnc-15bdai5",
+   "kind": "news",
+   "title": "十年了，它是中国境内唯一的一所，就在宁诺！",
+   "date": "2026-10-16",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L9CUG5SD05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "e81b45b0-0284-45a6-a010-fc9d6b219edf",
@@ -154,7 +310,20 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=e81b45b0-0284-45a6-a010-fc9d6b219edf&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20251018-Red-Dot-Awards/Red-Dot-Awards-image1.x69160611.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "颠覆宝石镶嵌，宁诺珠宝设计获国际大奖！"
+  },
+  {
+   "id": "netease-unnc-18lm1vv",
+   "kind": "news",
+   "title": "颠覆宝石镶嵌，宁诺珠宝设计获国际大奖！",
+   "date": "2026-10-15",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L9A74QNP05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "61d38bd6-130b-4763-80bd-e3619bb7e944",
@@ -164,7 +333,20 @@
    "organiser": "UNNC Faculty news",
    "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=61d38bd6-130b-4763-80bd-e3619bb7e944&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/FoSE-Liberal-Arts-Workshop-Guqin-Concert1.x272594f8.jpg",
-   "source": "campus-news"
+   "source": "campus-news",
+   "lang": "en"
+  },
+  {
+   "id": "941bca55-459b-4c11-82bf-3b9547c02fdd",
+   "kind": "news",
+   "title": "UNNC PhD students win awards for sensor research",
+   "date": "2026-10-13",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=941bca55-459b-4c11-82bf-3b9547c02fdd&language=en-GB",
+   "image": "",
+   "source": "fse-news",
+   "lang": "en",
+   "titleZh": "聚焦生物交叉研究，宁诺理工博士生在宁波研究生学术节中脱颖而出"
   },
   {
    "id": "ef1998d3-2640-42b5-85c9-16d7701d78a9",
@@ -174,7 +356,20 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=ef1998d3-2640-42b5-85c9-16d7701d78a9&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261012MICCAI/MICCAI-2026-image1.xf9aacbc4.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "中国首个全球冠军！宁诺方案教AI“看懂”手术，推动医疗机器人发展"
+  },
+  {
+   "id": "netease-unnc-1ax6niq",
+   "kind": "news",
+   "title": "中国首个全球冠军！宁诺方案教AI“看懂”手术，推动医疗机器人发展",
+   "date": "2026-10-12",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L92DRLGG05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "1f361414-e56f-45a8-a8c8-a304c6735cd8",
@@ -184,7 +379,87 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=1f361414-e56f-45a8-a8c8-a304c6735cd8&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261010International-Youth-River-Exchange/International-Youth-River-Exchange-2026-image4.xc1007f0c.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "借鉴中国千年治水智慧，宁诺外籍博士生为城市降温寻解！斩获2026年度河流大使"
+  },
+  {
+   "id": "netease-unnc-1t0gav2",
+   "kind": "news",
+   "title": "借鉴中国千年治水智慧，宁诺外籍博士生为城市降温寻解！斩获2026年度河流大使",
+   "date": "2026-10-10",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L8T3QFTA05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-1dil60l",
+   "kind": "news",
+   "title": "硕士招生 | 宁波诺丁汉大学2027年硕士研究生申请开放",
+   "date": "2026-10-09",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L8QN188205369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "3fc0c26c-9d10-4404-8d45-a5990a7824a0",
+   "kind": "news",
+   "title": "UNNC undergraduates win national Third Prize in the National Chemical Engineering Design Competition",
+   "date": "2026-10-08",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=3fc0c26c-9d10-4404-8d45-a5990a7824a0&language=en-GB",
+   "image": "",
+   "source": "fse-news",
+   "lang": "en",
+   "titleZh": "国赛三等奖！宁诺理工学院本科生团队在全国大学生化工设计竞赛中斩获佳绩"
+  },
+  {
+   "id": "netease-unnc-1yhzzax",
+   "kind": "news",
+   "title": "升学展倒计时！芝大、新国立、北大、复旦、曼大…100+世界名校招生官来宁诺了",
+   "date": "2026-10-08",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L8O9V3GL05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-bhf4ec",
+   "kind": "news",
+   "title": "摘银！宁诺新生在这场国内规模最大国家级赛事中再创佳绩",
+   "date": "2026-10-07",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L8LHT25D05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-1i4uvfa",
+   "kind": "news",
+   "title": "因为一只校宠鹅，他走出高三低谷，成功圆梦宁诺",
+   "date": "2026-09-24",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L7K3FQ3405369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-13em25u",
+   "kind": "news",
+   "title": "宁波市高校技术转移中心暨宁波诺丁汉大学国际科技园启用",
+   "date": "2026-09-23",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L7HEUJS505369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "58865e6f-5267-486b-846a-14380b476dde",
@@ -194,7 +469,20 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=58865e6f-5267-486b-846a-14380b476dde&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260921global-pitch/Global-Pitch-image1.xdfb5b7f2.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "宁波市高校技术转移中心暨宁波诺丁汉大学国际科技园启用"
+  },
+  {
+   "id": "netease-unnc-1336cqe",
+   "kind": "news",
+   "title": "2026级本科新生数据大揭秘 | 来自46个国家及地区、浓人竟有7成！",
+   "date": "2026-09-22",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L7F88EVI05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "71e7c925-74ec-410f-b1b3-a7d0d3adc26f",
@@ -204,7 +492,42 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=71e7c925-74ec-410f-b1b3-a7d0d3adc26f&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260921Speech-at-New-Student-Welcome-Ceremony/Speech-at-the-2026-New-Student-Welcome-Ceremony.x38e2bf9c.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "“舒适区就是天花板” “别把本质问题外包给机器” | 宁诺执行校长新生开学典礼致辞"
+  },
+  {
+   "id": "netease-unnc-1jyy1sc",
+   "kind": "news",
+   "title": "“舒适区就是天花板” “别把本质问题外包给机器” | 宁诺执行校长新生开学典礼致辞",
+   "date": "2026-09-21",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L7CFVIUM05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-1h4x56i",
+   "kind": "news",
+   "title": "上新了，宁诺！你不在，校园有这了这些新变化",
+   "date": "2026-09-18",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L74OJEDH05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "netease-unnc-1jezile",
+   "kind": "news",
+   "title": "NOTTINGHAM地标要更新了，只缺你的照片和故事",
+   "date": "2026-09-17",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L7244ASF05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "761b07a1-7679-4a46-bf22-9672714f0eeb",
@@ -214,7 +537,20 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=761b07a1-7679-4a46-bf22-9672714f0eeb&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260916AI-technology-to-reduce-radiation-in-PET/AI-technology-to-reduce-radiation-in-PET-scans-image4.x8a5857ae.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "告别CT辐射！AI“光影神探”上岗，宁诺团队研发新型医学影像技术"
+  },
+  {
+   "id": "netease-unnc-gv6vae",
+   "kind": "news",
+   "title": "告别CT辐射！AI“光影神探”上岗，宁诺团队研发新型医学影像技术",
+   "date": "2026-09-16",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/L6VI1EFF05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
   },
   {
    "id": "edca1104-9841-453f-b1e1-5137f726cbc2",
@@ -224,7 +560,135 @@
    "organiser": "UNNC News",
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=edca1104-9841-453f-b1e1-5137f726cbc2&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260910-rural-classrooms/Rural-classrooms-image1.x252c8bf5.jpg",
-   "source": "news"
+   "source": "news",
+   "lang": "en",
+   "titleZh": "近十年、800+乡村教师、520所学校｜宁诺让优质英语教育资源“下乡”"
+  },
+  {
+   "id": "ae5b433c-e1e0-4aaf-8c65-d570bef47359",
+   "kind": "news",
+   "title": "UNNC and Preh Joyson Establish the Joint Intelligent Automotive Technology Excellence Talent Internship and Training Base",
+   "date": "2026-07-09",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=ae5b433c-e1e0-4aaf-8c65-d570bef47359&language=en-GB",
+   "image": "",
+   "source": "fse-news",
+   "lang": "en",
+   "titleZh": "产研携手赋能汽车产业，普瑞均胜与宁诺共建汽车智能技术卓越人才实习实训基地"
+  },
+  {
+   "id": "edaaefc7-5ff9-4ccf-9762-f5ed84251599",
+   "kind": "news",
+   "title": "2026 Summer School in Mathematical Economics & Financial Econometrics Concludes Successfully",
+   "date": "2026-07-08",
+   "organiser": "Faculty of Humanities and Social Sciences",
+   "url": "https://www.nottingham.edu.cn/en/Humanities-and-Social-Sciences/News/Article.aspx?id=edaaefc7-5ff9-4ccf-9762-f5ed84251599&language=en-GB",
+   "image": "",
+   "source": "fhss-news",
+   "lang": "en"
+  },
+  {
+   "id": "7b1346db-291b-4c58-ac3d-97e1970be28e",
+   "kind": "news",
+   "title": "UNNC Partners with Minth Group: Launching Dual Industry-Education Integration and Master's Internship Programmes",
+   "date": "2026-07-07",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=7b1346db-291b-4c58-ac3d-97e1970be28e&language=en-GB",
+   "image": "",
+   "source": "fse-news",
+   "lang": "en",
+   "titleZh": "全球汽车外饰龙头敏实集团与宁诺签约，产教融合与硕士实习项目双落地"
+  },
+  {
+   "id": "2fc22913-c41e-4d5a-9415-4247ce977815",
+   "kind": "news",
+   "title": "UNNC Hosts Research Conference on Thermal Management for High-Power Electronics",
+   "date": "2026-07-02",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=2fc22913-c41e-4d5a-9415-4247ce977815&language=en-GB",
+   "image": "",
+   "source": "fse-news",
+   "lang": "en",
+   "titleZh": "聚焦高功率电子器件热管理前沿，宁波诺丁汉大学成功举办专题研究会议"
+  },
+  {
+   "id": "fe8426af-d823-4896-9b60-83afc21f8d8c",
+   "kind": "news",
+   "title": "Bridging Tech and Tradition: CPE-POWERENG26 Wraps Up with a Cultural Splendor at UNNC",
+   "date": "2026-07-02",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=fe8426af-d823-4896-9b60-83afc21f8d8c&language=en-GB",
+   "image": "",
+   "source": "fse-news",
+   "lang": "en",
+   "titleZh": "科技与传统交融：CPE-POWERENG26在宁波诺丁汉大学圆满落幕，尽显文化魅力"
+  },
+  {
+   "id": "051c6cf5-721f-47b2-ac3b-2fea52966515",
+   "kind": "news",
+   "title": "A Two-Way Commitment: UNNC FoSE and Joyson Electronics Exchange Visits on the Same Day, Strengthening Industry-Academia Collaboration",
+   "date": "2026-07-01",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=051c6cf5-721f-47b2-ac3b-2fea52966515&language=en-GB",
+   "image": "",
+   "source": "fse-news",
+   "lang": "en",
+   "titleZh": "双向奔赴！全球汽车电子龙头均胜电子与宁诺理工学院同日互访，共筑产教融合新标杆"
+  },
+  {
+   "id": "045aa806-6f09-45a9-bf18-3830a16ffff7",
+   "kind": "news",
+   "title": "School of Economics Hosts International Conference on Behaviour, Experiments and Health",
+   "date": "2026-06-29",
+   "organiser": "Faculty of Humanities and Social Sciences",
+   "url": "https://www.nottingham.edu.cn/en/Humanities-and-Social-Sciences/News/Article.aspx?id=045aa806-6f09-45a9-bf18-3830a16ffff7&language=en-GB",
+   "image": "",
+   "source": "fhss-news",
+   "lang": "en"
+  },
+  {
+   "id": "2e4d5939-1dd3-4247-b60a-4c907d713217",
+   "kind": "news",
+   "title": "第八届理工学院硕博研究生科研汇展顺利举办 首次增设科研模型展示环节",
+   "date": "2026-06-22",
+   "organiser": "理工学院",
+   "url": "https://www.nottingham.edu.cn/cn/science-engineering/news/article.aspx?id=2e4d5939-1dd3-4247-b60a-4c907d713217&language=zh",
+   "image": "",
+   "source": "cn-fse-news",
+   "lang": "zh"
+  },
+  {
+   "id": "4ceea146-1e96-4461-9615-7917423eb80b",
+   "kind": "news",
+   "title": "CeDEx China hosts Workshop on Discrete Mathematics, Game Theory and Optimisation",
+   "date": "2026-06-19",
+   "organiser": "Faculty of Humanities and Social Sciences",
+   "url": "https://www.nottingham.edu.cn/en/Humanities-and-Social-Sciences/News/Article.aspx?id=4ceea146-1e96-4461-9615-7917423eb80b&language=en-GB",
+   "image": "",
+   "source": "fhss-news",
+   "lang": "en"
+  },
+  {
+   "id": "7a2fbca2-5b6d-4c3d-9c41-efd282680a5f",
+   "kind": "news",
+   "title": "Leading Economists Gather at UNNC to Explore Common Prosperity and New Quality Productive Forces at CAER Inaugural Conference",
+   "date": "2026-05-18",
+   "organiser": "Faculty of Humanities and Social Sciences",
+   "url": "https://www.nottingham.edu.cn/en/Humanities-and-Social-Sciences/News/Article.aspx?id=7a2fbca2-5b6d-4c3d-9c41-efd282680a5f&language=en-GB",
+   "image": "",
+   "source": "fhss-news",
+   "lang": "en"
+  },
+  {
+   "id": "0057a920-5349-45d5-9143-e9c8ae08fa77",
+   "kind": "news",
+   "title": "Colombian Ambassador and Acclaimed Director Sergio Cabrera Inspires Dialogue at UNNC",
+   "date": "2026-04-13",
+   "organiser": "Faculty of Humanities and Social Sciences",
+   "url": "https://www.nottingham.edu.cn/en/Humanities-and-Social-Sciences/News/Article.aspx?id=0057a920-5349-45d5-9143-e9c8ae08fa77&language=en-GB",
+   "image": "",
+   "source": "fhss-news",
+   "lang": "en"
   }
  ],
  "dates": [
@@ -238,7 +702,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2026-12-25-christmas-boxing-day",
@@ -250,7 +715,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-01-01-new-year-s-day",
@@ -262,7 +728,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-01-04-autumn-semester",
@@ -274,7 +741,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-02-05-chinese-lunar-new-year",
@@ -286,7 +754,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-02-15-spring-semester",
@@ -298,7 +767,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-02-15-returning-students-spring-semester",
@@ -310,7 +780,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-02-15-pgr-students-1",
@@ -322,7 +793,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-04-05-qing-ming",
@@ -334,7 +806,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-05-01-labor-day",
@@ -346,7 +819,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-05-10-spring-semester",
@@ -358,7 +832,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-06-09-dragon-boat-festival",
@@ -370,7 +845,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-07-10-ug",
@@ -382,7 +858,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-08-16-year-1-students",
@@ -394,7 +871,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   },
   {
    "id": "kd-2027-08-16-year-2-3-4-master",
@@ -406,7 +884,8 @@
    "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
    "image": "",
    "source": "key-dates",
-   "topic": "academic"
+   "topic": "academic",
+   "lang": "en"
   }
  ],
  "feeds": [
