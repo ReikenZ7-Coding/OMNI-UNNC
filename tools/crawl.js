@@ -20,7 +20,9 @@ const SOURCES = [
   { id: "uni-events-1", type: "uniEvents", organiser: "UNNC", url: BASE + "/en/events/event-listing.aspx" },
   { id: "uni-events-2", type: "uniEvents", organiser: "UNNC", url: BASE + "/en/events/event-listing.aspx?EVTPageIndex=2" },
   { id: "fse-events", type: "facultyEvents", organiser: "Faculty of Science and Engineering", url: BASE + "/en/science-engineering/events/listing.aspx" },
-  { id: "news", type: "news", organiser: "UNNC News", url: BASE + "/en/press-release/news-listing.aspx" }
+  { id: "news", type: "news", organiser: "UNNC News", url: BASE + "/en/press-release/news-listing.aspx" },
+  { id: "campus-news", type: "news", pattern: "Article\\.aspx", organiser: "UNNC Faculty news", url: BASE + "/en/university-life/news/index.aspx" },
+  { id: "key-dates", type: "keyDates", organiser: "UNNC Key Dates", url: BASE + "/en/about/key-dates/key-dates.aspx" }
 ];
 
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
@@ -107,7 +109,7 @@ function parseFacultyEvents(html, src) {
 }
 
 function parseNews(html, src) {
-  return parseTiles(html, "News-Article\\.aspx").map((t) => {
+  return parseTiles(html, src.pattern || "News-Article\\.aspx").map((t) => {
     const r = parseRange(t.desc);
     if (!r) return null;
     return { id: t.id, kind: "news", title: t.title, date: r.start.slice(0, 10), organiser: src.organiser, url: t.url, image: t.image ? abs(t.image) : "", source: src.id };
@@ -152,6 +154,72 @@ function readFeeds() {
   } catch (e) { return []; }
 }
 
+/*
+ * Key Dates page: semesters, registration, exams, graduation and holidays, written as
+ * "<p>Examination</p><ul><li>Autumn Semester: Monday 4 - Saturday 23 January 2027</li>...".
+ */
+const WEEKDAYS = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/gi;
+function parseDatePhrase(text, firstYear) {
+  // "Monday 4 - Saturday 23 January 2027" -> {start:"2027-01-04", end:"2027-01-23"}
+  const main = String(text).split(/,|\bas weekend\b/i)[0].replace(WEEKDAYS, " ");
+  const toks = [];
+  const re = /(\d{1,2})(?:\s+([A-Za-z]{3,9}))?(?:\s+(\d{4}))?/g;
+  let m;
+  while ((m = re.exec(main))) {
+    const mon = m[2] && MONTHS[m[2].slice(0, 3).toLowerCase()];
+    if (m[2] && !mon) continue;
+    toks.push({ d: +m[1], m: mon || 0, y: m[3] ? +m[3] : 0 });
+  }
+  if (!toks.length) return null;
+  for (let i = toks.length - 2; i >= 0; i--) { if (!toks[i].m) toks[i].m = toks[i + 1].m; if (!toks[i].y && toks[i].m === toks[i + 1].m) toks[i].y = toks[i + 1].y; }
+  for (const t of toks) { if (!t.m) return null; if (!t.y) t.y = t.m >= 8 ? firstYear : firstYear + 1; }
+  const a = toks[0], b = toks[toks.length - 1];
+  if (a.y > b.y || (a.y === b.y && (a.m > b.m || (a.m === b.m && a.d > b.d)))) a.y = b.y - (a.m > b.m ? 1 : 0);
+  return { start: ymd(a.y, a.m, a.d), end: ymd(b.y, b.m, b.d) };
+}
+const KEY_SECTIONS = { semesters: "", registration: "Registration", examination: "Exams", "graduation ceremonies": "Graduation", holidays: "Holiday" };
+function parseKeyDates(html, src) {
+  const out = [];
+  html.split(/accordion__panel__title">/).slice(1).forEach((panel) => {
+    const yr = /Academic Year\s+(\d{4})/i.exec(panel);
+    if (!yr) return;
+    const firstYear = +yr[1];
+    let section = "", buf = null;
+    const prefixes = [];
+    const tags = /<(\/?)(p|ul|li)\b[^>]*>|([^<]+)/gi;
+    let t, inP = false, pText = "";
+    while ((t = tags.exec(panel))) {
+      if (t[3] != null) { if (inP) pText += t[3]; else if (buf != null) buf += t[3]; continue; }
+      const close = t[1] === "/", name = t[2].toLowerCase();
+      if (name === "p") { if (!close) { inP = true; pText = ""; } else { inP = false; const s = decode(pText).toLowerCase(); if (s in KEY_SECTIONS) section = s; } }
+      else if (name === "li" && !close) buf = "";
+      else if (name === "ul" && !close && buf != null) { prefixes.push(decode(buf).replace(/:\s*$/, "")); buf = null; }
+      else if (name === "ul" && close && buf == null && prefixes.length) { /* end of a nested list */ }
+      else if (name === "li" && close) {
+        if (buf != null) {
+          const txt = decode(buf);
+          const i = txt.indexOf(":");
+          if (i > 0) {
+            const label = txt.slice(0, i).trim();
+            txt.slice(i + 1).split(";").forEach((part, n) => {
+              const r = parseDatePhrase(part, firstYear);
+              if (!r) return;
+              const head = [KEY_SECTIONS[section], ...prefixes].filter(Boolean).join(" · ");
+              out.push({
+                id: "kd-" + r.start + "-" + slug(label) + (n ? "-" + n : ""), title: (head ? head + " · " : "") + label,
+                start: r.start + "T00:00", end: r.end + "T23:59", location: "UNNC", organiser: src.organiser, url: src.url, image: "", source: src.id,
+                topic: "academic"
+              });
+            });
+          }
+        } else if (prefixes.length) prefixes.pop();
+        buf = null;
+      }
+    }
+  });
+  return out;
+}
+
 async function getPage(url) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 25000);
@@ -169,19 +237,20 @@ function readPrevious() {
 async function main() {
   const prev = readPrevious();
   const today = new Date().toISOString().slice(0, 10);
-  let events = [], news = [];
+  let events = [], news = [], dates = [];
   const report = {};
   for (const src of SOURCES) {
     try {
       const html = await getPage(src.url);
-      const items = src.type === "uniEvents" ? parseUniEvents(html, src) : src.type === "facultyEvents" ? parseFacultyEvents(html, src) : parseNews(html, src);
+      const items = src.type === "uniEvents" ? parseUniEvents(html, src) : src.type === "facultyEvents" ? parseFacultyEvents(html, src)
+        : src.type === "keyDates" ? parseKeyDates(html, src) : parseNews(html, src);
       report[src.id] = { ok: true, items: items.length };
-      (src.type === "news" ? news : events).push(...items);
+      (src.type === "news" ? news : src.type === "keyDates" ? dates : events).push(...items);
     } catch (e) {
       // Keep what we had from this source last time, so one bad page doesn't empty the app.
       report[src.id] = { ok: false, error: String(e.message || e) };
       const keep = (list) => (list || []).filter((x) => x.source === src.id);
-      if (src.type === "news") news.push(...keep(prev.news)); else events.push(...keep(prev.events));
+      if (src.type === "news") news.push(...keep(prev.news)); else if (src.type === "keyDates") dates.push(...keep(prev.dates)); else events.push(...keep(prev.events));
     }
     await new Promise((r) => setTimeout(r, 1500)); // a pause between pages
   }
@@ -203,13 +272,14 @@ async function main() {
   const seen = new Set();
   const dedupe = (x) => (seen.has(x.id) ? false : (seen.add(x.id), true));
   events = events.filter(dedupe).filter((e) => e.end.slice(0, 10) >= today).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 40);
-  news = news.filter(dedupe).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 15);
+  news = news.filter(dedupe).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+  dates = dates.filter(dedupe).filter((e) => e.end.slice(0, 10) >= today).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 30);
   feeds = feeds.filter(dedupe).filter((f) => f.date >= oldest).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60);
 
-  const changed = JSON.stringify({ events, news, feeds }) !== JSON.stringify({ events: prev.events, news: prev.news, feeds: prev.feeds || [] });
-  const out = { updatedAt: changed || !prev.updatedAt ? new Date().toISOString() : prev.updatedAt, from: BASE, events, news, feeds };
+  const changed = JSON.stringify({ events, news, feeds, dates }) !== JSON.stringify({ events: prev.events, news: prev.news, feeds: prev.feeds || [], dates: prev.dates || [] });
+  const out = { updatedAt: changed || !prev.updatedAt ? new Date().toISOString() : prev.updatedAt, from: BASE, events, news, dates, feeds };
   console.log(JSON.stringify(report, null, 1));
-  console.log(events.length + " upcoming events, " + news.length + " news items, " + feeds.length + " feed items" + (changed ? " (changed)" : " (no change)"));
+  console.log(events.length + " upcoming events, " + news.length + " news items, " + dates.length + " key dates, " + feeds.length + " feed items" + (changed ? " (changed)" : " (no change)"));
   if (changed || !fs.existsSync(OUT)) {
     fs.mkdirSync(path.dirname(OUT), { recursive: true });
     fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + "\n");
@@ -245,4 +315,4 @@ if (require.main === module) {
   else if (j > -1) probe(process.argv[j + 1]).catch((e) => { console.log(String(e)); process.exitCode = 1; });
   else main();
 }
-module.exports = { parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed };
+module.exports = { parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed, parseKeyDates, parseDatePhrase };

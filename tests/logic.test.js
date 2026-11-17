@@ -225,3 +225,34 @@ test("reads RSS and Atom feeds as headlines with links, never full articles", ()
   assert.equal(p.body, "");
   assert.equal(p.posted, -1);
 });
+
+test("reads UNNC Key Dates (semesters, exams, holidays) into all-day events", () => {
+  const C = require("../tools/crawl.js");
+  assert.deepEqual(C.parseDatePhrase("Monday 4 - Saturday 23 January 2027", 2026), { start: "2027-01-04", end: "2027-01-23" });
+  assert.deepEqual(C.parseDatePhrase("Monday 15 February - Friday 4 June 2027", 2026), { start: "2027-02-15", end: "2027-06-04" });
+  assert.deepEqual(C.parseDatePhrase("Monday 21 September 2026 - Saturday 23 January 2027", 2026), { start: "2026-09-21", end: "2027-01-23" });
+  assert.deepEqual(C.parseDatePhrase("Thursday 1 October to Saturday 3 October 2026", 2026), { start: "2026-10-01", end: "2026-10-03" });
+  assert.deepEqual(C.parseDatePhrase("Sunday 5 April 2026, Monday 6 April as Weekend Compensation", 2025), { start: "2026-04-05", end: "2026-04-05" });
+  const html = '<div class="accordion__panel__title"> Key Dates of Academic Year 2026/27 </div> <article><div class="rte"> <p>Semesters</p> <ul> <li>Autumn Semester: Monday 21 September 2026 - Saturday 23 January 2027</li> </ul> <p>Registration</p> <ul> <li>PGR Students: Saturday 19 September 2026; Monday 15 February 2027</li> </ul> <p>Examination</p> <ul> <ul> <li>Autumn Semester: Monday 4 - Saturday 23 January 2027</li> <li>Late summer resits: <ul> <li>Year 1 Students:&nbsp;Monday 16 - Saturday 21 August 2027</li> </ul> </li> </ul> </ul> <p>Holidays</p> <ul> <li>Christmas &amp; Boxing Day: Friday 25 December and Saturday 26 December 2026</li> </ul></div></article>';
+  const items = C.parseKeyDates(html, { id: "key-dates", organiser: "UNNC Key Dates", url: "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx" });
+  const t = items.map((i) => i.title + " " + i.start.slice(0, 10) + ".." + i.end.slice(0, 10));
+  assert.deepEqual(t, [
+    "Autumn Semester 2026-09-21..2027-01-23",
+    "Registration · PGR Students 2026-09-19..2026-09-19",
+    "Registration · PGR Students 2027-02-15..2027-02-15",
+    "Exams · Autumn Semester 2027-01-04..2027-01-23",
+    "Exams · Late summer resits · Year 1 Students 2027-08-16..2027-08-21",
+    "Holiday · Christmas & Boxing Day 2026-12-25..2026-12-26"
+  ]);
+});
+
+test("key dates show as events, but long ones already under way are skipped", () => {
+  const now = new Date(2026, 10, 17, 9, 0);
+  const out = L.fromWebsite({ dates: [
+    { id: "kd-a", title: "Autumn Semester", start: "2026-09-21T00:00", end: "2027-01-23T23:59", organiser: "UNNC Key Dates", url: "https://www.nottingham.edu.cn/x", topic: "academic" },
+    { id: "kd-b", title: "Exams · Autumn Semester", start: "2027-01-04T00:00", end: "2027-01-23T23:59", organiser: "UNNC Key Dates", url: "https://www.nottingham.edu.cn/x", topic: "academic" }
+  ] }, now);
+  assert.deepEqual(out.events.map((e) => e.title), ["Exams · Autumn Semester"]);
+  assert.equal(out.events[0].category, "academic");
+  assert.ok(out.events[0].external);
+});

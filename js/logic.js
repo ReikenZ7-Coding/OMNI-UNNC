@@ -239,14 +239,17 @@
   function fromWebsite(live, now) {
     var out = { events: [], posts: [] };
     if (!live) return out;
-    (live.events || []).forEach(function (e) {
+    // Key dates (semesters, exams, holidays) are events too; skip long ones already well under way.
+    var keyDates = (live.dates || []).filter(function (e) { var d = e && e.start ? dayOffset(e.start, now) : null; return d != null && d >= -7; })
+      .map(function (e) { return Object.assign({ summary: "An official date from UNNC's Key Dates page. Check the page for any changes." }, e); });
+    (live.events || []).concat(keyDates).forEach(function (e) {
       if (!e || !e.id || !e.title || !e.start) return;
       var day = dayOffset(e.start, now);
       if (day == null) return;
       var endDay = e.end ? dayOffset(e.end, now) : day;
       var st = /T(\d\d:\d\d)/.exec(e.start), en = /T(\d\d:\d\d)/.exec(e.end || "");
       out.events.push({
-        id: "web-" + e.id, title: String(e.title).slice(0, 160), category: guessTopic(e.title + " " + (e.summary || "")),
+        id: "web-" + e.id, title: String(e.title).slice(0, 160), category: TOPIC_IDS.indexOf(e.topic) >= 0 ? e.topic : guessTopic(e.title + " " + (e.summary || "")),
         organiser: e.organiser || "UNNC", source: "web", day: day, endDay: endDay == null ? day : endDay,
         start: st ? st[1] : "00:00", end: en ? en[1] : "23:59", location: e.location || "See event page",
         capacity: 0, taken: 0, tags: [], description: e.summary || "", zh: e.summaryZh || "", url: e.url,
