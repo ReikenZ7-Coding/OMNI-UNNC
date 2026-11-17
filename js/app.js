@@ -351,18 +351,6 @@
   function screenHome() {
     var slides = featuredSlides();
     var dots = slides.map(function (_, i) { return '<button class="dot" data-slide="' + i + '" aria-label="Slide ' + (i + 1) + '"' + (i === 0 ? ' aria-current="true"' : "") + "></button>"; }).join("");
-    var pinned = state.pins.map(toolById).filter(Boolean);
-    var quick;
-    if (ui.editPins) {
-      quick = '<div class="quick-grid">' + D.tools.map(function (t) {
-        var on = state.pins.indexOf(t.id) !== -1;
-        return '<button class="quick' + (on ? " on" : " off") + '" data-pin="' + t.id + '" aria-pressed="' + on + '"><span class="tile t-' + t.tint + '">' + I(t.icon) + '<i class="pin-mark">' + I(on ? "check" : "plus") + "</i></span><span>" + esc(t.name) + "</span></button>";
-      }).join("") + "</div>";
-    } else {
-      quick = '<div class="quick-grid">' + pinned.map(function (t) {
-        return '<a class="quick" href="#' + toolHref(t) + '"><span class="tile t-' + t.tint + '">' + I(t.icon) + "</span><span>" + esc(t.name) + "</span></a>";
-      }).join("") + "</div>";
-    }
     var mine = upcomingMine().slice(0, 2);
     var myEvents = mine.length ? '<div class="stack">' + mine.map(function (e) { return ticketHtml(e, state.registrations[e.id]); }).join("") + "</div>" :
       '<div class="empty">' + I("calendar") + "<p>No upcoming events yet</p><a class=\"btn soft small\" href=\"#discover\">Discover events</a></div>";
@@ -376,9 +364,6 @@
       '<p class="hello">Hi ' + esc(firstName()) + ", here's what's on around campus.</p>" + liveStrip() +
       (slides.length ? '<section class="carousel-wrap" aria-label="Featured"><div class="carousel" id="carousel">' + slides.join("") + "</div>" +
         (slides.length > 1 ? '<div class="carousel-nav"><button class="nav-btn" data-step="-1" aria-label="Previous">' + I("back") + '</button><div class="dots">' + dots + '</div><button class="nav-btn" data-step="1" aria-label="Next">' + I("chevron") + "</button></div>" : "") + "</section>" : "") +
-      '<section class="stack">' + sectionHead("Quick access", '<button class="link-btn" data-act="edit-pins">' + (ui.editPins ? "Done" : "Edit") + "</button>") +
-        (ui.editPins ? '<p class="meta small">Tap a tool to add it to or remove it from your home screen.</p>' : "") +
-        '<div class="card-panel">' + quick + "</div></section>" +
       '<a class="post-cta" href="#new"><span class="tile t-jade">' + I("plus") + '</span><span class="row-text"><b>Running an event?</b><span>Post it once in OMNI and everyone sees it straight away.</span></span>' + I("chevron", "chev") + "</a>" +
       '<section class="stack">' + sectionHead("My events", '<a class="link-btn" href="#my-events">All tickets ' + I("chevron") + "</a>") + myEvents + "</section>" +
       '<section class="stack">' + sectionHead("Latest updates", '<button class="link-btn" data-act="all-updates">All updates ' + I("chevron") + "</button>") +
@@ -794,7 +779,6 @@
       '<div class="empty row-empty">' + I("calendar") + '<div class="stack tight"><b>Nothing scheduled</b><span class="meta">Register or add a reminder from any event</span></div><a class="btn soft small" href="#discover">Browse events</a></div>';
     var calCount = upcomingCal(7).length;
     var savedCount = Object.keys(state.saved).length;
-    var bookings = Object.keys(state.bookings).length;
     return pageHead("Me") +
       '<section class="profile card-panel"><div class="avatar">' + esc(initials(s.name)) + '</div><div class="stack tight" style="min-width:0"><h2>' + esc(s.name) + "</h2>" +
         '<span class="meta">' + esc(s.email ? L.maskEmail(s.email) : "ID " + L.maskId(s.id)) + ' · <span class="verified">' + I("checkCircle") + "Verified</span></span>" +
@@ -803,14 +787,12 @@
       '<div class="list-panel">' +
         rowLink("calendar", "calendar", "violet", "My calendar", state.calendar ? calCount + " classes and deadlines this week" : "Import Moodle deadlines and your timetable", state.calendar ? "" : '<span class="pill info">New</span>') +
         rowLink("saved", "bookmark", "blue", "Saved", savedCount ? savedCount + " saved" : "Events, notices and news you bookmark", "") +
-        rowLink("my-events", "ticket", "jade", "Tickets", Object.keys(state.registrations).length + " registrations", "") +
-        rowLink("help", "help", "violet", "Help requests", state.requests.length ? state.requests.length + " sent" : "Ask the right office", "") +
-        rowLink("tool-rooms", "door", "green", "Room bookings", bookings ? bookings + " today" : "Book a study room", "") +
+        rowLink("my-events", "ticket", "jade", "Tickets", Object.keys(state.registrations).filter(eventById).length + " registrations", "") +
         rowLink("prefs", "gear", "plain", "Settings", "Theme, language, reminders", "") +
       "</div>" +
       '<section class="about card-panel"><h2>About OMNI</h2>' +
         "<p>OMNI is a student project for BUSI1116. It tests one idea: students should find an event, register and get help in one place, logging in only once.</p>" +
-        "<p>Events, notices and news come only from real sources: UNNC's public website, official feeds, and posts people make in OMNI. Offices, food places and tool previews are still sample data for the prototype. This is not an official university service.</p></section>";
+        "<p>Events, notices and news come only from real sources: UNNC's public website, official feeds, and posts people make in OMNI. Help and Tools are coming in later phases. This is not an official university service.</p></section>";
   }
 
   function screenNew() {
@@ -1000,6 +982,31 @@
     reader.readAsText(file);
   }
 
+  // ---------- Coming soon (Help = Phase 2, Tools = Phase 3) ----------
+  var PHASES = [
+    ["Events, notices and news", "Live now"], ["Help", "Phase 2"], ["Tools", "Phase 3"], ["UNNC Forum", "Phase 4"], ["Chatbot", "Phase 5"]
+  ];
+  function screenSoon(which) {
+    var help = which === "help";
+    var phase = help ? 2 : 3;
+    var road = '<ol class="roadmap">' + PHASES.map(function (p, i) {
+      var state = i === 0 ? "done" : i + 1 === phase ? "here" : "";
+      return '<li class="' + state + '"><span class="road-dot">' + (i === 0 ? I("check") : i + 1) + '</span><span class="row-text"><b>' + esc(p[0]) + "</b><span>" + esc(i === 0 ? "Live now" : "Phase " + (i + 1)) + "</span></span></li>";
+    }).join("") + "</ol>";
+    return pageHead(help ? "Help" : "Tools") +
+      '<section class="card-panel stack soon">' +
+        '<span class="tile lg t-jade">' + I(help ? "help" : "tools") + "</span>" +
+        '<span class="eyebrow accent">Coming in Phase ' + phase + "</span>" +
+        "<h2>" + (help ? "Ask the right office, in plain words" : "Every campus system in one place") + "</h2>" +
+        "<p>" + (help ? "Type a problem the way you'd say it, like \"my dorm air conditioner is broken\" or \"签证\", and OMNI tells you which office handles it, then sends them your request without another login."
+          : "Moodle, email, room booking, printing and more, each opening already signed in with your OMNI account instead of a separate portal.") + "</p>" +
+        '<p class="meta">We\'re building this on real university information, so it isn\'t switched on yet.</p>' +
+      "</section>" +
+      (help ? "" : '<a class="post-cta" href="#calendar"><span class="tile t-jade">' + I("calendar") + '</span><span class="row-text"><b>Already here: My calendar</b><span>Import your Moodle deadlines and timetable today.</span></span>' + I("chevron", "chev") + "</a>") +
+      '<section class="stack">' + sectionHead("The OMNI roadmap") + '<div class="card-panel">' + road + "</div></section>" +
+      '<a class="btn soft block" href="#discover">' + I("discover") + "See what's on now</a>";
+  }
+
   function screenPrefs() {
     function seg(name, options, value) {
       return '<div class="segmented" role="group">' + options.map(function (o) {
@@ -1012,9 +1019,9 @@
       '<section class="card-panel stack"><span class="eyebrow">Remind me</span>' + seg("remind", [["15", "15 min before"], ["60", "1 hour before"], ["1440", "1 day before"]], state.prefs.remind) +
         '<label class="toggle"><input type="checkbox" id="notify"' + (state.prefs.notify ? " checked" : "") + "> Notifications for events I'm going to</label></section>" +
       '<section class="card-panel stack"><span class="eyebrow">Signed in once, used everywhere</span><ul class="sso-list">' +
-        '<li><span>Event registration</span><span class="pill ok">' + I("check") + "connected</span></li>" +
-        '<li><span>Help requests to offices</span><span class="pill ok">' + I("check") + "connected</span></li>" +
-        '<li><span>Room booking, printing</span><span class="pill ok">' + I("check") + "connected</span></li>" +
+        '<li><span>Event registration and posting</span><span class="pill ok">' + I("check") + "connected</span></li>" +
+        '<li><span>Help requests to offices</span><span class="pill plain">Phase 2</span></li>' +
+        '<li><span>Campus tools</span><span class="pill plain">Phase 3</span></li>' +
         '<li><span>Moodle deadlines, timetable</span><span class="pill ' + (state.calendar ? 'ok">' + I("check") + "imported" : 'plain">import a file') + "</span></li>" +
         '<li><span>Email, WeChat</span><span class="pill plain">paste to post</span></li></ul>' +
         '<p class="meta small">Sign-ins this session: ' + Math.max(1, state.logins) + "</p></section>" +
@@ -1054,12 +1061,9 @@
       case "discover": html = screenDiscover(); break;
       case "event": html = screenEvent(r.id); var ev = eventById(r.id); if (ev) bar = eventActionBar(ev); break;
       case "post": html = screenPost(r.id); var po = postById(r.id); if (po) bar = postActionBar(po); break;
-      case "help": html = screenHelp(); break;
-      case "office": html = screenOffice(r.id); break;
-      case "tools": html = screenTools(); break;
-      case "tool": html = screenTool(r.id); break;
-      case "food": html = screenFood(); break;
-      case "place": html = screenPlace(r.id); break;
+      // Help (Phase 2) and Tools (Phase 3) aren't built on real data yet.
+      case "help": case "office": html = screenSoon("help"); break;
+      case "tools": case "tool": case "food": case "place": html = screenSoon("tools"); break;
       case "me": html = screenMe(); break;
       case "my-events": html = screenMyEvents(); break;
       case "saved": html = screenSaved(); break;

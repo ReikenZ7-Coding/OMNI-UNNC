@@ -4,7 +4,7 @@
 
 OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem A). Right now, UNNC event information is scattered across university email, Moodle, WeChat official accounts, club group chats and mini programs. Registering or asking for help sends students through links to separate portals that often make them log in again. OMNI tests the opposite: one app, one sign-in.
 
-> This is a student prototype. It is not an official university service. Items marked **Live from UNNC website** are real and come from UNNC's public pages; Events, notices and news are **real only**: from UNNC's public website, official feeds, or posted by people in OMNI. Offices, food places and tool previews are still **sample data** for the prototype.
+> This is a student prototype. It is not an official university service. Items marked **Live from UNNC website** are real and come from UNNC's public pages; Events, notices and news are **real only**: from UNNC's public website, official feeds, or posted by people in OMNI. Help and Tools show a "coming soon" page until their phase.
 
 ## What you can do in the app
 
@@ -14,9 +14,8 @@ OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem
 | **Home** | Featured events and news, a Quick access grid you can edit, your next tickets, and the latest campus notices. |
 | **Discover** | One feed of events, notices and news from all five places students used to check. Switch each type on or off, search, filter by topic, date or original source, and sort. |
 | **Event details** | Generated poster, time, place, organiser and places left, a 中文 / English switch for the description, and a bottom bar to **Save**, **Add reminder** and **Register in one tap** right inside the app. If it's full, the same tap joins the waitlist. |
-| **Help** | Type a problem in plain words ("my dorm air conditioner is broken", "签证") and OMNI tells you which office handles it, shows quick answers, and lets you send that office a request without logging in again. |
-| **Tools** | A searchable directory of campus systems with favourites. Each one opens already signed in. Timetable, room booking (one tap per slot), printing credit and a building finder work in the demo. |
-| **Food** | Campus places to eat, shops with opening hours, and a "What to eat" picker. |
+| **Help** | *Coming in Phase 2.* Type a problem in plain words and OMNI routes it to the right office. The routing logic is already in `js/logic.js` (`routeHelp`). |
+| **Tools** | *Coming in Phase 3.* Campus systems in one place, each opening already signed in. |
 | **Post** | Anyone can post an event, notice or news. **Fill it in for me:** paste a WeChat post or email, or add a poster screenshot, and OMNI fills in the form (title, date, time, place, organiser, English and Chinese description) for you to check. |
 | **Me** | Verified profile, My schedule, **My calendar** (import Moodle deadlines and your timetable), tickets, saved items, help requests, and settings. |
 
@@ -42,7 +41,7 @@ OMNI mixes three kinds of content:
 
 1. **Real UNNC news and events, updated automatically.** `tools/crawl.js` reads UNNC's *public* web pages ([University News](https://www.nottingham.edu.cn/en/press-release/news-listing.aspx), [Faculty news](https://www.nottingham.edu.cn/en/university-life/news/index.aspx), [University Events](https://www.nottingham.edu.cn/en/events/event-listing.aspx), the Science & Engineering events page and [Key Dates](https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx), which become events for semesters, exams, registration and holidays). GitHub runs it every 30 minutes (`.github/workflows/crawl.yml`) and saves the results to `data/live.json`. When OMNI is served from a website, it loads that file and checks again every 10 minutes. These items are marked **Live from UNNC website** and link back to the original page.
 2. **Posts made in OMNI.** Tap **Post** on Discover to add an event, notice or news story. In the shared claude.ai version, posts are saved to a shared database, so everyone using that link sees them straight away, and registration counts update live. In the GitHub version (no database), posts are saved on your own device only.
-3. **Sample content** for the parts that aren't connected yet (offices, food places, tool previews). There are no made-up events, notices or news: the made-up ones used by the automatic checks live in `tests/fixtures.js` and never appear in the app.
+There is no made-up content in the app. The made-up events used by the automatic checks live in `tests/fixtures.js`, and the draft offices, tools and food lists for later phases stay in `js/data.js` without being shown.
 
 Limits: the crawler can only read public pages, not Moodle, email or WeChat. Keep it polite (a handful of pages every 30 minutes) and always link back to the source. Run it yourself with `npm run crawl`.
 
@@ -72,6 +71,14 @@ Those sources are behind logins, so OMNI never asks for anyone's UNNC password a
 1. In this repo on GitHub, open **Settings → Pages**.
 2. Under **Build and deployment**, choose **Deploy from a branch**, pick the branch `claude/project-thread-oqbjhd` and the folder `/ (root)`, then **Save**.
 3. After a minute, OMNI is live at `https://reikenz7-coding.github.io/OMNI-UNNC/`. Each time the crawler finds something new, the site updates by itself.
+
+## Roadmap
+
+1. **Events, notices and news** (live now)
+2. **Help**: ask the right office in plain words
+3. **Tools**: campus systems in one place
+4. **UNNC Forum**: a student social feed, for verified UNNC students only
+5. **Chatbot**
 
 ## How the code is organised
 
