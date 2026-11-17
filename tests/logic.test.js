@@ -111,3 +111,53 @@ test("crawler understands UNNC's page formats", () => {
   assert.equal(n.date, "2026-10-30");
   assert.ok(n.url.startsWith("https://www.nottingham.edu.cn/en/Press-Release/"));
 });
+
+test("checks what the AI read from a poster before it reaches the form", () => {
+  const now = new Date(2026, 10, 17, 10, 0);
+  const x = L.cleanExtract({ kind: "party", title: "  Board Games Night ", date: "2026-11-31", start: "7:05 pm", end: "21:30", topic: "nonsense", capacity: -3, description: "Bring friends." }, now);
+  assert.equal(x.kind, "event");
+  assert.equal(x.title, "Board Games Night");
+  assert.equal(x.date, "", "31 November does not exist");
+  assert.equal(x.start, "19:05");
+  assert.equal(x.end, "21:30");
+  assert.equal(x.capacity, null);
+  assert.ok(["academic", "careers", "clubs", "sports", "culture", "wellbeing"].includes(x.topic));
+  assert.ok(L.extractPrompt("hello", now, true).includes("2026-11-17"));
+});
+
+test("guesses an event from pasted WeChat or email text without AI", () => {
+  const now = new Date(2026, 10, 17, 10, 0);
+  const en = L.guessFromText("Board Games Night\nFri 20 Nov, 18:00-20:30\nVenue: Student Union Lounge\nOrganised by: Tabletop Society\nFree snacks, everyone welcome!", now);
+  assert.equal(en.title, "Board Games Night");
+  assert.equal(en.date, "2026-11-20");
+  assert.equal(en.start, "18:00");
+  assert.equal(en.end, "20:30");
+  assert.equal(en.location, "Student Union Lounge");
+  assert.equal(en.organiser, "Tabletop Society");
+  const zh = L.guessFromText("【讲座】人工智能与金融\n时间：11月25日 晚上7点\n地点：图书馆报告厅", now);
+  assert.equal(zh.title, "讲座 人工智能与金融");
+  assert.equal(zh.date, "2026-11-25");
+  assert.equal(zh.start, "19:00");
+  assert.equal(zh.location, "图书馆报告厅");
+  assert.equal(L.guessFromText("Careers fair on Jan 8", now).date, "2027-01-08", "a January date in November means next year");
+});
+
+test("reads a Moodle or timetable calendar file", () => {
+  const now = new Date(2026, 10, 17, 10, 0);
+  const ics = [
+    "BEGIN:VCALENDAR", "VERSION:2.0",
+    "BEGIN:VEVENT", "UID:1@moodle", "SUMMARY:Essay 2 is due", "CATEGORIES:BUSI1116", "DTSTART:20261120T155900Z", "DTEND:20261120T155900Z", "END:VEVENT",
+    "BEGIN:VEVENT", "UID:2@tt", "SUMMARY:BUSI1116 Workshop", "LOCATION:Trent Building\\, Room 201", "DTSTART;TZID=Asia/Shanghai:20261118T090000",
+    "DTEND;TZID=Asia/Shanghai:20261118T110000", "RRULE:FREQ=WEEKLY;COUNT=3", "END:VEVENT",
+    "BEGIN:VEVENT", "UID:3@old", "SUMMARY:Long ago", "DTSTART;VALUE=DATE:20250101", "END:VEVENT",
+    "END:VCALENDAR"
+  ].join("\r\n");
+  const items = L.parseICS(ics, now);
+  assert.equal(items.length, 4, "1 deadline + 3 weekly classes, old item dropped");
+  const ws = items.filter((i) => i.title === "BUSI1116 Workshop");
+  assert.equal(ws.length, 3);
+  assert.equal(ws[0].location, "Trent Building, Room 201");
+  assert.equal(new Date(ws[1].start).getDate(), 25);
+  assert.equal(new Date(ws[0].end) - new Date(ws[0].start), 2 * 3600 * 1000);
+  assert.equal(items.find((i) => i.course === "BUSI1116").title, "Essay 2 is due");
+});

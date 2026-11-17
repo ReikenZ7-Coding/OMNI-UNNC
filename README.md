@@ -17,7 +17,8 @@ OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem
 | **Help** | Type a problem in plain words ("my dorm air conditioner is broken", "签证") and OMNI tells you which office handles it, shows quick answers, and lets you send that office a request without logging in again. |
 | **Tools** | A searchable directory of campus systems with favourites. Each one opens already signed in. Timetable, room booking (one tap per slot), printing credit and a building finder work in the demo. |
 | **Food** | Campus places to eat, shops with opening hours, and a "What to eat" picker. |
-| **Me** | Verified profile, My schedule, tickets, saved items, help requests, and settings (theme, description language, reminder timing). |
+| **Post** | Anyone can post an event, notice or news. **Fill it in for me:** paste a WeChat post or email, or add a poster screenshot, and OMNI fills in the form (title, date, time, place, organiser, English and Chinese description) for you to check. |
+| **Me** | Verified profile, My schedule, **My calendar** (import Moodle deadlines and your timetable), tickets, saved items, help requests, and settings. |
 
 ### How OMNI differs from other campus mini programs
 
@@ -44,6 +45,13 @@ OMNI mixes three kinds of content:
 3. **Sample content** (made-up events, offices, food and so on), so every screen has something to show.
 
 Limits: the crawler can only read public pages, not Moodle, email or WeChat. Keep it polite (a handful of pages every 30 minutes) and always link back to the source. Run it yourself with `npm run crawl`.
+
+### WeChat, email and Moodle: let students bring it in
+
+Those sources are behind logins, so OMNI never asks for anyone's UNNC password and never reads private chats. Instead, the student who already has the information brings it in, in a few seconds:
+
+- **Fill it in for me** (on the Post screen). Paste a WeChat article or email, or add a screenshot of the poster. In the claude.ai version, Claude reads it (including the picture) and fills in the form. Everywhere else, a built-in "quick fill" finds the title, date, time, place and organiser in pasted text, in English or Chinese (`guessFromText` in `js/logic.js`). The person always checks the form before posting.
+- **My calendar** (Me → My calendar). In Moodle, *Calendar → Import or export calendars → Export calendar* gives a `.ics` file. Import it (or a timetable `.ics`) and OMNI shows your classes and deadlines next to the events you've registered for, and in the Timetable tool. The file is read on the phone and stays there (`parseICS` in `js/logic.js`).
 
 ### Put OMNI online with GitHub Pages (free)
 

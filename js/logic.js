@@ -224,7 +224,11 @@
     if (/sport|football|basketball|badminton|run|marathon|fitness|cup/.test(t)) return "sports";
     if (/wellbeing|well-being|mental|health|counsel|mindful/.test(t)) return "wellbeing";
     if (/festival|culture|cultural|music|concert|art|film|exhibition|calligraphy|chinese new year|lantern/.test(t)) return "culture";
-    if (/competition|club|society|hackathon|challenge|union/.test(t)) return "clubs";
+    if (/招聘|实习|就业|宣讲/.test(t)) return "careers";
+    if (/比赛|球|运动|健身|跑/.test(t)) return "sports";
+    if (/心理|健康/.test(t)) return "wellbeing";
+    if (/文化|音乐|电影|展览|节/.test(t)) return "culture";
+    if (/competition|club|society|hackathon|challenge|union|game|社团|学生会|招新/.test(t)) return "clubs";
     return "academic";
   }
 
@@ -262,6 +266,191 @@
     return out;
   }
 
+  // ---------- Snap or paste to post ----------
+
+  var TOPIC_IDS = ["academic", "careers", "clubs", "sports", "culture", "wellbeing"];
+  var MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, sept: 9, oct: 10, nov: 11, dec: 12 };
+  function pad2(n) { return String(n).padStart(2, "0"); }
+  function isoDate(y, m, d) { return y + "-" + pad2(m) + "-" + pad2(d); }
+  function validDate(y, m, d) {
+    if (!(m >= 1 && m <= 12 && d >= 1 && d <= 31)) return false;
+    var x = new Date(y, m - 1, d);
+    return x.getMonth() === m - 1 && x.getDate() === d;
+  }
+  // A date written without a year means the next time that day comes round.
+  function withYear(m, d, now) {
+    var y = now.getFullYear();
+    if (new Date(y, m - 1, d) < startOfDay(now).getTime() - 30 * DAY) y += 1;
+    return validDate(y, m, d) ? isoDate(y, m, d) : "";
+  }
+  function cleanTime(t) {
+    var m = String(t || "").trim().match(/^(\d{1,2})[:.：](\d{2})\s*(am|pm)?/i);
+    if (!m || +m[1] > 23 || +m[2] > 59) return "";
+    var h = +m[1], ap = (m[3] || "").toLowerCase();
+    if (ap === "pm" && h < 12) h += 12;
+    if (ap === "am" && h === 12) h = 0;
+    return pad2(h) + ":" + m[2];
+  }
+  function clip(s, n) { return String(s == null ? "" : s).replace(/\s+\n/g, "\n").trim().slice(0, n); }
+
+  /*
+   * Checks what the AI (or the guesser below) read from a poster or message and
+   * keeps only values the posting form can use. Anything doubtful becomes "".
+   */
+  function cleanExtract(raw, now) {
+    raw = raw && typeof raw === "object" ? raw : {};
+    var kind = ["event", "notice", "news"].indexOf(raw.kind) >= 0 ? raw.kind : "event";
+    var date = "";
+    var dm = String(raw.date || "").match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (dm && validDate(+dm[1], +dm[2], +dm[3])) date = isoDate(+dm[1], +dm[2], +dm[3]);
+    var title = clip(raw.title, 120);
+    var body = clip(raw.description || raw.body, 1500);
+    return {
+      kind: kind,
+      title: title,
+      organiser: clip(raw.organiser || raw.organizer, 80),
+      topic: TOPIC_IDS.indexOf(raw.topic) >= 0 ? raw.topic : guessTopic(title + " " + body + " " + (raw.organiser || "")),
+      date: date,
+      start: cleanTime(raw.start),
+      end: cleanTime(raw.end),
+      location: clip(raw.location, 100),
+      capacity: raw.capacity > 0 && raw.capacity <= 5000 ? Math.round(raw.capacity) : null,
+      body: body,
+      zh: clip(raw.zh, 1500)
+    };
+  }
+
+  /*
+   * A no-AI fallback: pulls a title, date, time and place out of pasted text
+   * using patterns students actually see ("Fri 20 Nov, 18:00-20:00",
+   * "11月20日 晚上7点", "地点：图书馆"). Less clever than the AI, works offline.
+   */
+  function guessFromText(text, now) {
+    var t = String(text || "").replace(/\r/g, "");
+    var lines = t.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
+    var out = { kind: "event" };
+    var title = lines.find(function (l) { return !/^(date|time|when|where|venue|location|地点|时间|日期)\s*[:：]/i.test(l); }) || "";
+    out.title = title.replace(/^#+\s*/, "").replace(/[【】\[\]]/g, " ").replace(/\s+/g, " ").trim();
+    var m;
+    if ((m = t.match(/(\d{4})[-/.年](\d{1,2})[-/.月](\d{1,2})/))) out.date = validDate(+m[1], +m[2], +m[3]) ? isoDate(+m[1], +m[2], +m[3]) : "";
+    else if ((m = t.match(/(\d{1,2})月(\d{1,2})[日号]/))) out.date = withYear(+m[1], +m[2], now);
+    else if ((m = t.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?(?:,?\s+(\d{4}))?/i)))
+      out.date = m[3] ? (validDate(+m[3], MONTHS[m[2].toLowerCase()], +m[1]) ? isoDate(+m[3], MONTHS[m[2].toLowerCase()], +m[1]) : "") : withYear(MONTHS[m[2].toLowerCase()], +m[1], now);
+    else if ((m = t.match(/\b(jan|feb|mar|apr|may|jun|jul|aug|sept?|oct|nov|dec)[a-z]*\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s+(\d{4}))?/i)))
+      out.date = m[3] ? (validDate(+m[3], MONTHS[m[1].toLowerCase()], +m[2]) ? isoDate(+m[3], MONTHS[m[1].toLowerCase()], +m[2]) : "") : withYear(MONTHS[m[1].toLowerCase()], +m[2], now);
+    else if (/\btomorrow\b|明天/i.test(t)) { var tm = new Date(now.getTime() + DAY); out.date = isoDate(tm.getFullYear(), tm.getMonth() + 1, tm.getDate()); }
+    else if (/\btoday\b|tonight|今天|今晚/i.test(t)) out.date = isoDate(now.getFullYear(), now.getMonth() + 1, now.getDate());
+
+    if ((m = t.match(/(\d{1,2})[:.：](\d{2})\s*(am|pm)?\s*(?:-|–|—|~|～|to|至|到)\s*(\d{1,2})[:.：](\d{2})\s*(am|pm)?/i))) {
+      out.start = to24(+m[1], m[2], m[3] || m[6]); out.end = to24(+m[4], m[5], m[6]);
+    } else if ((m = t.match(/\b(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\b/i))) {
+      out.start = to24(+m[1], m[2] || "00", m[3]);
+    } else if ((m = t.match(/(\d{1,2})[:.：](\d{2})/))) {
+      out.start = to24(+m[1], m[2]);
+    } else if ((m = t.match(/(上午|下午|晚上)?\s*(\d{1,2})\s*[点時时](半)?/))) {
+      var h = +m[2]; if ((m[1] === "下午" || m[1] === "晚上") && h < 12) h += 12;
+      out.start = pad2(h) + ":" + (m[3] ? "30" : "00");
+    }
+    if (out.start && !out.end) { var sh = +out.start.slice(0, 2); out.end = sh < 22 ? pad2(sh + 2) + out.start.slice(2) : "23:59"; }
+
+    if ((m = t.match(/(?:where|venue|location|place|room|地点|地址|场地)\s*[:：]\s*([^\n]+)/i))) out.location = m[1].trim();
+    if ((m = t.match(/(?:organi[sz]ed by|organi[sz]er|host(?:ed by)?|主办方?|主辦)\s*[:：]?\s*([^\n]+)/i))) out.organiser = m[1].trim();
+    if (/讲座|lecture|seminar|talk|workshop|活动|event|party|night|match|比赛|competition|fair/i.test(t) || out.start) out.kind = "event";
+    else out.kind = "notice";
+    var rest = lines.filter(function (l) { return l !== title && !/^(date|time|when|where|venue|location|place|organi[sz]e[dr]|host|时间|日期|地点|地址|场地|主办)/i.test(l); }).join("\n");
+    if (/[一-鿿]/.test(t) && !/[a-z]{4,}/i.test(rest)) { out.zh = rest; out.description = ""; }
+    else out.description = rest;
+    return cleanExtract(out, now);
+  }
+  function to24(h, mm, ap) {
+    ap = String(ap || "").toLowerCase();
+    if (ap === "pm" && h < 12) h += 12;
+    if (ap === "am" && h === 12) h = 0;
+    return h <= 23 ? pad2(h) + ":" + mm : "";
+  }
+
+  // The prompt OMNI sends to Claude with a poster image or pasted message.
+  function extractPrompt(text, now, hasImage) {
+    return "You help students post campus events at the University of Nottingham Ningbo China into a campus app.\n" +
+      "Today is " + isoDate(now.getFullYear(), now.getMonth() + 1, now.getDate()) + " (" + ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][now.getDay()] + ").\n" +
+      (hasImage ? "Read the attached poster or screenshot" + (text ? " and the pasted text below" : "") + ".\n" : "Read the pasted text below (it may be from WeChat, email or a poster).\n") +
+      "Reply with only one JSON object with these keys:\n" +
+      '{"kind":"event"|"notice"|"news", "title":string, "organiser":string, "topic":"academic"|"careers"|"clubs"|"sports"|"culture"|"wellbeing", ' +
+      '"date":"YYYY-MM-DD" or "", "start":"HH:MM" (24h) or "", "end":"HH:MM" or "", "location":string, "capacity":number or null, ' +
+      '"description":string (2-4 plain English sentences: what it is, who it is for, how to join), "zh":string (a short Chinese description if the source has Chinese, else "")}\n' +
+      "Use \"\" for anything not stated. Never invent a date, time or place. If no year is given, use the next upcoming date. " +
+      "If there is no end time, leave end empty. Copy QR-code or sign-up instructions into the description." +
+      (text ? "\n\nPASTED TEXT:\n" + String(text).slice(0, 6000) : "");
+  }
+
+  // ---------- Import my calendar (.ics from Moodle or a timetable) ----------
+
+  function icsDate(value, params) {
+    var v = String(value || "").trim();
+    var m = v.match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/);
+    if (!m) return null;
+    if (!m[4] || /VALUE=DATE(?!-)/.test(params || "")) return { at: new Date(+m[1], +m[2] - 1, +m[3]), allDay: true };
+    var at = m[7] ? new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)))
+      : new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)); // TZID or floating: read as local (China) time
+    return { at: at, allDay: false };
+  }
+  function icsText(s) { return String(s || "").replace(/\\n/gi, "\n").replace(/\\([,;\\])/g, "$1").trim(); }
+
+  /*
+   * Reads a calendar file (Moodle "Export calendar", a timetable export, Outlook...).
+   * Returns [{id, title, start, end, location, allDay, course}] sorted by start,
+   * keeping items from 7 days ago up to `horizonDays` ahead. Weekly repeats are expanded.
+   */
+  function parseICS(text, now, horizonDays) {
+    var lines = String(text || "").replace(/\r\n[ \t]/g, "").replace(/\n[ \t]/g, "").split(/\r?\n/);
+    var from = startOfDay(now).getTime() - 7 * DAY, to = startOfDay(now).getTime() + (horizonDays || 180) * DAY;
+    var out = [], cur = null;
+    lines.forEach(function (line) {
+      if (line === "BEGIN:VEVENT") { cur = {}; return; }
+      if (line === "END:VEVENT") {
+        if (cur && cur.start) expand(cur);
+        cur = null; return;
+      }
+      if (!cur) return;
+      var i = line.indexOf(":"); if (i < 0) return;
+      var head = line.slice(0, i), val = line.slice(i + 1);
+      var name = head.split(";")[0].toUpperCase(), params = head.slice(name.length);
+      if (name === "SUMMARY") cur.title = icsText(val);
+      else if (name === "LOCATION") cur.location = icsText(val);
+      else if (name === "CATEGORIES") cur.course = icsText(val);
+      else if (name === "UID") cur.uid = val.trim();
+      else if (name === "DTSTART") cur.start = icsDate(val, params);
+      else if (name === "DTEND") cur.end = icsDate(val, params);
+      else if (name === "RRULE") cur.rrule = val;
+    });
+    function push(c, startMs, n) {
+      if (startMs < from || startMs > to) return;
+      var len = c.end ? c.end.at - c.start.at : 0;
+      out.push({
+        id: "cal-" + hash((c.uid || c.title || "") + "|" + startMs) + (n ? "-" + n : ""),
+        title: (c.title || "Untitled").slice(0, 160), location: (c.location || "").slice(0, 120), course: (c.course || "").slice(0, 80),
+        start: new Date(startMs).toISOString(), end: new Date(startMs + Math.max(0, len)).toISOString(), allDay: c.start.allDay
+      });
+    }
+    function expand(c) {
+      var s = c.start.at.getTime();
+      var r = c.rrule ? Object.fromEntries(c.rrule.split(";").map(function (p) { return p.split("="); })) : null;
+      if (!r || (r.FREQ !== "WEEKLY" && r.FREQ !== "DAILY")) { push(c, s, 0); return; }
+      var step = (r.FREQ === "DAILY" ? 1 : 7) * (+r.INTERVAL || 1) * DAY;
+      var count = +r.COUNT || 60, until = r.UNTIL ? (icsDate(r.UNTIL) || {}).at : null;
+      for (var n = 0; n < Math.min(count, 120); n++) {
+        var at = new Date(c.start.at); at.setDate(at.getDate() + n * step / DAY);
+        if (until && at > until) break;
+        if (at.getTime() > to) break;
+        push(c, at.getTime(), n);
+      }
+    }
+    var seen = {};
+    return out.filter(function (e) { if (seen[e.id]) return false; seen[e.id] = 1; return true; })
+      .sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : 0; });
+  }
+  function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+
   var api = {
     DAY: DAY,
     startOfDay: startOfDay,
@@ -279,7 +468,11 @@
     maskId: maskId,
     dayOffset: dayOffset,
     guessTopic: guessTopic,
-    fromWebsite: fromWebsite
+    fromWebsite: fromWebsite,
+    cleanExtract: cleanExtract,
+    guessFromText: guessFromText,
+    extractPrompt: extractPrompt,
+    parseICS: parseICS
   };
   root.OmniLogic = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

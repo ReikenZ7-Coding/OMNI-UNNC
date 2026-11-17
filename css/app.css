@@ -469,3 +469,18 @@ details.faq .office-link { display: inline-block; padding-bottom: 14px; font-siz
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Fill it in for me (snap or paste) */
+.snap { border: 1.5px dashed var(--violet); background: linear-gradient(180deg, var(--violet-soft), var(--surface) 70%); }
+.snap-head { display: flex; gap: 12px; align-items: flex-start; }
+.snap-head .tile { flex: none; }
+.snap textarea { min-height: 96px; }
+.snap-file { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.snap-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 55%; }
+.input.filled { box-shadow: 0 0 0 3px var(--violet-soft); border-color: var(--violet); transition: box-shadow .3s, border-color .3s; }
+
+/* My calendar */
+.cal-row { cursor: default; }
+.cal-row .date-chip { background: var(--blue-soft); color: var(--blue); }
+.how-to ol { margin: 0; padding-left: 20px; display: grid; gap: 10px; color: var(--ink); line-height: 1.5; }
+.card-panel .meta.small .ic { width: 14px; height: 14px; vertical-align: -2px; }

@@ -28,7 +28,7 @@
     return {
       student: null, registrations: {}, requests: [], logins: 0,
       saved: {}, reminders: {}, bookings: {}, pins: D.defaultPins.slice(),
-      printCredit: 23.4, localPosts: [], prefs: { theme: "system", lang: "en", remind: "60", notify: true }
+      printCredit: 23.4, localPosts: [], calendar: null, prefs: { theme: "system", lang: "en", remind: "60", notify: true }
     };
   }
   function load() {
@@ -52,8 +52,11 @@
     query: "", topic: "all", when: "any", source: "all", available: false, sort: "soonest",
     kinds: { event: true, notice: true, news: true }, showFilters: false,
     helpQuery: "", myTab: "upcoming", lang: null, toolQuery: "", editPins: false,
-    foodQuery: "", foodPick: null, mapQuery: "", ttDay: null, confirm: null, newKind: "event"
+    foodQuery: "", foodPick: null, mapQuery: "", ttDay: null, confirm: null, newKind: "event",
+    snapText: "", snapFile: null, snapBusy: false, snapMsg: ""
   };
+  // "Fill it in for me": Claude reads a poster or pasted message (only inside claude.ai).
+  var AI = { sample: null, images: null, ctl: null };
 
   function now() { return new Date(); }
 
@@ -602,12 +605,20 @@
     var tabsHtml = DAYS.map(function (d, i) {
       return '<button data-ttday="' + (i + 1) + '" aria-pressed="' + (sel === i + 1) + '">' + d + (today === i + 1 ? " ·" : "") + "</button>";
     }).join("");
+    if (state.calendar) {
+      var monday = L.startOfDay(now()); monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+      var day = new Date(monday); day.setDate(monday.getDate() + sel - 1);
+      var mineToday = calItems().filter(function (c) { return sameDay(calDate(c), day); });
+      return '<div class="segmented" role="group" aria-label="Day">' + tabsHtml + "</div>" +
+        '<div class="stack">' + (mineToday.length ? '<div class="list-panel">' + mineToday.map(calRow).join("") + "</div>" : '<div class="empty"><p>Nothing on ' + DOW[day.getDay()] + " " + day.getDate() + "/" + (day.getMonth() + 1) + ".</p></div>") + "</div>" +
+        '<p class="meta small">From your imported calendar. <a href="#calendar">Update it</a></p>';
+    }
     var classes = D.timetable.filter(function (c) { return c.d === sel; });
     return '<div class="segmented" role="group" aria-label="Day">' + tabsHtml + "</div>" +
       '<div class="stack">' + (classes.length ? classes.map(function (c) {
         return '<div class="class-row"><div class="class-time"><b>' + c.start + "</b><span>" + c.end + '</span></div><div class="class-body"><b>' + esc(c.what) + '</b><span class="meta">' + esc(c.type + " · " + c.where) + "</span></div></div>";
       }).join("") : '<div class="empty"><p>No classes this day.</p></div>') + "</div>" +
-      '<p class="meta small">Sample timetable. A real version would show your own classes, and events you register for would appear next to them.</p>';
+      '<p class="meta small">Sample timetable. <a href="#calendar">Import your own</a> to see your real classes and Moodle deadlines.</p>';
   }
 
   function miniRooms() {
@@ -714,13 +725,16 @@
     var s = state.student;
     var mine = upcomingMine();
     var reminders = events().filter(function (e) { return state.reminders[e.id] && !state.registrations[e.id] && isUpcoming(e); });
-    var schedule = mine.concat(reminders).sort(function (a, b) { return a.startAt - b.startAt; }).slice(0, 4);
+    var schedule = mine.concat(reminders).concat(upcomingCal(7).map(function (c) { return { cal: c, startAt: calDate(c) }; }))
+      .sort(function (a, b) { return a.startAt - b.startAt; }).slice(0, 5);
     var scheduleHtml = schedule.length ? '<div class="list-panel">' + schedule.map(function (e) {
+      if (e.cal) return calRow(e.cal);
       var reg = state.registrations[e.id];
       var label = reg ? (reg.status === "waitlist" ? "Waitlist" : "Going") : "Reminder";
       return '<a class="row-link" href="#event-' + e.id + '"><span class="date-chip"><b>' + e.startAt.getDate() + "</b><span>" + DOW[e.startAt.getDay()] + '</span></span><span class="row-text"><b>' + esc(e.title) + "</b><span>" + esc(e.start + " · " + e.location) + '</span></span><span class="pill ' + (reg ? (reg.status === "waitlist" ? "low" : "ok") : "info") + '">' + label + "</span></a>";
     }).join("") + "</div>" :
       '<div class="empty row-empty">' + I("calendar") + '<div class="stack tight"><b>Nothing scheduled</b><span class="meta">Register or add a reminder from any event</span></div><a class="btn soft small" href="#discover">Browse events</a></div>';
+    var calCount = upcomingCal(7).length;
     var savedCount = Object.keys(state.saved).length;
     var bookings = Object.keys(state.bookings).length;
     return pageHead("Me") +
@@ -729,6 +743,7 @@
         '<span class="meta small">Signed in once through OMNI</span></div></section>' +
       '<section class="stack">' + sectionHead("My schedule", '<a class="link-btn" href="#my-events">All my events ' + I("chevron") + "</a>") + scheduleHtml + "</section>" +
       '<div class="list-panel">' +
+        rowLink("calendar", "calendar", "violet", "My calendar", state.calendar ? calCount + " classes and deadlines this week" : "Import Moodle deadlines and your timetable", state.calendar ? "" : '<span class="pill info">New</span>') +
         rowLink("saved", "bookmark", "blue", "Saved", savedCount ? savedCount + " saved" : "Events, notices and news you bookmark", "") +
         rowLink("my-events", "ticket", "jade", "Tickets", Object.keys(state.registrations).length + " registrations", "") +
         rowLink("help", "help", "violet", "Help requests", state.requests.length ? state.requests.length + " sent" : "Ask the right office", "") +
@@ -751,7 +766,7 @@
     var kinds = [["event", "Event"], ["notice", "Notice"], ["news", "News"]].map(function (x) {
       return '<button type="button" data-newkind="' + x[0] + '" aria-pressed="' + (k === x[0]) + '">' + x[1] + "</button>";
     }).join("");
-    return backBar("discover", "Discover") + pageHead("Post to OMNI") + where +
+    return backBar("discover", "Discover") + pageHead("Post to OMNI") + where + snapPanel() +
       '<form class="stack card-panel" id="post-form" autocomplete="off">' +
         '<div class="segmented" role="group" aria-label="What are you posting?">' + kinds + "</div>" +
         '<div class="field"><label for="np-title">Title</label><input class="input" id="np-title" required maxlength="120" placeholder="' + (k === "event" ? "e.g. Board Games Night" : "e.g. Room change for Thursday's workshop") + '"></div>' +
@@ -770,6 +785,161 @@
       "</form>";
   }
 
+
+  // ---------- Fill it in for me (snap or paste) ----------
+  function snapPanel() {
+    var canImg = !!(AI.sample && AI.images);
+    var f = ui.snapFile;
+    return '<section class="card-panel stack snap" id="snap">' +
+      '<div class="snap-head"><span class="tile t-violet">' + I("sparkle") + '</span><div class="stack tight"><b>Fill it in for me</b>' +
+        '<span class="meta">' + (canImg ? "Paste a WeChat post or email, or add a screenshot of the poster." : "Paste the WeChat post, email or poster text.") +
+        " OMNI fills in the form below for you to check.</span></div></div>" +
+      '<textarea class="input" id="snap-text" maxlength="6000" placeholder="Paste the message here...">' + esc(ui.snapText) + "</textarea>" +
+      (canImg ? '<div class="snap-file"><label class="btn soft small" for="snap-img">' + I("camera") + (f ? "Change picture" : "Add a poster picture") + "</label>" +
+        '<input type="file" id="snap-img" accept="' + esc(AI.images.mediaTypes.join(",")) + '" hidden>' +
+        (f ? '<span class="meta small snap-name">' + esc(f.name) + '</span><button type="button" class="link-btn" data-act="snap-unfile">Remove</button>' : "") + "</div>" : "") +
+      (ui.snapBusy
+        ? '<div class="row"><button type="button" class="btn secondary block" disabled>' + I("sparkle") + "Reading" + (f ? " the poster" : "") + "...</button>" +
+          '<button type="button" class="btn quiet" data-act="snap-stop">Stop</button></div>'
+        : '<button type="button" class="btn secondary block" data-act="snap">' + I("sparkle") + "Fill the form</button>") +
+      '<p class="meta small" id="snap-status" aria-live="polite">' + esc(ui.snapMsg || (AI.sample ? "Uses Claude to read it. It may ask you to allow that the first time." : "Quick fill: OMNI looks for the title, date, time and place.")) + "</p>" +
+    "</section>";
+  }
+
+  var FORM_FIELDS = { title: "np-title", organiser: "np-org", topic: "np-topic", date: "np-date", start: "np-start", end: "np-end", location: "np-loc", capacity: "np-cap", body: "np-body", zh: "np-zh" };
+  function formValues() {
+    var out = {};
+    Object.keys(FORM_FIELDS).forEach(function (k) { var el = document.getElementById(FORM_FIELDS[k]); if (el) out[k] = el.value; });
+    return out;
+  }
+  function fillForm(vals, mark) {
+    var n = 0;
+    Object.keys(FORM_FIELDS).forEach(function (k) {
+      var el = document.getElementById(FORM_FIELDS[k]);
+      var v = vals[k];
+      if (!el || v == null || v === "") return;
+      el.value = String(v); n++;
+      if (mark) { el.classList.add("filled"); setTimeout(function () { el.classList.remove("filled"); }, 2400); }
+    });
+    return n;
+  }
+  // Switch Event / Notice / News without losing what's typed.
+  function setNewKind(kind) {
+    var keep = formValues();
+    ui.snapText = (document.getElementById("snap-text") || {}).value || ui.snapText;
+    ui.newKind = kind;
+    render({ keepScroll: true });
+    fillForm(keep);
+  }
+
+  function snapMessage(text) { ui.snapMsg = text; var el = document.getElementById("snap-status"); if (el) el.textContent = text; }
+  function applySnap(r, how) {
+    ui.snapBusy = false;
+    if (r.kind !== ui.newKind) ui.newKind = r.kind;
+    var keepOrg = (document.getElementById("np-org") || {}).value;
+    ui.snapMsg = "";
+    render({ keepScroll: true });
+    var n = fillForm(r, true);
+    if (!r.organiser && keepOrg) fillForm({ organiser: keepOrg });
+    var missing = [];
+    if (!r.title) missing.push("title");
+    if (r.kind === "event" && !r.date) missing.push("date");
+    if (r.kind === "event" && !r.start) missing.push("time");
+    snapMessage(n ? how + " filled in " + n + " field" + (n === 1 ? "" : "s") + "." + (missing.length ? " Please add the " + missing.join(", ") + " yourself." : " Check them, then post.")
+      : "Couldn't find event details in that. Try pasting more of the message.");
+    var form = document.getElementById("post-form");
+    if (form && n) form.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  function runSnap() {
+    var text = ((document.getElementById("snap-text") || {}).value || "").trim();
+    ui.snapText = text;
+    var file = ui.snapFile;
+    if (!text && !file) { snapMessage("Paste a message" + (AI.images ? " or add a picture" : "") + " first."); return; }
+    if (!AI.sample) { applySnap(L.guessFromText(text, now()), "Quick fill"); return; }
+    ui.snapBusy = true; ui.snapMsg = file ? "Reading the poster. This can take up to a minute." : "Reading it now...";
+    render({ keepScroll: true });
+    var ctl = AI.ctl = new AbortController();
+    var opts = { signal: ctl.signal };
+    if (file) opts.images = [file];
+    AI.sample.json(L.extractPrompt(text, now(), !!file), opts).then(function (raw) {
+      if (AI.ctl !== ctl) return;
+      applySnap(L.cleanExtract(raw, now()), "Claude");
+    }, function (e) {
+      if (AI.ctl !== ctl) return;
+      ui.snapBusy = false;
+      var code = e && e.code;
+      if (code === "cancelled") { ui.snapMsg = "Stopped."; render({ keepScroll: true }); return; }
+      if (code === "not_granted" || code === "sampling_disabled" || code === "capability_disabled" || code === "capability_removed") AI.sample = null;
+      if (text && !AI.sample) { applySnap(L.guessFromText(text, now()), "Quick fill"); return; }
+      ui.snapMsg = code === "rate_limited" ? "Too many tries just now. Wait a minute and try again."
+        : code === "image_rejected" ? "That picture couldn't be read. Try a clearer screenshot, or paste the text."
+        : code === "invalid_json" || code === "empty_completion" ? "Couldn't make sense of that one. Try again, or paste the text instead."
+        : !AI.sample ? "Reading pictures isn't available here. Paste the text instead."
+        : "Something went wrong. Try again in a moment.";
+      render({ keepScroll: true });
+    });
+  }
+
+  // ---------- My calendar (imported .ics) ----------
+  function calItems() { return (state.calendar && state.calendar.items) || []; }
+  function calDate(c) { return new Date(c.start); }
+  function calTime(c) {
+    if (c.allDay) return "All day";
+    var s = new Date(c.start), e = new Date(c.end);
+    var f = function (d) { return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
+    return +e > +s ? f(s) + " – " + f(e) : f(s);
+  }
+  function isDeadline(c) { return /\b(due|deadline|submission|submit|closes)\b|截止/i.test(c.title) || c.start === c.end; }
+  function calRow(c) {
+    var d = calDate(c);
+    return '<div class="row-link cal-row"><span class="date-chip"><b>' + d.getDate() + "</b><span>" + DOW[d.getDay()] + "</span></span>" +
+      '<span class="row-text"><b>' + esc(c.title) + "</b><span>" + esc([calTime(c), c.location || c.course].filter(Boolean).join(" · ")) + "</span></span>" +
+      '<span class="pill ' + (isDeadline(c) ? "low" : "plain") + '">' + (isDeadline(c) ? "Due" : "Class") + "</span></div>";
+  }
+  function upcomingCal(days) {
+    var from = now().getTime(), to = L.startOfDay(now()).getTime() + days * L.DAY;
+    return calItems().filter(function (c) { var t = new Date(c.end || c.start).getTime(); return t >= from && new Date(c.start).getTime() < to; });
+  }
+  function screenCalendar() {
+    var cal = state.calendar;
+    var items = upcomingCal(21);
+    var byDay = {};
+    items.forEach(function (c) { var k = L.startOfDay(calDate(c)).toISOString(); (byDay[k] = byDay[k] || []).push(c); });
+    var list = Object.keys(byDay).sort().map(function (k) {
+      var d = new Date(k);
+      return '<section class="stack">' + sectionHead(/^(Today|Tomorrow)$/.test(dayWord(d)) ? dayWord(d) + ", " + d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }) : dayWord(d)) +
+        '<div class="list-panel">' + byDay[k].map(calRow).join("") + "</div></section>";
+    }).join("");
+    return backBar("me", "Me") + pageHead("My calendar") +
+      '<section class="card-panel stack">' +
+        '<div class="snap-head"><span class="tile t-blue">' + I("calendar") + '</span><div class="stack tight"><b>' + (cal ? "Imported " + cal.items.length + " items" : "Bring in your Moodle deadlines and timetable") + "</b>" +
+        '<span class="meta">' + (cal ? "From " + esc(cal.name) + ", " + new Date(cal.importedAt).toLocaleDateString() + ". Import again any time to refresh." : "Add a calendar file (.ics) and OMNI shows your classes and deadlines next to the events you've registered for.") + "</span></div></div>" +
+        '<label class="btn block" for="cal-file">' + I("upload") + (cal ? "Import a newer file" : "Choose a calendar file") + "</label>" +
+        '<input type="file" id="cal-file" accept=".ics,text/calendar" hidden>' +
+        (cal ? '<button class="btn quiet" data-act="cal-clear">' + (ui.confirm === "cal" ? "Tap again to remove it" : "Remove imported calendar") + "</button>" : "") +
+        '<p class="meta small">' + I("info") + " Your calendar stays on this device. OMNI doesn't upload it or share it with anyone.</p>" +
+      "</section>" +
+      (cal ? (list || '<div class="empty"><p>Nothing in the next three weeks.</p></div>') :
+      '<section class="card-panel stack how-to"><span class="eyebrow">Where to get the file</span><ol>' +
+        "<li><b>Moodle deadlines:</b> open Moodle, go to <b>Calendar</b>, then <b>Import or export calendars → Export calendar</b>. Choose <b>All events</b> and <b>Recent and next 60 days</b>, then <b>Export</b>. A .ics file downloads.</li>" +
+        "<li><b>Timetable:</b> if your timetable page has a <b>Download</b> or <b>Subscribe / iCal</b> option, save it as a .ics file.</li>" +
+        "<li><b>Phone calendar or Outlook:</b> most calendar apps can export a .ics file too.</li></ol></section>");
+  }
+  function importCalendar(file) {
+    if (!file) return;
+    if (file.size > 3 * 1024 * 1024) { toast("That file is too big. Export a shorter date range."); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      if (!/BEGIN:VCALENDAR/.test(String(reader.result || ""))) { toast("That isn't a calendar file. Look for a file ending in .ics."); return; }
+      var items = L.parseICS(String(reader.result || ""), now(), 180).slice(0, 600);
+      state.calendar = { name: file.name.slice(0, 60), importedAt: now().toISOString(), items: items };
+      save(); render({ keepScroll: true });
+      toast(items.length ? "Imported " + items.length + " classes and deadlines." : "The file was read, but it has nothing from the last week onwards.");
+    };
+    reader.onerror = function () { toast("Couldn't read that file."); };
+    reader.readAsText(file);
+  }
+
   function screenPrefs() {
     function seg(name, options, value) {
       return '<div class="segmented" role="group">' + options.map(function (o) {
@@ -785,7 +955,8 @@
         '<li><span>Event registration</span><span class="pill ok">' + I("check") + "connected</span></li>" +
         '<li><span>Help requests to offices</span><span class="pill ok">' + I("check") + "connected</span></li>" +
         '<li><span>Room booking, printing</span><span class="pill ok">' + I("check") + "connected</span></li>" +
-        '<li><span>Email, Moodle, timetable</span><span class="pill plain">planned</span></li></ul>' +
+        '<li><span>Moodle deadlines, timetable</span><span class="pill ' + (state.calendar ? 'ok">' + I("check") + "imported" : 'plain">import a file') + "</span></li>" +
+        '<li><span>Email, WeChat</span><span class="pill plain">paste to post</span></li></ul>' +
         '<p class="meta small">Sign-ins this session: ' + Math.max(1, state.logins) + "</p></section>" +
       '<div class="row"><button class="btn secondary" data-act="signout">' + I("out") + "Sign out</button><button class=\"btn quiet\" data-act=\"reset\">" + (ui.confirm === "reset" ? "Tap again to reset" : "Reset demo data") + "</button></div>";
   }
@@ -810,6 +981,7 @@
     if (h === "saved") return { name: "saved", tab: "me" };
     if (h === "prefs") return { name: "prefs", tab: "me" };
     if (h === "new") return { name: "new", tab: "discover" };
+    if (h === "calendar") return { name: "calendar", tab: "me" };
     return { name: "home", tab: "home" };
   }
 
@@ -833,6 +1005,7 @@
       case "saved": html = screenSaved(); break;
       case "prefs": html = screenPrefs(); break;
       case "new": html = screenNew(); break;
+      case "calendar": html = screenCalendar(); break;
       default: html = screenHome();
     }
     view.innerHTML = html;
@@ -932,6 +1105,13 @@
       save();
     } else if (act === "clear") { ui.query = ""; ui.topic = "all"; ui.when = "any"; ui.source = "all"; ui.available = false; ui.kinds = { event: true, notice: true, news: true }; }
     else if (act === "filters") ui.showFilters = !ui.showFilters;
+    else if (act === "snap") { runSnap(); return; }
+    else if (act === "snap-stop") { if (AI.ctl) AI.ctl.abort(); return; }
+    else if (act === "snap-unfile") { ui.snapText = (document.getElementById("snap-text") || {}).value || ""; ui.snapFile = null; }
+    else if (act === "cal-clear") {
+      if (ui.confirm !== "cal") { ui.confirm = "cal"; }
+      else { state.calendar = null; ui.confirm = null; save(); toast("Imported calendar removed."); }
+    }
     else if (act === "edit-pins") ui.editPins = !ui.editPins;
     else if (act === "all-updates") { ui.kinds = { event: false, notice: true, news: true }; ui.sort = "latest"; location.hash = "discover"; return; }
     else if (act === "delete-post") {
@@ -964,7 +1144,7 @@
       if (!ui.kinds.event && !ui.kinds.notice && !ui.kinds.news) { ui.kinds[d.kind] = true; toast("Keep at least one type switched on."); }
     }
     else if (d.mytab) ui.myTab = d.mytab;
-    else if (d.newkind) ui.newKind = d.newkind;
+    else if (d.newkind) { setNewKind(d.newkind); return; }
     else if (d.hq) ui.helpQuery = d.hq;
     else if (d.lang) ui.lang = d.lang;
     else if (d.pin) {
@@ -1010,6 +1190,14 @@
   view.addEventListener("change", function (ev) {
     if (ev.target.id === "avail") { ui.available = ev.target.checked; render({ keepScroll: true }); }
     else if (ev.target.id === "sort") { ui.sort = ev.target.value; render({ keepScroll: true }); }
+    else if (ev.target.id === "snap-img") {
+      var file = ev.target.files && ev.target.files[0];
+      if (file && AI.images && file.size > AI.images.maxInputBytes) { toast("That picture is too big. Try a screenshot instead."); return; }
+      ui.snapText = (document.getElementById("snap-text") || {}).value || "";
+      ui.snapFile = file || null; ui.snapMsg = "";
+      render({ keepScroll: true });
+    }
+    else if (ev.target.id === "cal-file") importCalendar(ev.target.files && ev.target.files[0]);
     else if (ev.target.id === "notify") { state.prefs.notify = ev.target.checked; save(); toast(ev.target.checked ? "Notifications on." : "Notifications off."); }
   });
 
@@ -1040,7 +1228,7 @@
       if (!cleanPost("check", doc)) { toast("Add a title" + (doc.kind === "event" ? ", date and times" : "") + " first."); return; }
       var btn = f.querySelector("button[type=submit]"); btn.disabled = true;
       var done = function (id) {
-        ui.newKind = "event";
+        ui.newKind = "event"; ui.snapText = ""; ui.snapFile = null; ui.snapMsg = "";
         location.hash = doc.kind === "event" ? "event-c-" + id : "post-c-" + id;
         toast(COMM.db ? "Posted. Everyone using OMNI can see it now." : "Posted on this device.");
       };
@@ -1112,6 +1300,14 @@
         }, function () {});
       });
     }, function () {});
+  }
+
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("sample").then(function (sample) {
+      if (!sample) return;
+      AI.sample = sample;
+      return sample.limits().then(function (lim) { AI.images = lim && lim.images && lim.images.maxCount ? lim.images : null; }, function () {});
+    }).then(function () { if (route().name === "new") { ui.snapText = (document.getElementById("snap-text") || {}).value || ui.snapText; var keep = formValues(); render({ keepScroll: true }); fillForm(keep); } }, function () {});
   }
 
   window.addEventListener("hashchange", function () { render(); });
