@@ -32,6 +32,7 @@ const SOURCES = [
   // Faculty news lists (English and Chinese share ids, so they merge).
   { id: "fse-news", type: "list", item: "news/article\\.aspx.id=", organiser: "Faculty of Science and Engineering", url: BASE + "/en/science-engineering/news/home.aspx" },
   { id: "cn-fse-news", lang: "zh", type: "list", item: "news/article\\.aspx.id=", organiser: "理工学院", url: BASE + "/cn/science-engineering/news/home.aspx" },
+  { id: "incubator-events", type: "uniEvents", organiser: "UNNC Incubator", url: BASE + "/en/incubator/events/listing.aspx" },
   { id: "fhss-news", type: "list", item: "News/Article\\.aspx.id=", organiser: "Faculty of Humanities and Social Sciences", url: BASE + "/en/humanities-and-social-sciences/news/" },
   // UNNC's Chinese account on NetEase (网易号), which republishes its WeChat articles as public web pages.
   { id: "netease-unnc", lang: "zh", type: "list", item: "/dy/article/[A-Z0-9]+\\.html", organiser: "宁波诺丁汉大学 · 网易号", max: 25, url: "https://www.163.com/dy/media/T1562640267479.html" }
@@ -83,7 +84,7 @@ function parseRange(text) {
 
 function parseUniEvents(html, src) {
   return html.split(/<li class="event-listing__item/).slice(1).map((chunk) => {
-    const link = /<a href="([^"]*event-details\.aspx\?id=([0-9a-f-]{36})[^"]*)"[^>]*>([\s\S]*?)<\/a>/i.exec(chunk);
+    const link = /<a href="([^"]*(?:event-details|Event)\.aspx\?id=([0-9a-f-]{36})[^"]*)"[^>]*>([\s\S]*?)<\/a>/i.exec(chunk);
     if (!link) return null;
     const start = parseStamp((/itemprop="startDate" content="([^"]+)"/.exec(chunk) || [])[1]);
     let end = parseStamp((/itemprop="endDate" content="([^"]+)"/.exec(chunk) || [])[1]);
@@ -235,7 +236,18 @@ function parseKeyDates(html, src) {
 
 // Follows redirects like a browser does, keeping any cookie the site sets on the
 // way (some UNNC folder pages set one and redirect to themselves). No log-ins.
+// The UNNC server sometimes drops connections when asked too quickly, so try
+// again after a pause (up to 3 tries) before giving up on a page.
 async function getPage(url) {
+  for (let i = 0; ; i++) {
+    try { return await getPageOnce(url); } catch (e) {
+      const why = String(e.message || e) + (e.cause && e.cause.code ? " (" + e.cause.code + ")" : "");
+      if (i >= 2 || /HTTP 4\d\d|log-in/.test(why)) throw new Error(why);
+      await new Promise((r) => setTimeout(r, (i + 1) * 6000));
+    }
+  }
+}
+async function getPageOnce(url) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 25000);
   const jar = new Map();
@@ -299,7 +311,7 @@ async function main() {
       const keep = (list) => (list || []).filter((x) => x.source === src.id);
       if (src.type === "news") news.push(...keep(prev.news)); else if (src.type === "keyDates") dates.push(...keep(prev.dates)); else events.push(...keep(prev.events));
     }
-    await new Promise((r) => setTimeout(r, 1500)); // a pause between pages
+    await new Promise((r) => setTimeout(r, 3000)); // a polite pause between pages
   }
   // Feeds listed in data/feeds.json
   let feeds = [];

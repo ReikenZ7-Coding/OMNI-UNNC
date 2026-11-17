@@ -44,11 +44,18 @@ Everything you do (bookings, requests) is saved in your own browser only. Use **
 
 OMNI mixes three kinds of content:
 
-1. **Real UNNC news and events, updated automatically.** `tools/crawl.js` reads UNNC's *public* web pages ([University News](https://www.nottingham.edu.cn/en/press-release/news-listing.aspx), [Faculty news](https://www.nottingham.edu.cn/en/university-life/news/index.aspx), [University Events](https://www.nottingham.edu.cn/en/events/event-listing.aspx), the Science & Engineering events page and [Key Dates](https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx), which become events for semesters, exams, registration and holidays). GitHub runs it every 30 minutes (`.github/workflows/crawl.yml`) and saves the results to `data/live.json`. When OMNI is served from a website, it loads that file and checks again every 10 minutes. These items are marked **Live from UNNC website** and link back to the original page.
+1. **Real UNNC news and events, updated automatically, in English and Chinese.** `tools/crawl.js` reads *public* pages only:
+   - UNNC website, English and Chinese: [University News](https://www.nottingham.edu.cn/en/press-release/news-listing.aspx) / [大学新闻](https://www.nottingham.edu.cn/cn/press-release/news-listing.aspx), [campus news](https://www.nottingham.edu.cn/en/university-life/news/index.aspx), [University Events](https://www.nottingham.edu.cn/en/events/event-listing.aspx) / [活动资讯](https://www.nottingham.edu.cn/cn/events/event-listing.aspx), Science & Engineering news and events, Humanities and Social Sciences news, and [Key Dates](https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx) (semesters, exams, registration and holidays).
+   - [UNNC's NetEase account (网易号)](https://www.163.com/dy/media/T1562640267479.html), which republishes UNNC's WeChat articles as public web pages. OMNI keeps the headline, date and link only.
+   - Feeds listed in `data/feeds.json`.
+
+   Items that exist in both languages become one item with both titles; choosing 中文 in Settings shows the Chinese titles. GitHub runs the crawler every 30 minutes (`.github/workflows/crawl.yml`) and saves the results to `data/live.json`; the website loads that file and checks again every 10 minutes. Every item links back to where it was published.
+
+   **Finding new sources:** on GitHub, *Actions → Update live UNNC data → Run workflow* has a developer box. `default` lists the news and event pages the UNNC site links to, and `--try <page link> <link pattern>` shows what the crawler would get from a page. Nothing is saved.
 2. **Posts made in OMNI.** Tap **Post** on Discover to add an event, notice or news story. In the shared claude.ai version, posts are saved to a shared database, so everyone using that link sees them straight away, and registration counts update live. In the GitHub version (no database), posts are saved on your own device only.
 There is no made-up content in the app. The made-up events used by the automatic checks live in `tests/fixtures.js`, and the draft offices, tools and food lists for later phases stay in `js/data.js` without being shown.
 
-Limits: the crawler can only read public pages, not Moodle, email or WeChat. Keep it polite (a handful of pages every 30 minutes) and always link back to the source. Run it yourself with `npm run crawl`.
+Limits: the crawler reads only public pages that allow it. It never logs in, so it can't read Moodle, email, the UNNC portal or WeChat itself (WeChat's site asks robots to stay out). Keep it polite (a handful of pages every 30 minutes) and always link back to the source. Run it yourself with `npm run crawl`.
 
 ### Feeds from official accounts (RSS)
 
