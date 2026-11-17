@@ -332,7 +332,8 @@
 
   function featuredSlides() {
     // Real content only: the next upcoming events, then the newest news.
-    var soon = events().filter(isUpcoming).sort(function (a, b) { return a.startAt - b.startAt; }).slice(0, 3).map(function (e) { return e.id; });
+    var today = L.startOfDay(now());
+    var soon = events().filter(function (e) { return e.startAt >= today; }).sort(function (a, b) { return a.startAt - b.startAt; }).slice(0, 3).map(function (e) { return e.id; });
     var newest = allPosts().filter(function (p) { return p.kind === "news"; }).sort(function (a, b) { return b.posted - a.posted; }).slice(0, 5 - soon.length).map(function (p) { return p.id; });
     var picks = soon.concat(newest);
     return picks.map(function (id) {
