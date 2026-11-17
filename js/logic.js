@@ -21,7 +21,8 @@
     var today = startOfDay(now);
     return events.map(function (e) {
       var day = new Date(today.getTime() + e.day * DAY);
-      return Object.assign({}, e, { startAt: atTime(day, e.start), endAt: atTime(day, e.end) });
+      var endDay = e.endDay != null ? new Date(today.getTime() + e.endDay * DAY) : day;
+      return Object.assign({}, e, { startAt: atTime(day, e.start), endAt: atTime(endDay, e.end) });
     });
   }
 
@@ -207,6 +208,60 @@
     return s.length > 5 ? s.slice(0, 3) + "***" + s.slice(-2) : s;
   }
 
+
+  // Whole days between today and a "YYYY-MM-DD" date (negative = in the past).
+  function dayOffset(isoDate, now) {
+    var p = String(isoDate).slice(0, 10).split("-").map(Number);
+    if (p.length !== 3 || p.some(isNaN)) return null;
+    var d = new Date(p[0], p[1] - 1, p[2]);
+    return Math.round((d - startOfDay(now)) / DAY);
+  }
+
+  // Guess a topic for an item from the UNNC website from words in its title.
+  function guessTopic(text) {
+    var t = String(text || "").toLowerCase();
+    if (/career|employ|intern|job|recruit|fair|alumni/.test(t)) return "careers";
+    if (/sport|football|basketball|badminton|run|marathon|fitness|cup/.test(t)) return "sports";
+    if (/wellbeing|well-being|mental|health|counsel|mindful/.test(t)) return "wellbeing";
+    if (/festival|culture|cultural|music|concert|art|film|exhibition|calligraphy|chinese new year|lantern/.test(t)) return "culture";
+    if (/competition|club|society|hackathon|challenge|union/.test(t)) return "clubs";
+    return "academic";
+  }
+
+  /*
+   * Turns crawled UNNC website data (data/live.json) into OMNI events and posts.
+   * live = { events: [{id, title, start, end, location, organiser, url, summary}], news: [{id, title, date, url, summary, organiser}] }
+   */
+  function fromWebsite(live, now) {
+    var out = { events: [], posts: [] };
+    if (!live) return out;
+    (live.events || []).forEach(function (e) {
+      if (!e || !e.id || !e.title || !e.start) return;
+      var day = dayOffset(e.start, now);
+      if (day == null) return;
+      var endDay = e.end ? dayOffset(e.end, now) : day;
+      var st = /T(\d\d:\d\d)/.exec(e.start), en = /T(\d\d:\d\d)/.exec(e.end || "");
+      out.events.push({
+        id: "web-" + e.id, title: String(e.title).slice(0, 160), category: guessTopic(e.title + " " + (e.summary || "")),
+        organiser: e.organiser || "UNNC", source: "web", day: day, endDay: endDay == null ? day : endDay,
+        start: st ? st[1] : "00:00", end: en ? en[1] : "23:59", location: e.location || "See event page",
+        capacity: 0, taken: 0, tags: [], description: e.summary || "", zh: e.summaryZh || "", url: e.url,
+        image: e.image || "", external: true, posted: Math.min(day, 0) - 1
+      });
+    });
+    (live.news || []).forEach(function (n) {
+      if (!n || !n.id || !n.title || !n.date) return;
+      var posted = dayOffset(n.date, now);
+      if (posted == null) return;
+      out.posts.push({
+        id: "web-" + n.id, kind: n.kind === "notice" ? "notice" : "news", title: String(n.title).slice(0, 200),
+        organiser: n.organiser || "UNNC", source: "web", posted: posted, topic: guessTopic(n.title),
+        body: n.summary || "", zh: n.summaryZh || "", url: n.url, image: n.image || "", external: true
+      });
+    });
+    return out;
+  }
+
   var api = {
     DAY: DAY,
     startOfDay: startOfDay,
@@ -221,7 +276,10 @@
     routeHelp: routeHelp,
     filterFeed: filterFeed,
     pickFood: pickFood,
-    maskId: maskId
+    maskId: maskId,
+    dayOffset: dayOffset,
+    guessTopic: guessTopic,
+    fromWebsite: fromWebsite
   };
   root.OmniLogic = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

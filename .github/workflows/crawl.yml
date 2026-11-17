@@ -1,0 +1,34 @@
+# Every 30 minutes, read UNNC's public news and events pages and save them
+# to data/live.json. If anything changed, commit it so the live site updates.
+name: Update live UNNC data
+on:
+  schedule:
+    - cron: "7,37 * * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: crawl
+  cancel-in-progress: false
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Read UNNC pages
+        run: node tools/crawl.js
+      - name: Save changes
+        run: |
+          if [ -z "$(git status --porcelain -- data/live.json)" ]; then
+            echo "No new news or events."
+            exit 0
+          fi
+          git config user.name "omni-crawler"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/live.json
+          git commit -m "Update live UNNC news and events"
+          git push
