@@ -4,7 +4,7 @@
 
 OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem A). Right now, UNNC event information is scattered across university email, Moodle, WeChat official accounts, club group chats and mini programs. Registering or asking for help sends students through links to separate portals that often make them log in again. OMNI tests the opposite: one app, one sign-in.
 
-> This is a student prototype. It is not an official university service. Items marked **Live from UNNC website** are real and come from UNNC's public pages; everything else (offices, food, most events) is **sample data** written for testing.
+> This is a student prototype. It is not an official university service. Items marked **Live from UNNC website** are real and come from UNNC's public pages; Events, notices and news are **real only**: from UNNC's public website, official feeds, or posted by people in OMNI. Offices, food places and tool previews are still **sample data** for the prototype.
 
 ## What you can do in the app
 
@@ -42,7 +42,7 @@ OMNI mixes three kinds of content:
 
 1. **Real UNNC news and events, updated automatically.** `tools/crawl.js` reads UNNC's *public* web pages ([University News](https://www.nottingham.edu.cn/en/press-release/news-listing.aspx), [University Events](https://www.nottingham.edu.cn/en/events/event-listing.aspx) and the Science & Engineering events page). GitHub runs it every 30 minutes (`.github/workflows/crawl.yml`) and saves the results to `data/live.json`. When OMNI is served from a website, it loads that file and checks again every 10 minutes. These items are marked **Live from UNNC website** and link back to the original page.
 2. **Posts made in OMNI.** Tap **Post** on Discover to add an event, notice or news story. In the shared claude.ai version, posts are saved to a shared database, so everyone using that link sees them straight away, and registration counts update live. In the GitHub version (no database), posts are saved on your own device only.
-3. **Sample content** (made-up events, offices, food and so on), so every screen has something to show.
+3. **Sample content** for the parts that aren't connected yet (offices, food places, tool previews). There are no made-up events, notices or news: the made-up ones used by the automatic checks live in `tests/fixtures.js` and never appear in the app.
 
 Limits: the crawler can only read public pages, not Moodle, email or WeChat. Keep it polite (a handful of pages every 30 minutes) and always link back to the source. Run it yourself with `npm run crawl`.
 
@@ -78,7 +78,7 @@ Those sources are behind logins, so OMNI never asks for anyone's UNNC password a
 ```
 index.html           the page itself
 css/app.css          all the styling (colours, light and dark mode)
-js/data.js           sample events, notices, news, offices, tools and food  <- edit this to add content
+js/data.js           offices, help answers, tools and food (sample)
 js/logic.js          search, filters, one-tap registration, help routing (no screen code)
 js/icons.js          the line icons
 js/app.js            draws each screen and handles taps
@@ -88,9 +88,11 @@ data/live.json       the latest crawled news and events (updated by GitHub every
 tools/build-preview.js  bundles everything into one file for sharing
 ```
 
+**Colours follow 60-30-10:** 60% warm paper (backgrounds and cards), 30% deep jade (text accents, tiles, posters) and 10% signal orange, used only for main buttons, live dots and things that need attention (full, due, errors). They are set once at the top of `css/app.css`.
+
 No frameworks and no build step: it is plain HTML, CSS and JavaScript, so anyone on the team can open a file and change it.
 
-- **Add an event:** copy one block in `js/data.js`. `day: 3` means "three days from today", so the demo always looks current.
+- **Add an event:** post it in the app (Discover → Post), or add a feed to `data/feeds.json`.
 - **Teach the help desk a new word:** add it to an office's `keywords` list in `js/data.js`.
 - **Run the checks:** `npm test`.
 - **Make a single shareable file:** `npm run build:preview` writes `dist/preview.html`.

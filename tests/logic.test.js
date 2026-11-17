@@ -1,7 +1,7 @@
 // Run with: npm test   (or: node --test tests/)
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const data = require("../js/data.js");
+const data = Object.assign({}, require("../js/data.js"), require("./fixtures.js"));
 const L = require("../js/logic.js");
 
 const now = new Date(2026, 10, 17, 9, 0); // 17 Nov 2026, 09:00

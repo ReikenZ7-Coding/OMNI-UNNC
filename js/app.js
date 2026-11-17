@@ -205,9 +205,9 @@
   }
 
   function sourceLine(it) {
-    if (it.feed) return '<span class="live-dot"></span>Live from ' + esc(it.source === "wechat" ? "WeChat" : D.sources[it.source] || "the web");
-    if (it.source === "web") return '<span class="live-dot"></span>Live from UNNC website';
-    if (it.community) return '<span class="live-dot"></span>Posted in OMNI';
+    if (it.feed) return '<span class="live-dot quiet"></span>Live from ' + esc(it.source === "wechat" ? "WeChat" : D.sources[it.source] || "the web");
+    if (it.source === "web") return '<span class="live-dot quiet"></span>Live from UNNC website';
+    if (it.community) return '<span class="live-dot quiet"></span>Posted in OMNI';
     return "From " + esc(D.sources[it.source]);
   }
   function updatedWord(iso) {
@@ -331,13 +331,15 @@
   }
 
   function featuredSlides() {
-    var picks = ["careers-fair", "food-festival", "news-pitch", "hackathon", "n-exams"];
-    if (WEB.posts[0]) picks.splice(1, 0, WEB.posts[0].id); // newest real UNNC news story
+    // Real content only: the next upcoming events, then the newest news.
+    var soon = events().filter(isUpcoming).sort(function (a, b) { return a.startAt - b.startAt; }).slice(0, 3).map(function (e) { return e.id; });
+    var newest = allPosts().filter(function (p) { return p.kind === "news"; }).sort(function (a, b) { return b.posted - a.posted; }).slice(0, 5 - soon.length).map(function (p) { return p.id; });
+    var picks = soon.concat(newest);
     return picks.map(function (id) {
       var e = eventById(id);
       if (e) {
         return '<a class="slide p-' + e.category + '" href="#event-' + e.id + '"><span class="kind on-dark">Event · ' + esc(dayWord(e.startAt)) + "</span>" +
-          '<span class="slide-title">' + esc(e.title) + '</span><span class="slide-meta">' + esc(e.start + " · " + e.location) + "</span></a>";
+          '<span class="slide-title">' + esc(e.title) + '</span><span class="slide-meta">' + esc((allDay(e) ? "" : e.start + " · ") + e.location) + "</span></a>";
       }
       var p = postById(id);
       return '<a class="slide p-' + (p.kind === "news" ? "news" : "notice") + '" href="#post-' + p.id + '"><span class="kind on-dark">' + kindLabel(p.kind) + "</span>" +
@@ -363,22 +365,23 @@
     var mine = upcomingMine().slice(0, 2);
     var myEvents = mine.length ? '<div class="stack">' + mine.map(function (e) { return ticketHtml(e, state.registrations[e.id]); }).join("") + "</div>" :
       '<div class="empty">' + I("calendar") + "<p>No upcoming events yet</p><a class=\"btn soft small\" href=\"#discover\">Discover events</a></div>";
-    var notices = allPosts().filter(function (p) { return p.kind === "notice"; }).sort(function (a, b) { return b.posted - a.posted; }).slice(0, 3).map(function (p) {
-      return '<a class="row-link" href="#post-' + p.id + '"><span class="tile t-jade">' + I("bell") + '</span><span class="row-text"><b>' + esc(p.title) + "</b><span>" + esc(p.organiser) + "</span></span>" + I("chevron", "chev") + "</a>";
-    }).join("");
+    var latest = allPosts().slice().sort(function (a, b) { return b.posted - a.posted; }).slice(0, 3);
+    var notices = latest.length ? '<div class="list-panel">' + latest.map(function (p) {
+      return '<a class="row-link" href="#post-' + p.id + '"><span class="tile t-jade">' + I(p.kind === "notice" ? "bell" : "news") + '</span><span class="row-text"><b>' + esc(p.title) + "</b><span>" + esc(p.organiser + " · " + postedWord(new Date(L.startOfDay(now()).getTime() + p.posted * L.DAY))) + "</span></span>" + I("chevron", "chev") + "</a>";
+    }).join("") + "</div>" : '<div class="empty">' + I("bell") + "<p>No updates yet</p><span class=\"meta\">News and notices from UNNC and official accounts will appear here.</span></div>";
     return '<header class="page-head"><div class="stack tight"><span class="eyebrow">' + esc(now().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })) + "</span>" +
         '<h1 class="brand">OMNI<span>.</span></h1></div>' +
         '<a class="round-btn" href="#discover" data-focus="q" aria-label="Search everything">' + I("search") + "</a></header>" +
       '<p class="hello">Hi ' + esc(firstName()) + ", here's what's on around campus.</p>" + liveStrip() +
-      '<section class="carousel-wrap" aria-label="Featured"><div class="carousel" id="carousel">' + slides.join("") + "</div>" +
-        '<div class="carousel-nav"><button class="nav-btn" data-step="-1" aria-label="Previous">' + I("back") + '</button><div class="dots">' + dots + '</div><button class="nav-btn" data-step="1" aria-label="Next">' + I("chevron") + "</button></div></section>" +
+      (slides.length ? '<section class="carousel-wrap" aria-label="Featured"><div class="carousel" id="carousel">' + slides.join("") + "</div>" +
+        (slides.length > 1 ? '<div class="carousel-nav"><button class="nav-btn" data-step="-1" aria-label="Previous">' + I("back") + '</button><div class="dots">' + dots + '</div><button class="nav-btn" data-step="1" aria-label="Next">' + I("chevron") + "</button></div>" : "") + "</section>" : "") +
       '<section class="stack">' + sectionHead("Quick access", '<button class="link-btn" data-act="edit-pins">' + (ui.editPins ? "Done" : "Edit") + "</button>") +
         (ui.editPins ? '<p class="meta small">Tap a tool to add it to or remove it from your home screen.</p>' : "") +
         '<div class="card-panel">' + quick + "</div></section>" +
       '<a class="post-cta" href="#new"><span class="tile t-jade">' + I("plus") + '</span><span class="row-text"><b>Running an event?</b><span>Post it once in OMNI and everyone sees it straight away.</span></span>' + I("chevron", "chev") + "</a>" +
       '<section class="stack">' + sectionHead("My events", '<a class="link-btn" href="#my-events">All tickets ' + I("chevron") + "</a>") + myEvents + "</section>" +
-      '<section class="stack">' + sectionHead("Campus notices", '<button class="link-btn" data-act="all-updates">All updates ' + I("chevron") + "</button>") +
-        '<div class="list-panel">' + notices + "</div></section>";
+      '<section class="stack">' + sectionHead("Latest updates", '<button class="link-btn" data-act="all-updates">All updates ' + I("chevron") + "</button>") +
+        notices + "</section>";
   }
 
   function toolHref(t) {
@@ -507,7 +510,7 @@
     var p = postById(id);
     if (!p) return backBar("discover", "Discover") + '<div class="empty">That post could not be found.</div>';
     var postedAt = new Date(L.startOfDay(now()).getTime() + p.posted * L.DAY);
-    var related = /clean-up/.test(p.body) ? eventById("lake-cleanup") : null;
+    var related = null;
     return backBar("discover", "Discover", kindLabel(p.kind)) +
       '<div class="post-hero k-' + p.kind + '">' + I(p.kind === "notice" ? "bell" : "news") + "</div>" +
       '<section class="stack tight"><span class="eyebrow accent">' + kindLabel(p.kind) + "</span><h1>" + esc(p.title) + "</h1>" +
@@ -797,7 +800,7 @@
       "</div>" +
       '<section class="about card-panel"><h2>About OMNI</h2>' +
         "<p>OMNI is a student project for BUSI1116. It tests one idea: students should find an event, register and get help in one place, logging in only once.</p>" +
-        "<p>All events, notices, offices and places here are sample data written for testing. This is not an official university service.</p></section>";
+        "<p>Events, notices and news come only from real sources: UNNC's public website, official feeds, and posts people make in OMNI. Offices, food places and tool previews are still sample data for the prototype. This is not an official university service.</p></section>";
   }
 
   function screenNew() {
@@ -1346,13 +1349,7 @@
 
   // First sign-in: give the demo a past event and one booking so screens aren't empty.
   function seedDemo() {
-    var regs = {};
-    ["halloween-movie", "referencing"].forEach(function (id) {
-      var e = eventById(id);
-      if (e) regs = L.register(e, regs, state.student, new Date(e.startAt.getTime() - 3 * L.DAY)).registrations;
-    });
-    state.registrations = Object.assign(regs, state.registrations);
-    state.saved["pitch-night"] = true;
+    // Nothing to pre-fill: OMNI starts empty and shows only real events.
   }
 
   tabs.innerHTML = [["home", "Home", "home"], ["discover", "Discover", "discover"], ["help", "Help", "help"], ["tools", "Tools", "tools"], ["me", "Me", "me"]].map(function (t) {
