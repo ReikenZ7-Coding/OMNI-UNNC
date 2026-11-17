@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-17T05:07:06.313Z",
+ "updatedAt": "2026-11-17T05:21:23.031Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -27,6 +27,26 @@
  ],
  "news": [
   {
+   "id": "2679487e-57ff-4b8d-b19b-3634c32f2245",
+   "kind": "news",
+   "title": "UNNC Students Win First Prize in the Hardware Track at the INTERCITY HACK Hangzhou–Ningbo–Wenzhou Hackathon",
+   "date": "2026-11-04",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=2679487e-57ff-4b8d-b19b-3634c32f2245&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/INTERCITY-HACK-Hangzhou–Ningbo–Wenzhou-Hackathon3.x76d394ef.jpg",
+   "source": "campus-news"
+  },
+  {
+   "id": "ea78379c-8013-4e35-9249-bd554594c752",
+   "kind": "news",
+   "title": "UNNC Hosts IHCI 2026: 200+ Global Scholars Explore Human-Centred AI",
+   "date": "2026-11-03",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=ea78379c-8013-4e35-9249-bd554594c752&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/IHCI-2026.x212a75e3.jpg",
+   "source": "campus-news"
+  },
+  {
    "id": "f75343bb-8c1a-4bb2-8e52-5796e0b4e078",
    "kind": "news",
    "title": "UNNC and British Council sign strategic partnership to enhance international education",
@@ -47,6 +67,16 @@
    "source": "news"
   },
   {
+   "id": "b978e42e-f59e-4543-9ef2-1c7bc565d543",
+   "kind": "news",
+   "title": "Design Studio 3A Students Explore the Future of Qushan Island Through Fieldwork",
+   "date": "2026-10-27",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=b978e42e-f59e-4543-9ef2-1c7bc565d543&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/Qushan-Island-Exploration.xee1cb361.jpg",
+   "source": "campus-news"
+  },
+  {
    "id": "31fcc94e-d81a-4ea0-9b0d-bdee708283d2",
    "kind": "news",
    "title": "Record number of UNNC scholars recognised among the World’s Top 2% Scientists",
@@ -55,6 +85,36 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=31fcc94e-d81a-4ea0-9b0d-bdee708283d2&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261022-The-Worlds-Top-2-Scientists/The-World's-Top-2-Scientists.jpg.xd1f2ba58.jpg",
    "source": "news"
+  },
+  {
+   "id": "c1a3b5aa-b8e0-4759-8065-4ffaf5fe0661",
+   "kind": "news",
+   "title": "34 FoSE UG student teams awarded in mathematical modeling contest",
+   "date": "2026-10-21",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=c1a3b5aa-b8e0-4759-8065-4ffaf5fe0661&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/mathematical-modeling3.xb667baa8.jpg",
+   "source": "campus-news"
+  },
+  {
+   "id": "0481087b-0d7a-437c-8e60-3291d618b5c2",
+   "kind": "news",
+   "title": "Civil Engineering Students Visit New Ningbo Olympic Sports Centre Construction Site",
+   "date": "2026-10-21",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=0481087b-0d7a-437c-8e60-3291d618b5c2&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/New-Ningbo-Olympic-Sports-Centre-Construction-Site-Visiting2.x0be2157b.jpg",
+   "source": "campus-news"
+  },
+  {
+   "id": "ddc78870-8ebc-4977-8a63-0f6404aac248",
+   "kind": "news",
+   "title": "UNNC Hosts Premier International Engineering Vibration Conference in China for the First Time",
+   "date": "2026-10-20",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=ddc78870-8ebc-4977-8a63-0f6404aac248&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/ICoEV2.x9a86269d.jpg",
+   "source": "campus-news"
   },
   {
    "id": "aa8d098e-a123-4c1e-9722-6a9ed6022b34",
@@ -77,6 +137,16 @@
    "source": "news"
   },
   {
+   "id": "93035dce-4424-4177-ae5d-14c0ca8d4980",
+   "kind": "news",
+   "title": "Bridging Languages, Embracing a Shared Tomorrow — The 10th Anniversary Celebration of Nottingham Confucius Institute China Ningbo Branch",
+   "date": "2026-10-17",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=93035dce-4424-4177-ae5d-14c0ca8d4980&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Confucius-Institute/20261018-10th-anniversary/10.x55b0a595.jpg",
+   "source": "campus-news"
+  },
+  {
    "id": "e81b45b0-0284-45a6-a010-fc9d6b219edf",
    "kind": "news",
    "title": "UNNC team’s 3D-printed ceramic jewellery design shines at the Red Dot Award: Design Concept 2026",
@@ -85,6 +155,16 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=e81b45b0-0284-45a6-a010-fc9d6b219edf&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20251018-Red-Dot-Awards/Red-Dot-Awards-image1.x69160611.jpg",
    "source": "news"
+  },
+  {
+   "id": "61d38bd6-130b-4763-80bd-e3619bb7e944",
+   "kind": "news",
+   "title": "FoSE Liberal Arts Workshop: A Guqin Concert Bridging Science and Tradition",
+   "date": "2026-10-14",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=61d38bd6-130b-4763-80bd-e3619bb7e944&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/FoSE-Liberal-Arts-Workshop-Guqin-Concert1.x272594f8.jpg",
+   "source": "campus-news"
   },
   {
    "id": "ef1998d3-2640-42b5-85c9-16d7701d78a9",
@@ -145,6 +225,188 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=edca1104-9841-453f-b1e1-5137f726cbc2&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260910-rural-classrooms/Rural-classrooms-image1.x252c8bf5.jpg",
    "source": "news"
+  }
+ ],
+ "dates": [
+  {
+   "id": "kd-2026-09-21-autumn-semester",
+   "title": "Autumn Semester",
+   "start": "2026-09-21T00:00",
+   "end": "2027-01-23T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2026-12-25-christmas-boxing-day",
+   "title": "Holiday · Christmas & Boxing Day",
+   "start": "2026-12-25T00:00",
+   "end": "2026-12-26T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-01-01-new-year-s-day",
+   "title": "Holiday · New Year's Day",
+   "start": "2027-01-01T00:00",
+   "end": "2027-01-01T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-01-04-autumn-semester",
+   "title": "Exams · Autumn Semester",
+   "start": "2027-01-04T00:00",
+   "end": "2027-01-23T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-02-05-chinese-lunar-new-year",
+   "title": "Holiday · Chinese Lunar New Year",
+   "start": "2027-02-05T00:00",
+   "end": "2027-02-08T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-02-15-spring-semester",
+   "title": "Spring Semester",
+   "start": "2027-02-15T00:00",
+   "end": "2027-06-04T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-02-15-returning-students-spring-semester",
+   "title": "Registration · Returning Students (Spring Semester)",
+   "start": "2027-02-15T00:00",
+   "end": "2027-02-15T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-02-15-pgr-students-1",
+   "title": "Registration · PGR Students",
+   "start": "2027-02-15T00:00",
+   "end": "2027-02-15T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-04-05-qing-ming",
+   "title": "Holiday · Qing Ming",
+   "start": "2027-04-05T00:00",
+   "end": "2027-04-05T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-05-02-labor-day",
+   "title": "Holiday · Labor Day",
+   "start": "2027-05-02T00:00",
+   "end": "2027-05-02T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-05-10-spring-semester",
+   "title": "Exams · Spring Semester",
+   "start": "2027-05-10T00:00",
+   "end": "2027-05-29T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-06-09-dragon-boat-festival",
+   "title": "Holiday · Dragon Boat Festival",
+   "start": "2027-06-09T00:00",
+   "end": "2027-06-09T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-07-10-ug",
+   "title": "Graduation · UG",
+   "start": "2027-07-10T00:00",
+   "end": "2027-07-11T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-08-16-year-1-students",
+   "title": "Exams · Late summer resits · Year 1 Students",
+   "start": "2027-08-16T00:00",
+   "end": "2027-08-21T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
+  },
+  {
+   "id": "kd-2027-08-16-year-2-3-4-master",
+   "title": "Exams · Late summer resits · Year 2/3/4/Master",
+   "start": "2027-08-16T00:00",
+   "end": "2027-08-28T23:59",
+   "location": "UNNC",
+   "organiser": "UNNC Key Dates",
+   "url": "https://www.nottingham.edu.cn/en/about/key-dates/key-dates.aspx",
+   "image": "",
+   "source": "key-dates",
+   "topic": "academic"
   }
  ],
  "feeds": [
