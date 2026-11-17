@@ -403,6 +403,11 @@
 
   function screenDiscover() {
     var list = L.filterFeed(events(), allPosts(), ui, now(), state.registrations);
+    if (ui.keyOnly) list = list.filter(isKeyDate);
+    var quickNow = ui.keyOnly ? "keydates" : ui.source === "omni" ? "omni" : ui.when === "today" ? "today" : ui.when === "week" ? "week" : ui.when === "any" && ui.source === "all" ? "all" : "";
+    var quickChips = [["all", "Everything"], ["today", "Today"], ["week", "This week"], ["keydates", "Exams & holidays"], ["omni", "Posted in OMNI"]].map(function (q) {
+      return '<button class="chip" data-quick="' + q[0] + '" aria-pressed="' + (quickNow === q[0]) + '">' + q[1] + "</button>";
+    }).join("");
     var kindTiles = [["notice", "Notices", "bell"], ["news", "News", "news"], ["event", "Events", "calendar"]].map(function (k) {
       var on = !!ui.kinds[k[0]];
       return '<button class="kind-tile k-' + k[0] + (on ? " on" : "") + '" data-kind="' + k[0] + '" aria-pressed="' + on + '">' + I(k[2]) + "<span>" + k[1] + '</span><i class="tick">' + I("check") + "</i></button>";
@@ -432,15 +437,19 @@
       liveStrip() +
       '<div class="kind-row" role="group" aria-label="Show">' + kindTiles + "</div>" +
       searchBox("q", ui.query, "Search titles, topics or keywords") +
+      '<div class="chips" role="group" aria-label="Quick filters">' + quickChips + "</div>" +
       '<button class="filter-line" data-act="filters" aria-expanded="' + ui.showFilters + '"><span>' + esc(topicLabel + " · " + whenLabel + " · " + sourceLabel) + "</span><b>" + I("filter") + "Filter</b></button>" +
       filters +
       '<div class="section-head"><h2 class="muted-h">' + list.length + (list.length === 1 ? " result" : " results") + '</h2>' +
         '<label class="sort"><span class="sr">Sort</span><select id="sort" class="select"><option value="soonest"' + (ui.sort === "soonest" ? " selected" : "") + '>Events soonest first</option><option value="latest"' + (ui.sort === "latest" ? " selected" : "") + ">Latest posted first</option></select></label></div>" +
       '<section class="feed" aria-live="polite">' +
-        (list.length ? list.map(feedCard).join("") :
+        (list.length ? list.map(feedCard).join("") : ui.source === "omni" && !ui.query ?
+          '<div class="empty">' + I("plus") + '<p>Nothing posted in OMNI yet</p><span class="meta">Running an event or have news for students? Be the first.</span><a class="btn small" href="#new">Post to OMNI</a></div>' :
           '<div class="empty"><p>Nothing matches those filters.</p><button class="btn secondary small" data-act="clear">Reset filters</button></div>') +
       "</section>";
   }
+
+  function isKeyDate(it) { return /^web-kd-/.test(it.id); }
 
   function screenEvent(id) {
     var e = eventById(id);
@@ -1076,6 +1085,8 @@
     }
     lastRoute = key;
     if (r.name === "home") bindCarousel();
+    var qc = view.querySelector('.chips [data-quick][aria-pressed="true"]');
+    if (qc) qc.parentNode.scrollLeft = Math.max(0, qc.offsetLeft - qc.parentNode.offsetLeft - 16);
     Array.prototype.forEach.call(view.querySelectorAll("img.poster-img, img.post-img"), function (img) {
       function ok() { if (img.naturalWidth) img.parentNode.classList.add("has-img"); }
       if (img.complete) ok(); else img.addEventListener("load", ok);
@@ -1154,7 +1165,7 @@
     } else if (act === "remind") {
       if (state.reminders[id]) { delete state.reminders[id]; toast("Reminder removed."); } else { state.reminders[id] = true; toast("We'll remind you " + remindLabel() + " before."); }
       save();
-    } else if (act === "clear") { ui.query = ""; ui.topic = "all"; ui.when = "any"; ui.source = "all"; ui.available = false; ui.kinds = { event: true, notice: true, news: true }; }
+    } else if (act === "clear") { ui.query = ""; ui.topic = "all"; ui.when = "any"; ui.source = "all"; ui.available = false; ui.keyOnly = false; ui.kinds = { event: true, notice: true, news: true }; }
     else if (act === "filters") ui.showFilters = !ui.showFilters;
     else if (act === "snap") { runSnap(); return; }
     else if (act === "snap-stop") { if (AI.ctl) AI.ctl.abort(); return; }
@@ -1184,7 +1195,7 @@
   }
 
   document.addEventListener("click", function (ev) {
-    var t = ev.target.closest("[data-act],[data-topic],[data-when],[data-source],[data-kind],[data-mytab],[data-hq],[data-open],[data-lang],[data-pin],[data-pref],[data-ttday],[data-book],[data-topup],[data-slide],[data-step],[data-focus],[data-newkind]");
+    var t = ev.target.closest("[data-act],[data-topic],[data-when],[data-source],[data-kind],[data-mytab],[data-hq],[data-open],[data-lang],[data-pin],[data-pref],[data-ttday],[data-book],[data-topup],[data-slide],[data-step],[data-focus],[data-newkind],[data-quick]");
     if (!t || !(view.contains(t) || actionBar.contains(t))) return;
     var d = t.dataset;
     if (d.act) { ev.stopPropagation(); handleAction(t); return; }
@@ -1198,6 +1209,12 @@
     }
     else if (d.mytab) ui.myTab = d.mytab;
     else if (d.newkind) { setNewKind(d.newkind); return; }
+    else if (d.quick) {
+      ui.keyOnly = d.quick === "keydates";
+      ui.when = d.quick === "today" || d.quick === "week" ? d.quick : "any";
+      ui.source = d.quick === "omni" ? "omni" : "all";
+      if (ui.keyOnly || d.quick === "today" || d.quick === "week") ui.kinds = { event: true, notice: true, news: true };
+    }
     else if (d.hq) ui.helpQuery = d.hq;
     else if (d.lang) ui.lang = d.lang;
     else if (d.pin) {
