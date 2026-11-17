@@ -46,6 +46,18 @@ OMNI mixes three kinds of content:
 
 Limits: the crawler can only read public pages, not Moodle, email or WeChat. Keep it polite (a handful of pages every 30 minutes) and always link back to the source. Run it yourself with `npm run crawl`.
 
+### Feeds from official accounts (RSS)
+
+If a UNNC WeChat official account, the Student Union or a department has an RSS or Atom feed (for example from a public WeChat-to-RSS service), add it to `data/feeds.json`:
+
+```json
+{ "feeds": [
+  { "name": "宁诺就业", "url": "https://example.com/feed.xml", "kind": "news", "topic": "careers" }
+] }
+```
+
+The crawler reads each feed every 30 minutes and keeps **only the headline, date and link**, never the article itself. In OMNI the item says "Live from WeChat" and has a **Read on WeChat** button, so students read the full post where it was published. That keeps OMNI a way to *find* things, not a copy of WeChat. Please don't add feeds made by logging into WeChat with a "burner" account or by getting around WeChat's anti-bot protections.
+
 ### WeChat, email and Moodle: let students bring it in
 
 Those sources are behind logins, so OMNI never asks for anyone's UNNC password and never reads private chats. Instead, the student who already has the information brings it in, in a few seconds:

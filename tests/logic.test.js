@@ -199,3 +199,29 @@ test("email-code sign-in only accepts UNNC emails and checks codes safely", () =
   assert.ok(L.sendWait([t - 50 * 60e3, t - 40 * 60e3, t - 30 * 60e3], t) > 0, "at most 3 codes an hour");
   assert.equal(L.sendWait([t - 61 * 60e3, t - 40 * 60e3, t - 30 * 60e3], t), 0);
 });
+
+test("reads RSS and Atom feeds as headlines with links, never full articles", () => {
+  const C = require("../tools/crawl.js");
+  const rss = `<?xml version="1.0"?><rss><channel><title>宁诺就业</title>
+    <item><title><![CDATA[2027届秋季招聘会 | Autumn Careers Fair]]></title><link>https://mp.weixin.qq.com/s/AbC123</link><pubDate>Mon, 16 Nov 2026 09:00:00 +0800</pubDate><description><![CDATA[<p>Full article text that OMNI must not keep</p>]]></description></item>
+    <item><title>No link here</title><pubDate>Mon, 16 Nov 2026 09:00:00 +0800</pubDate></item>
+  </channel></rss>`;
+  const items = C.parseFeed(rss, { name: "宁诺就业", kind: "news", topic: "careers" });
+  assert.equal(items.length, 1);
+  assert.equal(items[0].title, "2027届秋季招聘会 | Autumn Careers Fair");
+  assert.equal(items[0].url, "https://mp.weixin.qq.com/s/AbC123");
+  assert.equal(items[0].date, "2026-11-16");
+  assert.equal(items[0].via, "wechat");
+  assert.ok(!JSON.stringify(items[0]).includes("Full article"), "the article body is not kept");
+  const atom = `<feed><entry><title>SU elections open</title><link rel="alternate" href="https://example.org/su/elections"/><updated>2026-11-15T10:00:00Z</updated></entry></feed>`;
+  assert.equal(C.parseFeed(atom, { name: "Student Union" })[0].url, "https://example.org/su/elections");
+
+  const now = new Date(2026, 10, 17, 10, 0);
+  const out = L.fromWebsite({ events: [], news: [], feeds: items }, now);
+  const p = out.posts[0];
+  assert.equal(p.source, "wechat");
+  assert.equal(p.linkLabel, "Read on WeChat");
+  assert.equal(p.topic, "careers");
+  assert.equal(p.body, "");
+  assert.equal(p.posted, -1);
+});

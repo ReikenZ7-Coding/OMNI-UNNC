@@ -205,6 +205,7 @@
   }
 
   function sourceLine(it) {
+    if (it.feed) return '<span class="live-dot"></span>Live from ' + esc(it.source === "wechat" ? "WeChat" : D.sources[it.source] || "the web");
     if (it.source === "web") return '<span class="live-dot"></span>Live from UNNC website';
     if (it.community) return '<span class="live-dot"></span>Posted in OMNI';
     return "From " + esc(D.sources[it.source]);
@@ -238,8 +239,8 @@
       '<div class="fcard-body">' +
         '<div class="fcard-top"><span class="kind k-' + it.kind + '">' + kindLabel(it.kind) + '</span><span class="org">' + esc(it.organiser) + "</span></div>" +
         '<h3 class="fcard-title">' + esc(it.title) + "</h3>" +
-        '<p class="meta clamp">' + esc(it.body) + "</p>" +
-        '<div class="fcard-foot"><span class="meta small">' + (it.source === "web" || it.community ? sourceLine(it) + " · " : "") + "Posted " + esc(postedWord(it.postedAt)) + "</span>" + saveButton(it.id) + "</div>" +
+        (it.body ? '<p class="meta clamp">' + esc(it.body) + "</p>" : it.feed ? '<p class="meta">' + esc(it.linkLabel || "Open original") + " for the full article</p>" : "") +
+        '<div class="fcard-foot"><span class="meta small">' + (it.source === "web" || it.community || it.feed ? sourceLine(it) + " · " : "") + "Posted " + esc(postedWord(it.postedAt)) + "</span>" + saveButton(it.id) + "</div>" +
       "</div></article>";
   }
 
@@ -389,7 +390,8 @@
 
   function liveStrip() {
     var bits = [];
-    if (WEB.updatedAt) bits.push(WEB.events.length + " events and " + WEB.posts.length + " news stories from the UNNC website, updated " + esc(updatedWord(WEB.updatedAt)));
+    var fromFeeds = WEB.posts.filter(function (p) { return p.feed; }).length;
+    if (WEB.updatedAt) bits.push(WEB.events.length + " events and " + (WEB.posts.length - fromFeeds) + " news stories from the UNNC website" + (fromFeeds ? ", " + fromFeeds + " from official accounts" : "") + ", updated " + esc(updatedWord(WEB.updatedAt)));
     if (COMM.db) bits.push(communityRaw().length + " posted in OMNI");
     if (!bits.length) return "";
     return '<div class="live-strip"><span class="live-dot"></span><span>' + bits.join(" · ") + "</span></div>";
@@ -509,9 +511,11 @@
     return backBar("discover", "Discover", kindLabel(p.kind)) +
       '<div class="post-hero k-' + p.kind + '">' + I(p.kind === "notice" ? "bell" : "news") + "</div>" +
       '<section class="stack tight"><span class="eyebrow accent">' + kindLabel(p.kind) + "</span><h1>" + esc(p.title) + "</h1>" +
-        '<p class="meta">' + esc(p.organiser) + " · posted " + esc(postedWord(postedAt)) + " · " + (p.community ? "posted in OMNI" + (p.url ? " · from " + esc(D.sources[p.source] || "a link") : "") : p.source === "web" ? "live from the UNNC website" : "originally on " + esc(D.sources[p.source])) + "</p></section>" +
+        '<p class="meta">' + esc(p.organiser) + " · posted " + esc(postedWord(postedAt)) + " · " + (p.community ? "posted in OMNI" + (p.url ? " · from " + esc(D.sources[p.source] || "a link") : "") : p.feed ? "live from " + esc(D.sources[p.source] || "its feed") : p.source === "web" ? "live from the UNNC website" : "originally on " + esc(D.sources[p.source])) + "</p></section>" +
       (p.zh ? langSwitch() : "") +
-      (p.body || p.zh ? '<p class="body-text">' + esc(lang() === "zh" && p.zh ? p.zh : p.body) + "</p>" : '<p class="body-text">Read the full story on the UNNC website.</p>') +
+      (p.body || p.zh ? '<p class="body-text">' + esc(lang() === "zh" && p.zh ? p.zh : p.body) + "</p>"
+        : p.feed ? '<div class="banner live">' + I(p.source === "wechat" ? "mail" : "globe") + "<span>OMNI shows the headline. Read the full article on " + (p.source === "wechat" ? "WeChat" : "the original page") + ", where it was published.</span></div>"
+        : '<p class="body-text">Read the full story on the UNNC website.</p>') +
       (p.image ? '<img class="post-img" alt="" loading="lazy" src="' + esc(p.image) + '">' : "") +
       (p.community && p.url ? originLink(p) : "") +
       (p.community ? deleteButton(p) : "") +

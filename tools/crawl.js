@@ -13,6 +13,7 @@ const path = require("path");
 
 const BASE = "https://www.nottingham.edu.cn";
 const OUT = path.join(__dirname, "..", "data", "live.json");
+const FEEDS = path.join(__dirname, "..", "data", "feeds.json");
 const UA = "OMNI-UNNC student prototype crawler (+https://github.com/ReikenZ7-Coding/OMNI-UNNC)";
 
 const SOURCES = [
@@ -113,6 +114,44 @@ function parseNews(html, src) {
   }).filter(Boolean);
 }
 
+/*
+ * RSS / Atom feeds (for example a public feed of a UNNC WeChat official account).
+ * OMNI keeps only the title, date and link, never the article itself, so students
+ * still read the full post on WeChat or the original site.
+ */
+function tag(xml, name) {
+  const m = xml.match(new RegExp("<" + name + "(?:\\s[^>]*)?>([\\s\\S]*?)</" + name + ">", "i"));
+  return m ? m[1].replace(/^\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*$/, "$1") : "";
+}
+function feedDate(s) {
+  const d = new Date(String(s || "").trim());
+  return isNaN(d) ? "" : d.toISOString().slice(0, 10);
+}
+function slug(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9\u4e00-\u9fff]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "feed"; }
+function hashId(s) { let h = 2166136261; for (const c of String(s)) { h ^= c.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return h.toString(36); }
+function parseFeed(xml, feed) {
+  const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/gi) || xml.match(/<entry[\s>][\s\S]*?<\/entry>/gi) || [];
+  const max = Math.min(+feed.max || 10, 20);
+  return blocks.map((b) => {
+    const title = decode(tag(b, "title"));
+    let link = decode(tag(b, "link"));
+    if (!/^https?:/i.test(link)) { const m = b.match(/<link[^>]*href="([^"]+)"/i); link = m ? decode(m[1]) : ""; }
+    const date = feedDate(tag(b, "pubDate") || tag(b, "published") || tag(b, "updated") || tag(b, "dc:date"));
+    if (!title || !/^https?:\/\//i.test(link) || !date) return null;
+    return {
+      id: "f" + hashId(link), kind: feed.kind === "notice" ? "notice" : "news", title: title.slice(0, 200), date, url: link,
+      organiser: String(feed.name || "").slice(0, 60), topic: feed.topic || "", via: /weixin\.qq\.com|wechat/i.test(link) ? "wechat" : "web",
+      source: "feed-" + slug(feed.name || feed.url)
+    };
+  }).filter(Boolean).sort((a, b) => b.date.localeCompare(a.date)).slice(0, max);
+}
+function readFeeds() {
+  try {
+    const list = JSON.parse(fs.readFileSync(FEEDS, "utf8")).feeds || [];
+    return list.filter((f) => f && f.name && /^https:\/\//i.test(f.url || "") && f.enabled !== false).slice(0, 20);
+  } catch (e) { return []; }
+}
+
 async function getPage(url) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 25000);
@@ -124,7 +163,7 @@ async function getPage(url) {
 }
 
 function readPrevious() {
-  try { return JSON.parse(fs.readFileSync(OUT, "utf8")); } catch (e) { return { events: [], news: [], sources: {} }; }
+  try { return JSON.parse(fs.readFileSync(OUT, "utf8")); } catch (e) { return { events: [], news: [], feeds: [] }; }
 }
 
 async function main() {
@@ -146,15 +185,31 @@ async function main() {
     }
     await new Promise((r) => setTimeout(r, 1500)); // a pause between pages
   }
+  // Feeds listed in data/feeds.json
+  let feeds = [];
+  const oldest = new Date(Date.now() - 60 * 864e5).toISOString().slice(0, 10);
+  for (const feed of readFeeds()) {
+    const id = "feed-" + slug(feed.name || feed.url);
+    try {
+      const items = parseFeed(await getPage(feed.url), feed);
+      report[id] = { ok: true, items: items.length };
+      feeds.push(...items);
+    } catch (e) {
+      report[id] = { ok: false, error: String(e.message || e) };
+      feeds.push(...(prev.feeds || []).filter((x) => x.source === id));
+    }
+    await new Promise((r) => setTimeout(r, 1500));
+  }
   const seen = new Set();
   const dedupe = (x) => (seen.has(x.id) ? false : (seen.add(x.id), true));
   events = events.filter(dedupe).filter((e) => e.end.slice(0, 10) >= today).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 40);
   news = news.filter(dedupe).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 15);
+  feeds = feeds.filter(dedupe).filter((f) => f.date >= oldest).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60);
 
-  const changed = JSON.stringify({ events, news }) !== JSON.stringify({ events: prev.events, news: prev.news });
-  const out = { updatedAt: changed || !prev.updatedAt ? new Date().toISOString() : prev.updatedAt, from: BASE, events, news };
+  const changed = JSON.stringify({ events, news, feeds }) !== JSON.stringify({ events: prev.events, news: prev.news, feeds: prev.feeds || [] });
+  const out = { updatedAt: changed || !prev.updatedAt ? new Date().toISOString() : prev.updatedAt, from: BASE, events, news, feeds };
   console.log(JSON.stringify(report, null, 1));
-  console.log(events.length + " upcoming events, " + news.length + " news items" + (changed ? " (changed)" : " (no change)"));
+  console.log(events.length + " upcoming events, " + news.length + " news items, " + feeds.length + " feed items" + (changed ? " (changed)" : " (no change)"));
   if (changed || !fs.existsSync(OUT)) {
     fs.mkdirSync(path.dirname(OUT), { recursive: true });
     fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + "\n");
@@ -163,4 +218,4 @@ async function main() {
 }
 
 if (require.main === module) main();
-module.exports = { parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode };
+module.exports = { parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed };

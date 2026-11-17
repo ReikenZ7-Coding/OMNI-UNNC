@@ -263,6 +263,19 @@
         body: n.summary || "", zh: n.summaryZh || "", url: n.url, image: n.image || "", external: true
       });
     });
+    // Items from RSS feeds (e.g. a UNNC WeChat official account): title, date and link only.
+    (live.feeds || []).forEach(function (f) {
+      if (!f || !f.id || !f.title || !f.date) return;
+      var link = linkSource(f.url);
+      var posted = dayOffset(f.date, now);
+      if (!link || posted == null || posted > 0) return;
+      out.posts.push({
+        id: "web-" + f.id, kind: f.kind === "notice" ? "notice" : "news", title: String(f.title).slice(0, 200),
+        organiser: f.organiser || "Official account", source: f.via === "wechat" || link.source === "wechat" ? "wechat" : link.source === "omni" ? "web" : link.source,
+        posted: posted, topic: TOPIC_IDS.indexOf(f.topic) >= 0 ? f.topic : guessTopic(f.title + " " + (f.organiser || "")),
+        body: "", zh: "", url: link.url, linkLabel: link.label, external: true, feed: true
+      });
+    });
     return out;
   }
 
