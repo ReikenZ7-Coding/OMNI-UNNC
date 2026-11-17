@@ -53,7 +53,8 @@
     kinds: { event: true, notice: true, news: true }, showFilters: false,
     helpQuery: "", myTab: "upcoming", lang: null, toolQuery: "", editPins: false,
     foodQuery: "", foodPick: null, mapQuery: "", ttDay: null, confirm: null, newKind: "event",
-    snapText: "", snapFile: null, snapBusy: false, snapMsg: ""
+    snapText: "", snapFile: null, snapBusy: false, snapMsg: "",
+    signin: { step: "email", name: "", email: "", pending: null, sends: {}, error: "" }
   };
   // "Fill it in for me": Claude reads a poster or pasted message (only inside claude.ai).
   var AI = { sample: null, images: null, ctl: null };
@@ -288,18 +289,44 @@
 
   // ---------- Screens ----------
   function screenSignIn() {
-    var sources = Object.keys(D.sources).map(function (k) { return '<span class="pill plain">' + esc(D.sources[k]) + "</span>"; }).join("");
+    var sources = Object.keys(D.sources).filter(function (k) { return k !== "omni"; }).map(function (k) { return '<span class="pill plain">' + esc(D.sources[k]) + "</span>"; }).join("");
+    var si = ui.signin;
+    var err = si.error ? '<p class="form-error" role="alert">' + I("info") + esc(si.error) + "</p>" : "";
+    var form;
+    if (si.step === "code" && si.pending) {
+      var wait = L.sendWait(si.sends[si.email], Date.now());
+      form = '<form class="card-panel stack" id="code-form" autocomplete="off">' +
+        "<h2>Check your UNNC email</h2>" +
+        '<p class="meta">We sent a 6-digit code to <b>' + esc(si.email) + "</b>. It works for 10 minutes. If you can't see it, check your Junk folder.</p>" +
+        '<div class="demo-code">' + I("mail") + '<span>Demo: no email is really sent. Your code is <b>' + esc(si.pending.code) + "</b></span></div>" +
+        '<div class="field"><label for="si-code">6-digit code</label><input class="input code-input" id="si-code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000"></div>' +
+        err +
+        '<button class="btn block" type="submit">' + I("key") + "Sign in once</button>" +
+        '<div class="row between"><button type="button" class="link-btn" data-act="si-back">Use a different email</button>' +
+        '<button type="button" class="link-btn" data-act="si-resend"' + (wait ? " disabled" : "") + ">" + (wait ? "Resend in " + Math.ceil(wait / 1000) + "s" : "Send a new code") + "</button></div>" +
+      "</form>";
+    } else {
+      form = '<form class="card-panel stack" id="signin-form" autocomplete="off">' +
+        "<h2>Sign in with your UNNC email</h2>" +
+        '<p class="meta">We email you a one-time code. OMNI never asks for your university password.</p>' +
+        '<div class="field"><label for="si-name">Your name</label><input class="input" id="si-name" name="name" placeholder="e.g. Lin Yifan" maxlength="40" value="' + esc(si.name) + '"></div>' +
+        '<div class="field"><label for="si-email">UNNC email</label><div class="email-field"><input class="input" id="si-email" name="email" type="text" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="e.g. ssyly12" maxlength="90" value="' + esc(si.email ? si.email.replace("@nottingham.edu.cn", "") : "") + '"><span class="email-domain">@nottingham.edu.cn</span></div></div>' +
+        '<label class="toggle consent"><input type="checkbox" id="si-consent"' + (si.consent ? " checked" : "") + '> <span>I agree OMNI can keep my name and UNNC email to confirm I\'m a student and keep me signed in.</span></label>' +
+        '<details class="privacy"><summary>What OMNI keeps, and why</summary><ul>' +
+          "<li><b>Kept:</b> your name and UNNC email. Nothing else about you is collected at sign-in.</li>" +
+          "<li><b>Why:</b> to check you're a UNNC student (only @nottingham.edu.cn emails work), and so organisers know who registered.</li>" +
+          "<li><b>Never:</b> your university password, Moodle login or WeChat account.</li>" +
+          "<li><b>Your choice:</b> sign out or delete your data any time in Me → Settings.</li></ul></details>" +
+        err +
+        '<button class="btn block" type="submit">' + I("mail") + "Send me a code</button>" +
+        '<p class="demo-note">Student prototype. In this demo the code appears on screen instead of in your inbox, and everything stays on this device.</p>' +
+      "</form>";
+    }
     return '<section class="signin">' +
       '<div class="wordmark">OMNI<span>.</span></div>' +
       '<p class="signin-lede">Every campus event, campus tool and kind of help, in one place. <b>Sign in once</b> and you are done.</p>' +
-      '<div class="stack"><span class="eyebrow">Instead of checking</span><div class="scatter">' + sources + "</div></div>" +
-      '<form class="card-panel stack" id="signin-form" autocomplete="off">' +
-        "<h2>Sign in with your university account</h2>" +
-        '<div class="field"><label for="si-name">Your name</label><input class="input" id="si-name" name="name" placeholder="e.g. Lin Yifan" maxlength="40"></div>' +
-        '<div class="field"><label for="si-id">Student ID</label><input class="input" id="si-id" name="sid" inputmode="numeric" placeholder="8 digits" value="20512345" maxlength="8"></div>' +
-        '<button class="btn block" type="submit">' + I("key") + "Sign in once</button>" +
-        '<p class="demo-note">Demo sign-in: no password is asked for and nothing leaves this device. The real app would hand this step to the university\'s single sign-on.</p>' +
-      "</form></section>";
+      (si.step === "code" ? "" : '<div class="stack"><span class="eyebrow">Instead of checking</span><div class="scatter">' + sources + "</div></div>") +
+      form + "</section>";
   }
 
   function featuredSlides() {
@@ -753,8 +780,8 @@
     var bookings = Object.keys(state.bookings).length;
     return pageHead("Me") +
       '<section class="profile card-panel"><div class="avatar">' + esc(initials(s.name)) + '</div><div class="stack tight" style="min-width:0"><h2>' + esc(s.name) + "</h2>" +
-        '<span class="meta">ID ' + esc(L.maskId(s.id)) + ' · <span class="verified">' + I("checkCircle") + "Verified</span></span>" +
-        '<span class="meta small">Signed in once through OMNI</span></div></section>' +
+        '<span class="meta">' + esc(s.email ? L.maskEmail(s.email) : "ID " + L.maskId(s.id)) + ' · <span class="verified">' + I("checkCircle") + "Verified</span></span>" +
+        '<span class="meta small">' + (s.email ? "UNNC student, confirmed by email code" : "Signed in once through OMNI") + "</span></div></section>" +
       '<section class="stack">' + sectionHead("My schedule", '<a class="link-btn" href="#my-events">All my events ' + I("chevron") + "</a>") + scheduleHtml + "</section>" +
       '<div class="list-panel">' +
         rowLink("calendar", "calendar", "violet", "My calendar", state.calendar ? calCount + " classes and deadlines this week" : "Import Moodle deadlines and your timetable", state.calendar ? "" : '<span class="pill info">New</span>') +
@@ -1138,7 +1165,9 @@
       location.hash = "discover"; return;
     }
     else if (act === "pick-food") ui.foodPick = L.pickFood(D.food, Math.random());
-    else if (act === "signout") { state.student = null; save(); location.hash = ""; toast("Signed out."); }
+    else if (act === "signout") { state.student = null; save(); ui.signin = { step: "email", name: "", email: "", pending: null, sends: ui.signin.sends, error: "" }; location.hash = ""; toast("Signed out."); }
+    else if (act === "si-back") { ui.signin.step = "email"; ui.signin.pending = null; ui.signin.error = ""; }
+    else if (act === "si-resend") { sendCode(); return; }
     else if (act === "reset") {
       if (ui.confirm !== "reset") { ui.confirm = "reset"; render({ keepScroll: true }); return; }
       var s = state.student; state = blankState(); state.student = s; state.logins = 1; seedDemo(); save(); applyTheme(); ui.confirm = null; toast("Demo data reset.");
@@ -1217,15 +1246,57 @@
     else if (ev.target.id === "notify") { state.prefs.notify = ev.target.checked; save(); toast(ev.target.checked ? "Notifications on." : "Notifications off."); }
   });
 
+  // Demo version of "email me a code". A real version calls a small server that
+  // emails the code (see README) and never sends the code back to the page.
+  function sendCode() {
+    var si = ui.signin, t = Date.now();
+    var wait = L.sendWait(si.sends[si.email], t);
+    if (wait) { si.error = "Please wait " + (wait > 60000 ? Math.ceil(wait / 60000) + " minutes" : Math.ceil(wait / 1000) + " seconds") + " before asking for another code."; render({ keepScroll: true }); return; }
+    si.sends[si.email] = (si.sends[si.email] || []).concat([t]);
+    si.pending = { code: L.makeCode(), sentAt: t, tries: 0 };
+    si.step = "code"; si.error = "";
+    render.focus = "si-code";
+    render({ keepScroll: true });
+    toast("Code sent to " + L.maskEmail(si.email));
+    clearTimeout(sendCode.timer);
+    sendCode.timer = setTimeout(function tick() {
+      if (route().name === "signin" && ui.signin.step === "code") {
+        var btn = view.querySelector("[data-act=si-resend]"), w = L.sendWait(ui.signin.sends[ui.signin.email], Date.now());
+        if (btn) { btn.disabled = !!w; btn.textContent = w ? "Resend in " + Math.ceil(w / 1000) + "s" : "Send a new code"; }
+        if (w) sendCode.timer = setTimeout(tick, 1000);
+      }
+    }, 1000);
+  }
+
   view.addEventListener("submit", function (ev) {
     ev.preventDefault();
     var f = ev.target;
     if (f.id === "signin-form") {
-      var name = f.querySelector("#si-name").value.trim().replace(/\s+/g, " ") || "Demo Student";
-      var sid = f.querySelector("#si-id").value.trim();
-      if (!/^\d{8}$/.test(sid)) { toast("Student ID should be 8 digits."); return; }
+      var si = ui.signin;
+      si.name = f.querySelector("#si-name").value.trim().replace(/\s+/g, " ");
+      var raw = f.querySelector("#si-email").value;
+      si.consent = f.querySelector("#si-consent").checked;
+      si.email = L.unncEmail(raw) || raw.trim();
+      si.error = !si.name ? "Add your name first."
+        : !L.unncEmail(raw) ? "Use your UNNC email, the one ending in @nottingham.edu.cn."
+        : !f.querySelector("#si-consent").checked ? "Please tick the box to agree, so we can keep you signed in." : "";
+      if (si.error) { render({ keepScroll: true }); return; }
+      sendCode();
+    } else if (f.id === "code-form") {
+      var sc = ui.signin;
+      var result = L.checkCode(sc.pending, f.querySelector("#si-code").value, Date.now());
+      if (result !== "ok") {
+        if (result === "wrong") sc.pending.tries = (sc.pending.tries || 0) + 1;
+        var left = sc.pending ? L.CODE_TRIES - (sc.pending.tries || 0) : 0;
+        sc.error = result === "format" ? "The code has 6 digits."
+          : result === "expired" ? "That code has expired. Send a new one."
+          : result === "locked" || left <= 0 ? "Too many wrong tries. Send a new code."
+          : "That code isn't right. " + left + (left === 1 ? " try" : " tries") + " left.";
+        render({ keepScroll: true }); return;
+      }
       var first = !state.logins;
-      state.student = { name: name, id: sid };
+      state.student = { name: sc.name, email: sc.email, id: sc.email };
+      ui.signin = { step: "email", name: "", email: "", pending: null, sends: sc.sends, error: "" };
       state.logins = (state.logins || 0) + 1;
       if (first) seedDemo();
       save();

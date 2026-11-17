@@ -489,3 +489,20 @@ details.faq .office-link { display: inline-block; padding-bottom: 14px; font-siz
 .origin-link { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--ink); }
 .origin-link .row-text { flex: 1; min-width: 0; }
 .origin-link .row-text span { overflow-wrap: anywhere; }
+
+/* Email-code sign-in */
+.email-field { display: flex; align-items: stretch; border: 1.5px solid var(--line); border-radius: var(--r-md); background: var(--surface); overflow: hidden; }
+.email-field .input { border: 0; border-radius: 0; min-width: 0; flex: 1; box-shadow: none; }
+.email-field:focus-within { border-color: var(--accent); }
+.email-domain { display: flex; align-items: center; padding: 0 12px; color: var(--muted); font-size: .85rem; background: var(--line); white-space: nowrap; }
+.consent { align-items: flex-start; font-weight: 500; font-size: .9rem; line-height: 1.4; }
+.consent input { margin-top: 3px; flex: none; }
+.privacy summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: .9rem; }
+.privacy ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 6px; font-size: .85rem; color: var(--ink); line-height: 1.45; }
+.demo-code { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: var(--r-md); background: var(--amber-soft); color: var(--ink); font-size: .9rem; }
+.demo-code .ic { color: var(--amber); flex: none; }
+.demo-code b { font-family: var(--font-mono, monospace); letter-spacing: .15em; font-size: 1.05rem; }
+.code-input { font-family: var(--font-mono, monospace); font-size: 1.4rem; letter-spacing: .4em; text-align: center; }
+.form-error { display: flex; gap: 8px; align-items: center; color: var(--coral); font-weight: 600; font-size: .9rem; }
+.row.between { justify-content: space-between; }
+.link-btn:disabled { color: var(--muted); }

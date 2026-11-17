@@ -178,3 +178,24 @@ test("labels links to the original post by where they point", () => {
   assert.equal(g.link, "https://www.wjx.cn/vm/run.aspx");
   assert.equal(g.date, "2026-11-22");
 });
+
+test("email-code sign-in only accepts UNNC emails and checks codes safely", () => {
+  assert.equal(L.unncEmail("SSYLY12"), "ssyly12@nottingham.edu.cn");
+  assert.equal(L.unncEmail(" ssyly12@Nottingham.edu.cn "), "ssyly12@nottingham.edu.cn");
+  assert.equal(L.unncEmail("someone@gmail.com"), null);
+  assert.equal(L.unncEmail("a@nottingham.edu.cn.evil.com"), null);
+  assert.equal(L.maskEmail("ssyly12@nottingham.edu.cn"), "ss***2@nottingham.edu.cn");
+  assert.match(L.makeCode(() => 0.000042), /^\d{6}$/);
+  assert.equal(L.makeCode(() => 0.000042), "000042");
+  const t = 1_000_000_000;
+  const p = { code: "123456", sentAt: t, tries: 0 };
+  assert.equal(L.checkCode(p, "123 456", t + 1000), "ok");
+  assert.equal(L.checkCode(p, "654321", t + 1000), "wrong");
+  assert.equal(L.checkCode(p, "12345", t + 1000), "format");
+  assert.equal(L.checkCode(p, "123456", t + 11 * 60 * 1000), "expired");
+  assert.equal(L.checkCode({ ...p, tries: 5 }, "123456", t), "locked");
+  assert.equal(L.sendWait([], t), 0);
+  assert.ok(L.sendWait([t - 10 * 1000], t) > 0, "30 seconds between codes");
+  assert.ok(L.sendWait([t - 50 * 60e3, t - 40 * 60e3, t - 30 * 60e3], t) > 0, "at most 3 codes an hour");
+  assert.equal(L.sendWait([t - 61 * 60e3, t - 40 * 60e3, t - 30 * 60e3], t), 0);
+});

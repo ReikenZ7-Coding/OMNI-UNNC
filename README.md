@@ -10,7 +10,7 @@ OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem
 
 | Screen | What it does |
 | --- | --- |
-| **Sign in** | Sign in once (demo: name + student ID, no password). Every other screen trusts that sign-in, so you are never asked again. |
+| **Sign in** | Sign in once with your UNNC email and a 6-digit code (only @nottingham.edu.cn addresses work), after agreeing to a short privacy notice. OMNI never asks for a university password. Every other screen trusts that sign-in, so you are never asked again. In this demo the code is shown on screen instead of being emailed. |
 | **Home** | Featured events and news, a Quick access grid you can edit, your next tickets, and the latest campus notices. |
 | **Discover** | One feed of events, notices and news from all five places students used to check. Switch each type on or off, search, filter by topic, date or original source, and sort. |
 | **Event details** | Generated poster, time, place, organiser and places left, a 中文 / English switch for the description, and a bottom bar to **Save**, **Add reminder** and **Register in one tap** right inside the app. If it's full, the same tap joins the waitlist. |
@@ -83,7 +83,7 @@ No frameworks and no build step: it is plain HTML, CSS and JavaScript, so anyone
 
 ## What a real version would need
 
-1. **Real single sign-on.** Swap the demo sign-in for the university's own login (UNNC IT runs it), so every feature trusts one account. This is the root cause we identified in Workshop 02.
+1. **Real email codes.** The screens are ready; the missing piece is a small server that emails the code (for example Cloudflare Workers + Resend, plus a domain at about $10 a year). It should keep each code for 10 minutes, allow 5 tries, send at most 3 codes per email per hour, and never send the code back to the app. The rules are already in `js/logic.js` (`unncEmail`, `checkCode`, `sendWait`). Moodle and the portal stay separate: OMNI opens the official page and the student logs in there, so OMNI never holds a university password or cookie. Longer term, the university's own single sign-on would be the ideal.
 2. **Real event data.** Let clubs, the Student Union and departments post events into OMNI (or pull them from existing systems) instead of typing them into `data.js`.
 3. **A small server and database** so bookings and help requests reach the real organisers and offices.
 4. **A WeChat mini program version.** Most UNNC students live in WeChat, so that is where OMNI should end up. The logic in `js/logic.js` is plain JavaScript and can be reused there.

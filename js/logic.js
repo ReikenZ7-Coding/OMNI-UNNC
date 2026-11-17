@@ -406,6 +406,44 @@
     return r("omni", "Open original post");
   }
 
+  // ---------- Email code sign-in ----------
+  // OMNI proves someone is a UNNC student with a code sent to their university
+  // email. It never asks for, or stores, a university password.
+  var CODE_TTL = 10 * 60 * 1000, CODE_TRIES = 5, CODE_SENDS = 3, SEND_WINDOW = 60 * 60 * 1000;
+
+  // "ssyxx1" or "SSYXX1@nottingham.edu.cn" -> "ssyxx1@nottingham.edu.cn"; anything else -> null
+  function unncEmail(input) {
+    var s = String(input || "").trim().toLowerCase();
+    if (s.indexOf("@") < 0) s += "@nottingham.edu.cn";
+    return /^[a-z0-9][a-z0-9._%+-]{0,63}@nottingham\.edu\.cn$/.test(s) ? s : null;
+  }
+  function maskEmail(email) {
+    var p = String(email || "").split("@");
+    if (p.length !== 2) return String(email || "");
+    var u = p[0];
+    return (u.length > 3 ? u.slice(0, 2) + "***" + u.slice(-1) : u[0] + "***") + "@" + p[1];
+  }
+  function makeCode(random) {
+    var r = typeof random === "function" ? random() : Math.random();
+    return String(Math.floor(r * 1e6)).padStart(6, "0");
+  }
+  // sends = times of earlier codes for this email; returns ms to wait, 0 = OK to send now
+  function sendWait(sends, nowMs) {
+    var recent = (sends || []).filter(function (t) { return nowMs - t < SEND_WINDOW; }).sort(function (a, b) { return a - b; });
+    if (recent.length && nowMs - recent[recent.length - 1] < 30 * 1000) return 30 * 1000 - (nowMs - recent[recent.length - 1]);
+    if (recent.length >= CODE_SENDS) return SEND_WINDOW - (nowMs - recent[0]);
+    return 0;
+  }
+  // pending = {code, sentAt, tries}; returns "ok" | "wrong" | "expired" | "locked" | "format"
+  function checkCode(pending, input, nowMs) {
+    var c = String(input || "").replace(/\D/g, "");
+    if (!pending) return "expired";
+    if ((pending.tries || 0) >= CODE_TRIES) return "locked";
+    if (nowMs - pending.sentAt > CODE_TTL) return "expired";
+    if (c.length !== 6) return "format";
+    return c === pending.code ? "ok" : "wrong";
+  }
+
   // ---------- Import my calendar (.ics from Moodle or a timetable) ----------
 
   function icsDate(value, params) {
@@ -496,7 +534,13 @@
     guessFromText: guessFromText,
     extractPrompt: extractPrompt,
     parseICS: parseICS,
-    linkSource: linkSource
+    linkSource: linkSource,
+    unncEmail: unncEmail,
+    maskEmail: maskEmail,
+    makeCode: makeCode,
+    sendWait: sendWait,
+    checkCode: checkCode,
+    CODE_TRIES: CODE_TRIES
   };
   root.OmniLogic = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;
