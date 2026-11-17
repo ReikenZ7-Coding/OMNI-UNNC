@@ -29,8 +29,12 @@ const SOURCES = [
   { id: "cn-uni-events-2", lang: "zh", type: "uniEvents", organiser: "宁波诺丁汉大学", url: BASE + "/cn/events/event-listing.aspx?EVTPageIndex=2" },
   { id: "cn-news", lang: "zh", type: "news", organiser: "宁诺新闻", url: BASE + "/cn/press-release/news-listing.aspx" },
   { id: "cn-campus-news", lang: "zh", type: "news", pattern: "Article\\.aspx", organiser: "宁诺校园新闻", url: BASE + "/cn/university-life/news/index.aspx" },
+  // Faculty news lists (English and Chinese share ids, so they merge).
+  { id: "fse-news", type: "list", item: "news/article\\.aspx.id=", organiser: "Faculty of Science and Engineering", url: BASE + "/en/science-engineering/news/home.aspx" },
+  { id: "cn-fse-news", lang: "zh", type: "list", item: "news/article\\.aspx.id=", organiser: "理工学院", url: BASE + "/cn/science-engineering/news/home.aspx" },
+  { id: "fhss-news", type: "list", item: "News/Article\\.aspx.id=", organiser: "Faculty of Humanities and Social Sciences", url: BASE + "/en/humanities-and-social-sciences/news/" },
   // UNNC's Chinese account on NetEase (网易号), which republishes its WeChat articles as public web pages.
-  { id: "netease-unnc", lang: "zh", type: "list", item: "/dy/article/[A-Z0-9]+\\.html", organiser: "宁波诺丁汉大学 · 网易号", url: "https://www.163.com/dy/media/T1562640267479.html" }
+  { id: "netease-unnc", lang: "zh", type: "list", item: "/dy/article/[A-Z0-9]+\\.html", organiser: "宁波诺丁汉大学 · 网易号", max: 25, url: "https://www.163.com/dy/media/T1562640267479.html" }
 ];
 
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
@@ -229,13 +233,29 @@ function parseKeyDates(html, src) {
   return out;
 }
 
+// Follows redirects like a browser does, keeping any cookie the site sets on the
+// way (some UNNC folder pages set one and redirect to themselves). No log-ins.
 async function getPage(url) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 25000);
+  const jar = new Map();
   try {
-    const r = await fetch(url, { headers: { "User-Agent": UA, "Accept-Language": "en-GB,en;q=0.9" }, signal: ctrl.signal });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    return await r.text();
+    let at = url;
+    for (let hop = 0; hop < 8; hop++) {
+      const headers = { "User-Agent": UA, "Accept-Language": /\/cn\//.test(at) ? "zh-CN,zh;q=0.9,en;q=0.5" : "en-GB,en;q=0.9" };
+      if (jar.size) headers.Cookie = [...jar].map(([k, v]) => k + "=" + v).join("; ");
+      const r = await fetch(at, { headers, signal: ctrl.signal, redirect: "manual" });
+      const set = typeof r.headers.getSetCookie === "function" ? r.headers.getSetCookie() : [];
+      for (const c of set) { const m = /^([^=;\s]+)=([^;]*)/.exec(c); if (m) jar.set(m[1], m[2]); }
+      if (r.status >= 300 && r.status < 400 && r.headers.get("location")) {
+        const next = new URL(r.headers.get("location"), at).href;
+        if (/login|signin|sso|cas\/|oauth|authorize/i.test(next) && !/login|signin/i.test(url)) throw new Error("needs a log-in (" + new URL(next).hostname + ")");
+        at = next; continue;
+      }
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return await r.text();
+    }
+    throw new Error("too many redirects");
   } finally { clearTimeout(timer); }
 }
 
@@ -269,7 +289,8 @@ async function main() {
   for (const src of SOURCES) {
     try {
       const html = await getPage(src.url);
-      const items = parse(html, src).map((x) => Object.assign(x, { lang: src.lang || "en" }));
+      const items = parse(html, src).map((x) => Object.assign(x, { lang: src.lang || "en" }))
+        .sort((a, b) => String(b.date || b.start).localeCompare(String(a.date || a.start))).slice(0, src.max || 100);
       report[src.id] = { ok: true, items: items.length };
       (src.type === "news" ? news : src.type === "keyDates" ? dates : events).push(...items);
     } catch (e) {
@@ -350,16 +371,19 @@ function parseLinkList(html, src) {
   while ((m = re.exec(html))) {
     const href = m[2].replace(/&amp;/g, "&");
     if (!item.test(href)) continue;
-    const url = /^https?:/i.test(href) ? href : new URL(href, src.url).href;
+    let url = /^https?:/i.test(href) ? href : new URL(href, src.url).href;
+    url = url.replace(/[?&]spss=[^&#]*/, "").replace(/\?$/, "");
     if (seen.has(url)) continue;
     const titleAttr = (/title="([^"]+)"/.exec(m[1] + m[3]) || [])[1];
-    const title = decode(m[4]) || decode(titleAttr);
+    const title = (decode(titleAttr) || decode(m[4]))
+      .replace(/\s*(\d{1,2}\s+[A-Za-z]{3,9}\s+20\d\d|20\d\d\s*年\s*\d{1,2}\s*月\s*\d{1,2}\s*日?)\s*$/, "").trim();
+    const guid = (/[?&]id=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i.exec(url) || [])[1];
     if (title.length < 6) continue;
     const near = html.slice(Math.max(0, m.index - (src.before || 300)), m.index + m[0].length + (src.after || 700));
     const date = findDate(decode(near.slice(0, (src.before || 300))) + " | " + decode(near.slice(src.before || 300))) || findDate(decode(near));
     if (!date) continue;
     seen.add(url);
-    out.push({ id: src.id + "-" + hashId(url), kind: src.kind || "news", title: title.slice(0, 160), date, organiser: src.organiser, url, image: "", source: src.id, lang: src.lang || "en" });
+    out.push({ id: guid ? guid.toLowerCase() : src.id + "-" + hashId(url), kind: src.kind || "news", title: title.slice(0, 160), date, organiser: src.organiser, url, image: "", source: src.id, lang: src.lang || "en" });
   }
   return out;
 }

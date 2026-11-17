@@ -257,3 +257,24 @@ test("key dates show as events, but long ones already under way are skipped", ()
   assert.equal(out.events[0].category, "academic");
   assert.ok(out.events[0].external);
 });
+
+test("Chinese pages: dates, link lists, and one item per event in both languages", () => {
+  const C = require("../tools/crawl.js");
+  assert.equal(C.findDate("重量级合作+1！ 2026年10月30日"), "2026-10-30");
+  assert.equal(C.findDate("2026-11-14 18:21:02"), "2026-11-14");
+  assert.equal(C.findDate("Posted 3rd Nov 2026"), "2026-11-03");
+  const html = '<li><a href="https://www.163.com/dy/article/LBNDPUNJ05369NFG.html">宁波诺丁汉大学举行2026届冬季毕业典礼</a><span>2026-11-14 18:21</span></li>' +
+    '<li><a href="/dy/article/AAA.html">短</a> 2026-11-13</li><li><a href="/other/x.html">不是文章的链接</a> 2026-11-13</li>';
+  const items = C.parseLinkList(html, { id: "netease-unnc", item: "/dy/article/[A-Z0-9]+\\.html", url: "https://www.163.com/dy/media/T1.html", organiser: "UNNC", lang: "zh" });
+  assert.equal(items.length, 1);
+  assert.equal(items[0].date, "2026-11-14");
+  assert.equal(items[0].url, "https://www.163.com/dy/article/LBNDPUNJ05369NFG.html");
+  const merged = C.mergeLanguages([{ id: "g1", title: "Open Day", lang: "en" }, { id: "g1", title: "开放日", lang: "zh" }, { id: "g2", title: "只有中文", lang: "zh" }]);
+  assert.deepEqual(merged.map((x) => [x.title, x.titleZh || ""]), [["Open Day", "开放日"], ["只有中文", ""]]);
+  const L = require("../js/logic.js");
+  const live = { news: [{ id: "g1", title: "Open Day", titleZh: "开放日", date: "2026-11-10", url: "https://www.nottingham.edu.cn/x" }] };
+  const at = new Date(2026, 10, 17, 9);
+  assert.equal(L.fromWebsite(live, at, "en").posts[0].title, "Open Day");
+  assert.equal(L.fromWebsite(live, at, "zh").posts[0].title, "开放日");
+  assert.equal(L.linkSource("https://www.163.com/dy/article/X.html").label, "Read on NetEase (网易)");
+});
