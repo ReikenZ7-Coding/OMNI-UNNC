@@ -23,7 +23,9 @@
     moodle: "Moodle",
     wechat: "WeChat official account",
     group: "Club WeChat group",
-    mini: "Mini program"
+    mini: "Mini program",
+    web: "UNNC website",
+    omni: "Posted in OMNI"
   };
 
   var EVENTS = [

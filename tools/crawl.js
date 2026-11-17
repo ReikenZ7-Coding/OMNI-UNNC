@@ -19,8 +19,6 @@ const SOURCES = [
   { id: "uni-events-1", type: "uniEvents", organiser: "UNNC", url: BASE + "/en/events/event-listing.aspx" },
   { id: "uni-events-2", type: "uniEvents", organiser: "UNNC", url: BASE + "/en/events/event-listing.aspx?EVTPageIndex=2" },
   { id: "fse-events", type: "facultyEvents", organiser: "Faculty of Science and Engineering", url: BASE + "/en/science-engineering/events/listing.aspx" },
-  { id: "fhss-events", type: "facultyEvents", organiser: "Faculty of Humanities and Social Sciences", url: BASE + "/en/humanities-and-social-sciences/events/listing.aspx" },
-  { id: "nubs-events", type: "facultyEvents", organiser: "Business School", url: BASE + "/en/business/events/listing.aspx" },
   { id: "news", type: "news", organiser: "UNNC News", url: BASE + "/en/press-release/news-listing.aspx" }
 ];
 

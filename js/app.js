@@ -28,7 +28,7 @@
     return {
       student: null, registrations: {}, requests: [], logins: 0,
       saved: {}, reminders: {}, bookings: {}, pins: D.defaultPins.slice(),
-      printCredit: 23.4, prefs: { theme: "system", lang: "en", remind: "60", notify: true }
+      printCredit: 23.4, localPosts: [], prefs: { theme: "system", lang: "en", remind: "60", notify: true }
     };
   }
   function load() {
@@ -52,13 +52,62 @@
     query: "", topic: "all", when: "any", source: "all", available: false, sort: "soonest",
     kinds: { event: true, notice: true, news: true }, showFilters: false,
     helpQuery: "", myTab: "upcoming", lang: null, toolQuery: "", editPins: false,
-    foodQuery: "", foodPick: null, mapQuery: "", ttDay: null, confirm: null
+    foodQuery: "", foodPick: null, mapQuery: "", ttDay: null, confirm: null, newKind: "event"
   };
 
   function now() { return new Date(); }
-  function events() { return L.withDates(D.events, now()); }
+
+  // ---------- Live data ----------
+  // 1. WEB: real news and events read from UNNC's public website by tools/crawl.js.
+  var WEB = { events: [], posts: [], updatedAt: null };
+  function setWebData(live) {
+    var c = L.fromWebsite(live, now());
+    WEB.events = c.events; WEB.posts = c.posts; WEB.updatedAt = live && live.updatedAt;
+  }
+  if (window.OMNI_LIVE) setWebData(window.OMNI_LIVE);
+
+  // 2. COMMUNITY: events and notices people post in OMNI. Shared live through the
+  //    page's database when there is one, otherwise kept on this device.
+  var COMM = { db: null, me: null, owner: false, canWrite: null, posts: [], regs: [], status: "local" };
+  var TIME = /^\d{2}:\d{2}$/, DATE = /^\d{4}-\d{2}-\d{2}$/;
+  function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : ""; }
+  function cleanPost(id, d) {
+    if (!d || typeof d !== "object") return null;
+    var kind = ["event", "notice", "news"].indexOf(d.kind) !== -1 ? d.kind : null;
+    var title = str(d.title, 120);
+    if (!kind || !title) return null;
+    var p = { id: String(id), kind: kind, title: title, organiser: str(d.organiser, 80) || "A student", topic: D.categories.some(function (c) { return c.id === d.topic; }) ? d.topic : "clubs",
+      body: str(d.body, 1500), zh: str(d.zh, 1500), createdBy: str(d.createdBy, 80), createdAt: DATE.test(String(d.createdAt).slice(0, 10)) ? String(d.createdAt) : new Date().toISOString() };
+    if (kind === "event") {
+      if (!DATE.test(d.date) || !TIME.test(d.start) || !TIME.test(d.end)) return null;
+      p.date = d.date; p.start = d.start; p.end = d.end; p.location = str(d.location, 100) || "To be confirmed";
+      p.capacity = Math.max(0, Math.min(5000, parseInt(d.capacity, 10) || 0));
+    }
+    return p;
+  }
+  function communityRaw() { return COMM.db ? COMM.posts : (state.localPosts || []); }
+  function takenFor(cid) {
+    return COMM.regs.filter(function (r) { return r.event === cid && r.status === "registered" && r.by !== COMM.me; }).length;
+  }
+  function communityEvents() {
+    return communityRaw().filter(function (p) { return p.kind === "event"; }).map(function (p) {
+      var day = L.dayOffset(p.date, now());
+      return { id: "c-" + p.id, cid: p.id, title: p.title, category: p.topic, organiser: p.organiser, source: "omni", day: day, start: p.start, end: p.end < p.start ? "23:59" : p.end,
+        location: p.location, capacity: p.capacity, taken: Math.min(p.capacity, takenFor(p.id)), tags: [], description: p.body, zh: p.zh,
+        posted: L.dayOffset(p.createdAt, now()) || 0, community: true, createdBy: p.createdBy };
+    }).filter(function (e) { return e.day != null; });
+  }
+  function communityPosts() {
+    return communityRaw().filter(function (p) { return p.kind !== "event"; }).map(function (p) {
+      return { id: "c-" + p.id, cid: p.id, kind: p.kind, title: p.title, organiser: p.organiser, source: "omni", posted: L.dayOffset(p.createdAt, now()) || 0,
+        topic: p.topic, body: p.body, zh: p.zh, community: true, createdBy: p.createdBy };
+    });
+  }
+  function allPosts() { return D.posts.concat(WEB.posts, communityPosts()); }
+  function events() { return L.withDates(D.events.concat(WEB.events, communityEvents()), now()); }
+  function canDelete(it) { return it && it.community && (!COMM.db || it.createdBy === COMM.me || COMM.owner); }
   function eventById(id) { return events().find(function (e) { return e.id === id; }); }
-  function postById(id) { return D.posts.find(function (p) { return p.id === id; }); }
+  function postById(id) { return allPosts().find(function (p) { return p.id === id; }); }
   function officeById(id) { return D.offices.find(function (o) { return o.id === id; }); }
   function toolById(id) { return D.tools.find(function (t) { return t.id === id; }); }
   function placeById(id) { return D.food.find(function (p) { return p.id === id; }); }
@@ -82,7 +131,11 @@
     if (diff === -1) return "Yesterday";
     return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
   }
-  function when(e) { return dayWord(e.startAt) + " · " + e.start + " to " + e.end; }
+  function allDay(e) { return e.start === "00:00" && e.end === "23:59"; }
+  function when(e) {
+    if (!sameDay(e.startAt, e.endAt)) return dayWord(e.startAt) + " to " + dayWord(e.endAt) + (allDay(e) ? "" : " · " + e.start + " to " + e.end);
+    return dayWord(e.startAt) + " · " + (allDay(e) ? "All day" : e.start + " to " + e.end);
+  }
   function postedWord(d) {
     var w = dayWord(d);
     return w === "Today" || w === "Yesterday" ? w : d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
@@ -112,14 +165,16 @@
   function posterHtml(e, size) {
     var words = e.title.replace(/[:]/g, "").split(" ");
     return '<div class="poster p-' + e.category + (size ? " " + size : "") + '" aria-hidden="true">' +
+      (e.image ? '<img class="poster-img" alt="" loading="lazy" src="' + esc(e.image) + '">' : "") +
       '<span class="poster-org">' + esc(e.organiser) + "</span>" +
       '<span class="poster-title">' + esc(words.slice(0, size === "thumb" ? 3 : 7).join(" ")) + "</span>" +
-      '<span class="poster-date">' + esc(e.startAt.getDate() + " " + e.startAt.toLocaleDateString("en-GB", { month: "short" }).toUpperCase() + " · " + e.start) + "</span></div>";
+      '<span class="poster-date">' + esc(e.startAt.getDate() + " " + e.startAt.toLocaleDateString("en-GB", { month: "short" }).toUpperCase() + (allDay(e) ? "" : " · " + e.start)) + "</span></div>";
   }
 
   function statusPill(e) {
     var mine = state.registrations[e.id];
     if (!isUpcoming(e)) return '<span class="pill plain">Finished</span>';
+    if (e.external) return '<span class="pill live">' + I("globe") + " UNNC website</span>";
     if (mine && mine.status === "registered") return '<span class="pill ok">' + I("check") + " You're going</span>";
     if (mine && mine.status === "waitlist") return '<span class="pill low">On waitlist</span>';
     if (L.isDropIn(e)) return '<span class="pill info">Drop-in</span>';
@@ -131,7 +186,7 @@
 
   function registerButton(e, size) {
     var mine = state.registrations[e.id];
-    if (L.isDropIn(e) || !isUpcoming(e) || mine) return "";
+    if (e.external || L.isDropIn(e) || !isUpcoming(e) || mine) return "";
     var full = L.spotsLeft(e, state.registrations) === 0;
     return '<button class="btn ' + (full ? "secondary " : "") + (size || "") + '" data-act="register" data-id="' + e.id + '">' + (full ? "Join waitlist" : "Register") + "</button>";
   }
@@ -139,6 +194,20 @@
   function saveButton(id) {
     var on = !!state.saved[id];
     return '<button class="icon-btn' + (on ? " on" : "") + '" data-act="save" data-id="' + id + '" aria-pressed="' + on + '" aria-label="' + (on ? "Remove from saved" : "Save") + '">' + I("bookmark") + "</button>";
+  }
+
+  function sourceLine(it) {
+    if (it.source === "web") return '<span class="live-dot"></span>Live from UNNC website';
+    if (it.community) return '<span class="live-dot"></span>Posted in OMNI';
+    return "From " + esc(D.sources[it.source]);
+  }
+  function updatedWord(iso) {
+    if (!iso) return "";
+    var mins = Math.round((now() - new Date(iso)) / 60000);
+    if (mins < 2) return "just now";
+    if (mins < 60) return mins + " min ago";
+    if (mins < 60 * 24) return Math.round(mins / 60) + " h ago";
+    return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
   }
 
   function kindLabel(k) { return { event: "Event", notice: "Notice", news: "News" }[k]; }
@@ -153,7 +222,7 @@
           '<div class="meta">' + esc(when(it)) + "</div>" +
           '<div class="meta">' + esc(it.location) + "</div>" +
           '<div class="tags">' + statusPill(it) + '<span class="pill tag t-' + it.category + '">' + esc(categoryLabel(it.category)) + "</span></div>" +
-          '<div class="fcard-foot"><span class="meta small">From ' + esc(D.sources[it.source]) + "</span>" + saveButton(it.id) + registerButton(it, "small") + "</div>" +
+          '<div class="fcard-foot"><span class="meta small">' + sourceLine(it) + "</span>" + saveButton(it.id) + registerButton(it, "small") + "</div>" +
         "</div></article>";
     }
     return '<article class="fcard" data-open="post-' + it.id + '" tabindex="0">' +
@@ -162,7 +231,7 @@
         '<div class="fcard-top"><span class="kind k-' + it.kind + '">' + kindLabel(it.kind) + '</span><span class="org">' + esc(it.organiser) + "</span></div>" +
         '<h3 class="fcard-title">' + esc(it.title) + "</h3>" +
         '<p class="meta clamp">' + esc(it.body) + "</p>" +
-        '<div class="fcard-foot"><span class="meta small">Posted ' + esc(postedWord(it.postedAt)) + "</span>" + saveButton(it.id) + "</div>" +
+        '<div class="fcard-foot"><span class="meta small">' + (it.source === "web" || it.community ? sourceLine(it) + " · " : "") + "Posted " + esc(postedWord(it.postedAt)) + "</span>" + saveButton(it.id) + "</div>" +
       "</div></article>";
   }
 
@@ -228,6 +297,7 @@
 
   function featuredSlides() {
     var picks = ["careers-fair", "food-festival", "news-pitch", "hackathon", "n-exams"];
+    if (WEB.posts[0]) picks.splice(1, 0, WEB.posts[0].id); // newest real UNNC news story
     return picks.map(function (id) {
       var e = eventById(id);
       if (e) {
@@ -258,18 +328,19 @@
     var mine = upcomingMine().slice(0, 2);
     var myEvents = mine.length ? '<div class="stack">' + mine.map(function (e) { return ticketHtml(e, state.registrations[e.id]); }).join("") + "</div>" :
       '<div class="empty">' + I("calendar") + "<p>No upcoming events yet</p><a class=\"btn soft small\" href=\"#discover\">Discover events</a></div>";
-    var notices = D.posts.filter(function (p) { return p.kind === "notice"; }).slice(0, 3).map(function (p) {
+    var notices = allPosts().filter(function (p) { return p.kind === "notice"; }).sort(function (a, b) { return b.posted - a.posted; }).slice(0, 3).map(function (p) {
       return '<a class="row-link" href="#post-' + p.id + '"><span class="tile t-jade">' + I("bell") + '</span><span class="row-text"><b>' + esc(p.title) + "</b><span>" + esc(p.organiser) + "</span></span>" + I("chevron", "chev") + "</a>";
     }).join("");
     return '<header class="page-head"><div class="stack tight"><span class="eyebrow">' + esc(now().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })) + "</span>" +
         '<h1 class="brand">OMNI<span>.</span></h1></div>' +
         '<a class="round-btn" href="#discover" data-focus="q" aria-label="Search everything">' + I("search") + "</a></header>" +
-      '<p class="hello">Hi ' + esc(firstName()) + ", here's what's on around campus.</p>" +
+      '<p class="hello">Hi ' + esc(firstName()) + ", here's what's on around campus.</p>" + liveStrip() +
       '<section class="carousel-wrap" aria-label="Featured"><div class="carousel" id="carousel">' + slides.join("") + "</div>" +
         '<div class="carousel-nav"><button class="nav-btn" data-step="-1" aria-label="Previous">' + I("back") + '</button><div class="dots">' + dots + '</div><button class="nav-btn" data-step="1" aria-label="Next">' + I("chevron") + "</button></div></section>" +
       '<section class="stack">' + sectionHead("Quick access", '<button class="link-btn" data-act="edit-pins">' + (ui.editPins ? "Done" : "Edit") + "</button>") +
         (ui.editPins ? '<p class="meta small">Tap a tool to add it to or remove it from your home screen.</p>' : "") +
         '<div class="card-panel">' + quick + "</div></section>" +
+      '<a class="post-cta" href="#new"><span class="tile t-jade">' + I("plus") + '</span><span class="row-text"><b>Running an event?</b><span>Post it once in OMNI and everyone sees it straight away.</span></span>' + I("chevron", "chev") + "</a>" +
       '<section class="stack">' + sectionHead("My events", '<a class="link-btn" href="#my-events">All tickets ' + I("chevron") + "</a>") + myEvents + "</section>" +
       '<section class="stack">' + sectionHead("Campus notices", '<button class="link-btn" data-act="all-updates">All updates ' + I("chevron") + "</button>") +
         '<div class="list-panel">' + notices + "</div></section>";
@@ -282,8 +353,16 @@
     return "tool-" + t.id;
   }
 
+  function liveStrip() {
+    var bits = [];
+    if (WEB.updatedAt) bits.push(WEB.events.length + " events and " + WEB.posts.length + " news stories from the UNNC website, updated " + esc(updatedWord(WEB.updatedAt)));
+    if (COMM.db) bits.push(communityRaw().length + " posted in OMNI");
+    if (!bits.length) return "";
+    return '<div class="live-strip"><span class="live-dot"></span><span>' + bits.join(" · ") + "</span></div>";
+  }
+
   function screenDiscover() {
-    var list = L.filterFeed(events(), D.posts, ui, now(), state.registrations);
+    var list = L.filterFeed(events(), allPosts(), ui, now(), state.registrations);
     var kindTiles = [["notice", "Notices", "bell"], ["news", "News", "news"], ["event", "Events", "calendar"]].map(function (k) {
       var on = !!ui.kinds[k[0]];
       return '<button class="kind-tile k-' + k[0] + (on ? " on" : "") + '" data-kind="' + k[0] + '" aria-pressed="' + on + '">' + I(k[2]) + "<span>" + k[1] + '</span><i class="tick">' + I("check") + "</i></button>";
@@ -309,7 +388,8 @@
         '<label class="toggle"><input type="checkbox" id="avail"' + (ui.available ? " checked" : "") + "> Only events with places left</label>" +
         '<div class="row"><button class="btn quiet small" data-act="clear">Reset filters</button><span class="spacer"></span><button class="btn small" data-act="filters">Show ' + list.length + " results</button></div></div>";
     }
-    return pageHead("Discover") +
+    return pageHead("Discover", { right: '<a class="btn small" href="#new">' + I("plus") + "Post</a>" }) +
+      liveStrip() +
       '<div class="kind-row" role="group" aria-label="Show">' + kindTiles + "</div>" +
       searchBox("q", ui.query, "Search titles, topics or keywords") +
       '<button class="filter-line" data-act="filters" aria-expanded="' + ui.showFilters + '"><span>' + esc(topicLabel + " · " + whenLabel + " · " + sourceLabel) + "</span><b>" + I("filter") + "Filter</b></button>" +
@@ -329,6 +409,7 @@
     var filled = e.capacity ? Math.min(100, Math.round(((e.taken + (mine && mine.status === "registered" ? 1 : 0)) / e.capacity) * 100)) : 0;
     var banner;
     if (!isUpcoming(e)) banner = '<div class="banner plain">' + I("clock") + "This event has finished</div>";
+    else if (e.external) banner = '<div class="banner live">' + I("globe") + "Live from the UNNC website. Details and any registration are on the original page.</div>";
     else if (mine && mine.status === "registered") banner = '<div class="banner ok">' + I("checkCircle") + "You're registered. Show your check-in code at the door.</div>";
     else if (mine) banner = '<div class="banner low">' + I("clock") + "You're on the waitlist. We'll tell you if a place opens.</div>";
     else if (L.isDropIn(e)) banner = '<div class="banner info">' + I("checkCircle") + "No registration needed. Just turn up.</div>";
@@ -348,7 +429,15 @@
       "</div>" +
       '<section class="stack">' + sectionHead("About this event") + langSwitch() +
         '<p class="body-text">' + esc(lang() === "zh" && e.zh ? e.zh : e.description) + "</p></section>" +
-      '<p class="was">' + I("info") + "<span>Before OMNI, this was only posted on <b>" + esc(D.sources[e.source]) + "</b>, and registering meant following a link to another portal and logging in again.</span></p>";
+      (e.external ? '<p class="was">' + I("info") + "<span>OMNI read this from UNNC's public events page" + (WEB.updatedAt ? " (checked " + esc(updatedWord(WEB.updatedAt)) + ")" : "") + ". In the full version, organisers would post into OMNI directly so you could register here in one tap.</span></p>"
+        : e.community ? '<p class="was">' + I("info") + "<span>Posted straight into OMNI by <b>" + esc(e.organiser) + "</b>. Everyone using OMNI sees it the moment it's posted" + (COMM.db ? "" : " (in this offline copy, only on this device)") + ".</span></p>" + deleteButton(e)
+        : '<p class="was">' + I("info") + "<span>Before OMNI, this was only posted on <b>" + esc(D.sources[e.source]) + "</b>, and registering meant following a link to another portal and logging in again.</span></p>");
+  }
+
+  function deleteButton(it) {
+    if (!canDelete(it)) return "";
+    var confirming = ui.confirm === "del-" + it.cid;
+    return '<button class="btn ' + (confirming ? "danger" : "quiet") + ' small" data-act="delete-post" data-id="' + esc(it.cid) + '">' + (confirming ? "Tap again to delete" : "Delete this post") + "</button>";
   }
 
   function eventActionBar(e) {
@@ -357,6 +446,7 @@
     var reminded = !!state.reminders[e.id];
     var primary;
     if (!isUpcoming(e)) primary = '<button class="btn grow" disabled>Finished</button>';
+    else if (e.external) primary = '<a class="btn grow" href="' + esc(e.url) + '" target="_blank" rel="noopener">Open on UNNC website</a>';
     else if (mine) {
       var confirming = ui.confirm === "cancel-" + e.id;
       primary = '<button class="btn grow ' + (confirming ? "danger" : "soft") + '" data-act="cancel" data-id="' + e.id + '">' +
@@ -376,16 +466,18 @@
     return backBar("discover", "Discover", kindLabel(p.kind)) +
       '<div class="post-hero k-' + p.kind + '">' + I(p.kind === "notice" ? "bell" : "news") + "</div>" +
       '<section class="stack tight"><span class="eyebrow accent">' + kindLabel(p.kind) + "</span><h1>" + esc(p.title) + "</h1>" +
-        '<p class="meta">' + esc(p.organiser) + " · posted " + esc(postedWord(postedAt)) + " · originally on " + esc(D.sources[p.source]) + "</p></section>" +
-      langSwitch() +
-      '<p class="body-text">' + esc(lang() === "zh" && p.zh ? p.zh : p.body) + "</p>" +
+        '<p class="meta">' + esc(p.organiser) + " · posted " + esc(postedWord(postedAt)) + " · " + (p.source === "web" ? "live from the UNNC website" : p.community ? "posted in OMNI" : "originally on " + esc(D.sources[p.source])) + "</p></section>" +
+      (p.zh ? langSwitch() : "") +
+      (p.body || p.zh ? '<p class="body-text">' + esc(lang() === "zh" && p.zh ? p.zh : p.body) + "</p>" : '<p class="body-text">Read the full story on the UNNC website.</p>') +
+      (p.image ? '<img class="post-img" alt="" loading="lazy" src="' + esc(p.image) + '">' : "") +
+      (p.community ? deleteButton(p) : "") +
       (related && isUpcoming(related) ? '<section class="stack">' + sectionHead("Related event") + feedCard(Object.assign({ kind: "event", postedAt: now() }, related)) + "</section>" : "");
   }
 
   function postActionBar(p) {
     var saved = !!state.saved[p.id];
     return '<button class="bar-btn' + (saved ? " on" : "") + '" data-act="save" data-id="' + p.id + '" aria-pressed="' + saved + '">' + I("bookmark") + "<span>" + (saved ? "Saved" : "Save") + "</span></button>" +
-      '<span class="bar-sep"></span><a class="btn grow soft" href="#discover">More updates</a>';
+      '<span class="bar-sep"></span>' + (p.url ? '<a class="btn grow" href="' + esc(p.url) + '" target="_blank" rel="noopener">Read on UNNC website</a>' : '<a class="btn grow soft" href="#discover">More updates</a>');
   }
 
   function screenMyEvents() {
@@ -648,6 +740,36 @@
         "<p>All events, notices, offices and places here are sample data written for testing. This is not an official university service.</p></section>";
   }
 
+  function screenNew() {
+    var k = ui.newKind;
+    var d = new Date(now().getTime() + 3 * L.DAY);
+    var defDate = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var topics = D.categories.map(function (c) { return '<option value="' + c.id + '"' + (c.id === "clubs" ? " selected" : "") + ">" + esc(c.label) + "</option>"; }).join("");
+    var where = COMM.db ? (COMM.canWrite === false ? '<div class="banner low">' + I("info") + "You can view OMNI but not post. Ask the owner to give you edit access.</div>"
+        : '<div class="banner ok">' + I("checkCircle") + "Live: everyone using this OMNI link sees your post straight away.</div>")
+      : '<div class="banner plain">' + I("info") + "This copy isn't connected to the shared database, so posts are saved on this device only.</div>";
+    var kinds = [["event", "Event"], ["notice", "Notice"], ["news", "News"]].map(function (x) {
+      return '<button type="button" data-newkind="' + x[0] + '" aria-pressed="' + (k === x[0]) + '">' + x[1] + "</button>";
+    }).join("");
+    return backBar("discover", "Discover") + pageHead("Post to OMNI") + where +
+      '<form class="stack card-panel" id="post-form" autocomplete="off">' +
+        '<div class="segmented" role="group" aria-label="What are you posting?">' + kinds + "</div>" +
+        '<div class="field"><label for="np-title">Title</label><input class="input" id="np-title" required maxlength="120" placeholder="' + (k === "event" ? "e.g. Board Games Night" : "e.g. Room change for Thursday's workshop") + '"></div>' +
+        '<div class="field"><label for="np-org">Posted by</label><input class="input" id="np-org" maxlength="80" value="' + esc(state.student.name) + '" placeholder="Your club, society or office"></div>' +
+        '<div class="field"><label for="np-topic">Topic</label><select class="input" id="np-topic">' + topics + "</select></div>" +
+        (k === "event" ?
+          '<div class="form-row"><div class="field"><label for="np-date">Date</label><input class="input" id="np-date" type="date" required value="' + defDate + '"></div>' +
+          '<div class="field"><label for="np-start">Starts</label><input class="input" id="np-start" type="time" required value="18:00"></div>' +
+          '<div class="field"><label for="np-end">Ends</label><input class="input" id="np-end" type="time" required value="20:00"></div></div>' +
+          '<div class="field"><label for="np-loc">Where</label><input class="input" id="np-loc" maxlength="100" placeholder="e.g. Student Union Lounge"></div>' +
+          '<div class="field"><label for="np-cap">Places (0 = drop-in, no registration)</label><input class="input" id="np-cap" type="number" min="0" max="5000" value="30"></div>' : "") +
+        '<div class="field"><label for="np-body">Details</label><textarea class="input" id="np-body" maxlength="1500" placeholder="What is it, who is it for, what to bring..."></textarea></div>' +
+        '<div class="field"><label for="np-zh">中文介绍 (optional)</label><textarea class="input" id="np-zh" maxlength="1500" placeholder="可选：中文描述"></textarea></div>' +
+        '<button class="btn block" type="submit"' + (COMM.db && COMM.canWrite === false ? " disabled" : "") + ">" + I("plus") + "Post " + (k === "event" ? "event" : k) + "</button>" +
+        (k === "event" ? '<p class="meta small">Students register in one tap inside OMNI. You can see the count go up live.</p>' : "") +
+      "</form>";
+  }
+
   function screenPrefs() {
     function seg(name, options, value) {
       return '<div class="segmented" role="group">' + options.map(function (o) {
@@ -687,6 +809,7 @@
     if (h === "my-events") return { name: "my-events", tab: "me" };
     if (h === "saved") return { name: "saved", tab: "me" };
     if (h === "prefs") return { name: "prefs", tab: "me" };
+    if (h === "new") return { name: "new", tab: "discover" };
     return { name: "home", tab: "home" };
   }
 
@@ -709,6 +832,7 @@
       case "my-events": html = screenMyEvents(); break;
       case "saved": html = screenSaved(); break;
       case "prefs": html = screenPrefs(); break;
+      case "new": html = screenNew(); break;
       default: html = screenHome();
     }
     view.innerHTML = html;
@@ -728,7 +852,21 @@
     }
     lastRoute = key;
     if (r.name === "home") bindCarousel();
+    Array.prototype.forEach.call(view.querySelectorAll("img.poster-img, img.post-img"), function (img) {
+      function ok() { if (img.naturalWidth) img.parentNode.classList.add("has-img"); }
+      if (img.complete) ok(); else img.addEventListener("load", ok);
+      img.addEventListener("error", function () { img.remove(); });
+    });
     if (render.focus) { var f = document.getElementById(render.focus); if (f) f.focus(); render.focus = null; }
+  }
+
+  // Re-render after live data arrives, without wiping a form the person is filling in.
+  function softRender() {
+    var r = route();
+    if (r.name === "new" || r.name === "office" || r.name === "signin") return;
+    var a = document.activeElement;
+    if (a && a.id && view.contains(a) && /^(INPUT|TEXTAREA)$/.test(a.tagName)) rerenderKeepingFocus(a.id);
+    else render({ keepScroll: true });
   }
 
   function bindCarousel() {
@@ -765,6 +903,9 @@
     var res = L.register(e, state.registrations, state.student, now());
     state.registrations = res.registrations;
     save();
+    if (e.community && COMM.db && COMM.me) {
+      COMM.db.doc("regs/" + e.cid + "--" + COMM.me).set({ event: e.cid, by: COMM.me, status: res.status, at: now().toISOString() }).catch(function () {});
+    }
     toast(res.status === "registered" ? "You're in! Your ticket is in My events." : "It's full, so you're on the waitlist.");
   }
   function doCancel(id) {
@@ -773,6 +914,8 @@
     var mine = state.registrations[id];
     state.registrations = L.cancel(id, state.registrations);
     save();
+    var ce = eventById(id);
+    if (ce && ce.community && COMM.db && COMM.me) COMM.db.doc("regs/" + ce.cid + "--" + COMM.me).delete().catch(function () {});
     toast(mine && mine.status === "waitlist" ? "You left the waitlist." : "Registration cancelled.");
   }
   function remindLabel() { return { "15": "15 minutes", "60": "1 hour", "1440": "1 day" }[state.prefs.remind] || "1 hour"; }
@@ -791,6 +934,13 @@
     else if (act === "filters") ui.showFilters = !ui.showFilters;
     else if (act === "edit-pins") ui.editPins = !ui.editPins;
     else if (act === "all-updates") { ui.kinds = { event: false, notice: true, news: true }; ui.sort = "latest"; location.hash = "discover"; return; }
+    else if (act === "delete-post") {
+      if (ui.confirm !== "del-" + id) { ui.confirm = "del-" + id; render({ keepScroll: true }); return; }
+      ui.confirm = null;
+      if (COMM.db) COMM.db.doc("posts/" + id).delete().then(function () { toast("Post deleted."); }, function () { toast("Couldn't delete that post. You may not have permission."); });
+      else { state.localPosts = (state.localPosts || []).filter(function (p) { return p.id !== id; }); save(); toast("Post deleted."); }
+      location.hash = "discover"; return;
+    }
     else if (act === "pick-food") ui.foodPick = L.pickFood(D.food, Math.random());
     else if (act === "signout") { state.student = null; save(); location.hash = ""; toast("Signed out."); }
     else if (act === "reset") {
@@ -801,7 +951,7 @@
   }
 
   document.addEventListener("click", function (ev) {
-    var t = ev.target.closest("[data-act],[data-topic],[data-when],[data-source],[data-kind],[data-mytab],[data-hq],[data-open],[data-lang],[data-pin],[data-pref],[data-ttday],[data-book],[data-topup],[data-slide],[data-step],[data-focus]");
+    var t = ev.target.closest("[data-act],[data-topic],[data-when],[data-source],[data-kind],[data-mytab],[data-hq],[data-open],[data-lang],[data-pin],[data-pref],[data-ttday],[data-book],[data-topup],[data-slide],[data-step],[data-focus],[data-newkind]");
     if (!t || !(view.contains(t) || actionBar.contains(t))) return;
     var d = t.dataset;
     if (d.act) { ev.stopPropagation(); handleAction(t); return; }
@@ -814,6 +964,7 @@
       if (!ui.kinds.event && !ui.kinds.notice && !ui.kinds.news) { ui.kinds[d.kind] = true; toast("Keep at least one type switched on."); }
     }
     else if (d.mytab) ui.myTab = d.mytab;
+    else if (d.newkind) ui.newKind = d.newkind;
     else if (d.hq) ui.helpQuery = d.hq;
     else if (d.lang) ui.lang = d.lang;
     else if (d.pin) {
@@ -877,6 +1028,29 @@
       location.hash = "home";
       render();
       toast("Signed in. You won't be asked again.");
+    } else if (f.id === "post-form") {
+      var g = function (id) { var el = f.querySelector("#" + id); return el ? el.value : ""; };
+      var doc = { kind: ui.newKind, title: g("np-title").trim(), organiser: g("np-org").trim() || state.student.name, topic: g("np-topic"),
+        body: g("np-body").trim(), zh: g("np-zh").trim(), createdBy: COMM.me || "this-device", createdAt: now().toISOString() };
+      if (doc.kind === "event") {
+        doc.date = g("np-date"); doc.start = g("np-start"); doc.end = g("np-end"); doc.location = g("np-loc").trim(); doc.capacity = parseInt(g("np-cap"), 10) || 0;
+        var off = L.dayOffset(doc.date, now());
+        if (off == null || off < 0) { toast("Pick a date from today onwards."); return; }
+      }
+      if (!cleanPost("check", doc)) { toast("Add a title" + (doc.kind === "event" ? ", date and times" : "") + " first."); return; }
+      var btn = f.querySelector("button[type=submit]"); btn.disabled = true;
+      var done = function (id) {
+        ui.newKind = "event";
+        location.hash = doc.kind === "event" ? "event-c-" + id : "post-c-" + id;
+        toast(COMM.db ? "Posted. Everyone using OMNI can see it now." : "Posted on this device.");
+      };
+      if (COMM.db) {
+        COMM.db.collection("posts").add(doc).then(function (ref) { done(ref.id); }, function () { btn.disabled = false; toast("Couldn't post. You may need edit access from the owner."); });
+      } else {
+        var lid = "l" + Date.now().toString(36);
+        state.localPosts = (state.localPosts || []).concat([Object.assign({ id: lid }, doc)]);
+        save(); done(lid);
+      }
     } else if (f.id === "req-form") {
       var subject = f.querySelector("#rq-subject").value.trim();
       if (!subject) { toast("Add a short subject first."); return; }
@@ -902,6 +1076,43 @@
   tabs.innerHTML = [["home", "Home", "home"], ["discover", "Discover", "discover"], ["help", "Help", "help"], ["tools", "Tools", "tools"], ["me", "Me", "me"]].map(function (t) {
     return '<a href="#' + t[0] + '" data-tab="' + t[0] + '">' + I(t[2]) + "<span>" + t[1] + "</span></a>";
   }).join("");
+
+  // Load the latest crawled UNNC data (works when OMNI is served from a website,
+  // e.g. GitHub Pages), and check again every 10 minutes while it's open.
+  function refreshWeb() {
+    if (!/^https?:$/.test(location.protocol) || typeof fetch !== "function") return;
+    fetch("data/live.json?t=" + Date.now(), { cache: "no-store" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) { if (j && j.updatedAt !== WEB.updatedAt) { setWebData(j); softRender(); } })
+      .catch(function () { /* offline or not published: keep what we have */ });
+  }
+  refreshWeb();
+  setInterval(refreshWeb, 10 * 60 * 1000);
+
+  // Connect to the shared database when OMNI runs as a claude.ai artifact.
+  if (window.claude && typeof window.claude.use === "function") {
+    Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function (caps) {
+      var db = caps[0], user = caps[1];
+      if (!db) return;
+      COMM.db = db; COMM.status = "connecting";
+      var idP = user ? user.id().catch(function () { return null; }) : Promise.resolve(null);
+      if (user) {
+        user.isOwner().then(function (v) { COMM.owner = !!v; }, function () {});
+        user.can("data.write").then(function (v) { COMM.canWrite = v; if (route().name === "new") render({ keepScroll: true }); }, function () {});
+      }
+      idP.then(function (id) {
+        COMM.me = id;
+        db.collection("posts").orderBy("createdAt", "desc").limit(200).onSnapshot(function (snap) {
+          COMM.posts = snap.docs.map(function (d) { return cleanPost(d.id, d.data()); }).filter(Boolean);
+          COMM.status = "live"; softRender();
+        }, function () { COMM.status = "error"; });
+        db.collection("regs").limit(2000).onSnapshot(function (snap) {
+          COMM.regs = snap.docs.map(function (d) { var x = d.data() || {}; return { event: String(x.event || ""), by: String(x.by || ""), status: x.status === "waitlist" ? "waitlist" : "registered" }; });
+          softRender();
+        }, function () {});
+      });
+    }, function () {});
+  }
 
   window.addEventListener("hashchange", function () { render(); });
   applyTheme();

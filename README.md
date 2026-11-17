@@ -4,7 +4,7 @@
 
 OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem A). Right now, UNNC event information is scattered across university email, Moodle, WeChat official accounts, club group chats and mini programs. Registering or asking for help sends students through links to separate portals that often make them log in again. OMNI tests the opposite: one app, one sign-in.
 
-> This is a student prototype. All events, offices and answers are **sample data** written for testing. It is not an official university service.
+> This is a student prototype. It is not an official university service. Items marked **Live from UNNC website** are real and come from UNNC's public pages; everything else (offices, food, most events) is **sample data** written for testing.
 
 ## What you can do in the app
 
@@ -35,6 +35,22 @@ npm start        # then open the address it prints, e.g. http://localhost:3000
 
 Everything you do (bookings, requests) is saved in your own browser only. Use **Me → Settings → Reset demo data** to start over.
 
+## Live data: how OMNI stays up to date
+
+OMNI mixes three kinds of content:
+
+1. **Real UNNC news and events, updated automatically.** `tools/crawl.js` reads UNNC's *public* web pages ([University News](https://www.nottingham.edu.cn/en/press-release/news-listing.aspx), [University Events](https://www.nottingham.edu.cn/en/events/event-listing.aspx) and the Science & Engineering events page). GitHub runs it every 30 minutes (`.github/workflows/crawl.yml`) and saves the results to `data/live.json`. When OMNI is served from a website, it loads that file and checks again every 10 minutes. These items are marked **Live from UNNC website** and link back to the original page.
+2. **Posts made in OMNI.** Tap **Post** on Discover to add an event, notice or news story. In the shared claude.ai version, posts are saved to a shared database, so everyone using that link sees them straight away, and registration counts update live. In the GitHub version (no database), posts are saved on your own device only.
+3. **Sample content** (made-up events, offices, food and so on), so every screen has something to show.
+
+Limits: the crawler can only read public pages, not Moodle, email or WeChat. Keep it polite (a handful of pages every 30 minutes) and always link back to the source. Run it yourself with `npm run crawl`.
+
+### Put OMNI online with GitHub Pages (free)
+
+1. In this repo on GitHub, open **Settings → Pages**.
+2. Under **Build and deployment**, choose **Deploy from a branch**, pick the branch `claude/project-thread-oqbjhd` and the folder `/ (root)`, then **Save**.
+3. After a minute, OMNI is live at `https://reikenz7-coding.github.io/OMNI-UNNC/`. Each time the crawler finds something new, the site updates by itself.
+
 ## How the code is organised
 
 ```
@@ -45,6 +61,8 @@ js/logic.js          search, filters, one-tap registration, help routing (no scr
 js/icons.js          the line icons
 js/app.js            draws each screen and handles taps
 tests/logic.test.js  automatic checks for logic.js
+tools/crawl.js       reads UNNC's public news and events pages into data/live.json
+data/live.json       the latest crawled news and events (updated by GitHub every 30 min)
 tools/build-preview.js  bundles everything into one file for sharing
 ```
 
