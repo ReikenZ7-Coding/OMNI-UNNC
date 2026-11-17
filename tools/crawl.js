@@ -234,7 +234,7 @@ async function testFeed(url) {
 async function probe(url) {
   const html = await getPage(url);
   console.log("Length " + html.length);
-  for (const k of ["event-listing__item", "mainsite-newslisting-tile", "Article.aspx", "Event.aspx", "<table", "<tr", "<h2", "<h3", "<li", "pageIndex"]) console.log(k + ": " + html.split(k).length - 1 + "x");
+  for (const k of ["event-listing__item", "mainsite-newslisting-tile", "Article.aspx", "Event.aspx", "<table", "<tr", "<h2", "<h3", "<li", "pageIndex"]) console.log(k + ": " + (html.split(k).length - 1) + "x");
   const at = Math.max(0, ["mainsite-newslisting-tile", "event-listing__item", "Article.aspx", "Semester"].map((k) => html.indexOf(k)).filter((n) => n > 0).sort((a, b) => a - b)[0] - 400 || 0);
   console.log("----- sample -----\n" + html.slice(at, at + 3500).replace(/\s+/g, " "));
 }
