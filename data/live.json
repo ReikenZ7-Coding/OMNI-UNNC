@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-17T06:23:47.459Z",
+ "updatedAt": "2026-11-17T13:49:06.474Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -29,6 +29,28 @@
  ],
  "news": [
   {
+   "id": "netease-unnc-rb6xp4",
+   "kind": "news",
+   "title": "宁诺学子AI作品入选广电总局推荐项目，亮相多个国际电影节",
+   "date": "2026-11-17",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LBV7FEHU05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
+  {
+   "id": "ca8fd431-455c-4bee-a996-c77ed6531880",
+   "kind": "news",
+   "title": "UNNC celebrates the Class of 2026 at Winter Graduation Ceremony",
+   "date": "2026-11-14",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=ca8fd431-455c-4bee-a996-c77ed6531880&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261114-Graduation-Ceremony/2026-Graduation-Ceremony-image6.xd641bade.jpg",
+   "source": "news",
+   "lang": "en"
+  },
+  {
    "id": "netease-unnc-1c0ry84",
    "kind": "news",
    "title": "下一种可能，由你开启 ｜ 宁波诺丁汉大学举行2026届冬季毕业典礼",
@@ -38,6 +60,18 @@
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
+  },
+  {
+   "id": "ccab4f1f-1da8-4e36-b593-79122d9397ca",
+   "kind": "news",
+   "title": "UNNC Postgraduate Career Fair brings 70 leading employers and 3,600+ job opportunities to campus",
+   "date": "2026-11-13",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=ccab4f1f-1da8-4e36-b593-79122d9397ca&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261113-Postgraduate-Career-Fair/Postgraduate-Career-Fair-image4.x3bfdaca9.jpg",
+   "source": "news",
+   "lang": "en",
+   "titleZh": "名企携岗进校园！宁诺硕士专场释放3600余个岗位"
   },
   {
    "id": "netease-unnc-17k1daw",
@@ -532,37 +566,13 @@
   {
    "id": "761b07a1-7679-4a46-bf22-9672714f0eeb",
    "kind": "news",
-   "title": "UNNC researchers develop AI technology to reduce radiation in PET scans",
-   "date": "2026-09-16",
-   "organiser": "UNNC News",
-   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=761b07a1-7679-4a46-bf22-9672714f0eeb&language=en-GB",
-   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260916AI-technology-to-reduce-radiation-in-PET/AI-technology-to-reduce-radiation-in-PET-scans-image4.x8a5857ae.jpg",
-   "source": "news",
-   "lang": "en",
-   "titleZh": "告别CT辐射！AI“光影神探”上岗，宁诺团队研发新型医学影像技术"
-  },
-  {
-   "id": "netease-unnc-gv6vae",
-   "kind": "news",
    "title": "告别CT辐射！AI“光影神探”上岗，宁诺团队研发新型医学影像技术",
    "date": "2026-09-16",
-   "organiser": "宁波诺丁汉大学 · 网易号",
-   "url": "https://www.163.com/dy/article/L6VI1EFF05369NFG.html",
-   "image": "",
-   "source": "netease-unnc",
+   "organiser": "宁诺新闻",
+   "url": "https://www.nottingham.edu.cn/cn/Press-Release/News-Article.aspx?id=761b07a1-7679-4a46-bf22-9672714f0eeb&language=zh",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260916AI-technology-to-reduce-radiation-in-PET/AI-technology-to-reduce-radiation-in-PET-scans-image4.x8a5857ae.jpg",
+   "source": "cn-news",
    "lang": "zh"
-  },
-  {
-   "id": "edca1104-9841-453f-b1e1-5137f726cbc2",
-   "kind": "news",
-   "title": "Bridging distances, reaching rural classrooms: UNNC supports English teachers across China",
-   "date": "2026-09-10",
-   "organiser": "UNNC News",
-   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=edca1104-9841-453f-b1e1-5137f726cbc2&language=en-GB",
-   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260910-rural-classrooms/Rural-classrooms-image1.x252c8bf5.jpg",
-   "source": "news",
-   "lang": "en",
-   "titleZh": "近十年、800+乡村教师、520所学校｜宁诺让优质英语教育资源“下乡”"
   },
   {
    "id": "ae5b433c-e1e0-4aaf-8c65-d570bef47359",
