@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-17T04:16:07.146Z",
+ "updatedAt": "2026-11-17T05:07:06.313Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -145,6 +145,30 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=edca1104-9841-453f-b1e1-5137f726cbc2&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260910-rural-classrooms/Rural-classrooms-image1.x252c8bf5.jpg",
    "source": "news"
+  }
+ ],
+ "feeds": [
+  {
+   "id": "f1nzdmbx",
+   "kind": "notice",
+   "title": "Head of School, School of Health and Life Sciences (184745)",
+   "date": "2026-11-06",
+   "url": "https://jobs.nottingham.ac.uk/rss/click.aspx?ref=184745",
+   "organiser": "UNNC jobs (academic)",
+   "topic": "careers",
+   "via": "web",
+   "source": "feed-unnc-jobs-academic"
+  },
+  {
+   "id": "f1n4tone",
+   "kind": "notice",
+   "title": "Assistant Professor in AI-driven Structural and Machine Dynamics (184726)",
+   "date": "2026-10-21",
+   "url": "https://jobs.nottingham.ac.uk/rss/click.aspx?ref=184726",
+   "organiser": "UNNC jobs (academic)",
+   "topic": "careers",
+   "via": "web",
+   "source": "feed-unnc-jobs-academic"
   }
  ]
 }
