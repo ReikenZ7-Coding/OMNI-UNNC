@@ -58,6 +58,8 @@ If a UNNC WeChat official account, the Student Union or a department has an RSS 
 
 The crawler reads each feed every 30 minutes and keeps **only the headline, date and link**, never the article itself. In OMNI the item says "Live from WeChat" and has a **Read on WeChat** button, so students read the full post where it was published. That keeps OMNI a way to *find* things, not a copy of WeChat. Please don't add feeds made by logging into WeChat with a "burner" account or by getting around WeChat's anti-bot protections.
 
+**Try a feed before adding it.** On GitHub, open **Actions → Update live UNNC data → Run workflow**, paste the feed link into the box and press **Run workflow**. Open the finished run and expand **Try a feed**: it lists the posts OMNI would show. Nothing is saved. On your own computer, `node tools/crawl.js --test-feed <link>` does the same.
+
 ### WeChat, email and Moodle: let students bring it in
 
 Those sources are behind logins, so OMNI never asks for anyone's UNNC password and never reads private chats. Instead, the student who already has the information brings it in, in a few seconds:
