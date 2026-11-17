@@ -33,7 +33,7 @@ Most campus apps collect links: you find an event, then tap "Registration option
 npm start        # then open the address it prints, e.g. http://localhost:3000
 ```
 
-Everything you do (bookings, requests) is saved in your own browser only. Use **Me → Reset demo data** to start over.
+Everything you do (bookings, requests) is saved in your own browser only. Use **Me → Settings → Reset demo data** to start over.
 
 ## How the code is organised
 
