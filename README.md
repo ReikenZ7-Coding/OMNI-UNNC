@@ -4,7 +4,7 @@
 
 OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem A). Right now, UNNC event information is scattered across university email, Moodle, WeChat official accounts, club group chats and mini programs. Registering or asking for help sends students through links to separate portals that often make them log in again. OMNI tests the opposite: one app, one sign-in.
 
-> This is a student prototype. It is not an official university service. Items marked **Live from UNNC website** are real and come from UNNC's public pages; Events, notices and news are **real only**: from UNNC's public website, official feeds, or posted by people in OMNI. Help and Tools show a "coming soon" page until their phase.
+> This is a student prototype. It is not an official university service. Items marked **Live from UNNC website** are real and come from UNNC's public pages; Events, notices and news are **real only**: from UNNC's public website, official feeds, or posted by people in OMNI. Help, Tools and Forum show a "coming soon" page until their phase.
 
 ## What you can do in the app
 
@@ -16,6 +16,7 @@ OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem
 | **Event details** | Generated poster, time, place, organiser and places left, a 中文 / English switch for the description, and a bottom bar to **Save**, **Add reminder** and **Register in one tap** right inside the app. If it's full, the same tap joins the waitlist. |
 | **Help** | *Coming in Phase 2.* Type a problem in plain words and OMNI routes it to the right office. The routing logic is already in `js/logic.js` (`routeHelp`). |
 | **Tools** | *Coming in Phase 3.* Campus systems in one place, each opening already signed in. |
+| **Forum** | *Coming in Phase 4.* A student feed with photos, likes and comments, open only to people signed in with a UNNC email, with reporting and moderators from day one. |
 | **Post** | Anyone can post an event, notice or news. **Fill it in for me:** paste a WeChat post or email, or add a poster screenshot, and OMNI fills in the form (title, date, time, place, organiser, English and Chinese description) for you to check. |
 | **Me** | Verified profile, My schedule, **My calendar** (import Moodle deadlines and your timetable), tickets, saved items, help requests, and settings. |
 

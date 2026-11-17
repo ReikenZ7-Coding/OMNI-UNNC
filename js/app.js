@@ -986,23 +986,33 @@
   var PHASES = [
     ["Events, notices and news", "Live now"], ["Help", "Phase 2"], ["Tools", "Phase 3"], ["UNNC Forum", "Phase 4"], ["Chatbot", "Phase 5"]
   ];
+  var SOON = {
+    help: { phase: 2, title: "Help", icon: "help", head: "Ask the right office, in plain words",
+      text: "Type a problem the way you'd say it, like \"my dorm air conditioner is broken\" or \"签证\", and OMNI tells you which office handles it, then sends them your request without another login." },
+    tools: { phase: 3, title: "Tools", icon: "tools", head: "Every campus system in one place",
+      text: "Moodle, email, room booking, printing and more, each opening already signed in with your OMNI account instead of a separate portal." },
+    forum: { phase: 4, title: "Forum", icon: "chat", head: "The UNNC student forum",
+      text: "Share photos, ask questions, find people for a project or sell your old textbooks. Only students signed in with a UNNC email can post, so everyone you meet here is really from campus.",
+      more: ["A feed of posts with photos, likes and comments", "Follow clubs, courses and friends", "Report button and moderators from day one, to keep it kind and safe"] }
+  };
   function screenSoon(which) {
-    var help = which === "help";
-    var phase = help ? 2 : 3;
+    var c = SOON[which];
+    var phase = c.phase;
     var road = '<ol class="roadmap">' + PHASES.map(function (p, i) {
       var state = i === 0 ? "done" : i + 1 === phase ? "here" : "";
       return '<li class="' + state + '"><span class="road-dot">' + (i === 0 ? I("check") : i + 1) + '</span><span class="row-text"><b>' + esc(p[0]) + "</b><span>" + esc(i === 0 ? "Live now" : "Phase " + (i + 1)) + "</span></span></li>";
     }).join("") + "</ol>";
-    return pageHead(help ? "Help" : "Tools") +
+    return pageHead(c.title) +
       '<section class="card-panel stack soon">' +
-        '<span class="tile lg t-jade">' + I(help ? "help" : "tools") + "</span>" +
+        '<span class="tile lg t-jade">' + I(c.icon) + "</span>" +
         '<span class="eyebrow accent">Coming in Phase ' + phase + "</span>" +
-        "<h2>" + (help ? "Ask the right office, in plain words" : "Every campus system in one place") + "</h2>" +
-        "<p>" + (help ? "Type a problem the way you'd say it, like \"my dorm air conditioner is broken\" or \"签证\", and OMNI tells you which office handles it, then sends them your request without another login."
-          : "Moodle, email, room booking, printing and more, each opening already signed in with your OMNI account instead of a separate portal.") + "</p>" +
-        '<p class="meta">We\'re building this on real university information, so it isn\'t switched on yet.</p>' +
+        "<h2>" + esc(c.head) + "</h2>" +
+        "<p>" + esc(c.text) + "</p>" +
+        (c.more ? '<ul class="soon-list">' + c.more.map(function (m) { return "<li>" + I("check") + "<span>" + esc(m) + "</span></li>"; }).join("") + "</ul>" : "") +
+        '<p class="meta">' + (which === "forum" ? "Until then, you can already post events, notices and news for everyone in Discover." : "We\'re building this on real university information, so it isn\'t switched on yet.") + "</p>" +
       "</section>" +
-      (help ? "" : '<a class="post-cta" href="#calendar"><span class="tile t-jade">' + I("calendar") + '</span><span class="row-text"><b>Already here: My calendar</b><span>Import your Moodle deadlines and timetable today.</span></span>' + I("chevron", "chev") + "</a>") +
+      (which === "forum" ? '<a class="post-cta" href="#new"><span class="tile t-jade">' + I("plus") + '</span><span class="row-text"><b>Post to OMNI</b><span>Share an event, notice or news with every student.</span></span>' + I("chevron", "chev") + "</a>" : "") +
+      (which !== "tools" ? "" : '<a class="post-cta" href="#calendar"><span class="tile t-jade">' + I("calendar") + '</span><span class="row-text"><b>Already here: My calendar</b><span>Import your Moodle deadlines and timetable today.</span></span>' + I("chevron", "chev") + "</a>") +
       '<section class="stack">' + sectionHead("The OMNI roadmap") + '<div class="card-panel">' + road + "</div></section>" +
       '<a class="btn soft block" href="#discover">' + I("discover") + "See what's on now</a>";
   }
@@ -1040,6 +1050,7 @@
     if (h === "help") return { name: "help", tab: "help" };
     if ((m = h.match(/^office-(.+)$/))) return { name: "office", id: m[1], tab: "help" };
     if (h === "tools") return { name: "tools", tab: "tools" };
+    if (h === "forum") return { name: "forum", tab: "forum" };
     if ((m = h.match(/^tool-(.+)$/))) return { name: "tool", id: m[1], tab: "tools" };
     if (h === "food") return { name: "food", tab: "tools" };
     if ((m = h.match(/^place-(.+)$/))) return { name: "place", id: m[1], tab: "tools" };
@@ -1064,6 +1075,7 @@
       // Help (Phase 2) and Tools (Phase 3) aren't built on real data yet.
       case "help": case "office": html = screenSoon("help"); break;
       case "tools": case "tool": case "food": case "place": html = screenSoon("tools"); break;
+      case "forum": html = screenSoon("forum"); break;
       case "me": html = screenMe(); break;
       case "my-events": html = screenMyEvents(); break;
       case "saved": html = screenSaved(); break;
@@ -1374,7 +1386,7 @@
     // Nothing to pre-fill: OMNI starts empty and shows only real events.
   }
 
-  tabs.innerHTML = [["home", "Home", "home"], ["discover", "Discover", "discover"], ["help", "Help", "help"], ["tools", "Tools", "tools"], ["me", "Me", "me"]].map(function (t) {
+  tabs.innerHTML = [["home", "Home", "home"], ["discover", "Discover", "discover"], ["help", "Help", "help"], ["tools", "Tools", "tools"], ["forum", "Forum", "chat"], ["me", "Me", "me"]].map(function (t) {
     return '<a href="#' + t[0] + '" data-tab="' + t[0] + '">' + I(t[2]) + "<span>" + t[1] + "</span></a>";
   }).join("");
 

@@ -522,3 +522,7 @@ details.faq .office-link { display: inline-block; padding-bottom: 14px; font-siz
 .roadmap li.done .road-dot { background: var(--jade); color: var(--surface); }
 .roadmap li.done b, .roadmap li.here b { color: var(--ink); }
 .roadmap li.here .road-dot { background: var(--jade-soft); color: var(--jade); box-shadow: inset 0 0 0 2px var(--jade); }
+.soon-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.soon-list li { display: flex; gap: 8px; align-items: flex-start; font-size: .92rem; }
+.soon-list .ic { width: 18px; height: 18px; color: var(--jade); flex: none; margin-top: 2px; stroke-width: 2.4; }
+.tabs a span { white-space: nowrap; }
