@@ -230,8 +230,19 @@ async function testFeed(url) {
   if (!items.length) process.exitCode = 1;
 }
 
+// For developers: show how a page is built, to write a parser for it.
+async function probe(url) {
+  const html = await getPage(url);
+  console.log("Length " + html.length);
+  for (const k of ["event-listing__item", "mainsite-newslisting-tile", "Article.aspx", "Event.aspx", "<table", "<tr", "<h2", "<h3", "<li", "pageIndex"]) console.log(k + ": " + html.split(k).length - 1 + "x");
+  const at = Math.max(0, ["mainsite-newslisting-tile", "event-listing__item", "Article.aspx", "Semester"].map((k) => html.indexOf(k)).filter((n) => n > 0).sort((a, b) => a - b)[0] - 400 || 0);
+  console.log("----- sample -----\n" + html.slice(at, at + 3500).replace(/\s+/g, " "));
+}
+
 if (require.main === module) {
-  const i = process.argv.indexOf("--test-feed");
-  if (i > -1) testFeed(process.argv[i + 1]); else main();
+  const i = process.argv.indexOf("--test-feed"), j = process.argv.indexOf("--probe");
+  if (i > -1) testFeed(process.argv[i + 1]);
+  else if (j > -1) probe(process.argv[j + 1]).catch((e) => { console.log(String(e)); process.exitCode = 1; });
+  else main();
 }
 module.exports = { parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed };

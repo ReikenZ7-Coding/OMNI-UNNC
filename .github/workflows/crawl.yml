@@ -10,6 +10,10 @@ on:
         description: "To try an RSS feed without saving anything, paste its link here. Leave empty for a normal update."
         required: false
         default: ""
+      probe_page:
+        description: "For developers: show how a UNNC page is built (nothing is saved)."
+        required: false
+        default: ""
 permissions:
   contents: write
 concurrency:
@@ -24,16 +28,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Look at a page (nothing is saved)
+        if: ${{ inputs.probe_page != '' && inputs.probe_page != null }}
+        env:
+          PAGE: ${{ inputs.probe_page }}
+        run: for u in $PAGE; do echo "===== $u"; node tools/crawl.js --probe "$u"; sleep 2; done
       - name: Try a feed (nothing is saved)
         if: ${{ inputs.test_feed != '' && inputs.test_feed != null }}
         env:
           FEED: ${{ inputs.test_feed }}
         run: node tools/crawl.js --test-feed "$FEED"
       - name: Read UNNC pages
-        if: ${{ inputs.test_feed == '' || inputs.test_feed == null }}
+        if: ${{ (inputs.test_feed == '' || inputs.test_feed == null) && (inputs.probe_page == '' || inputs.probe_page == null) }}
         run: node tools/crawl.js
       - name: Save changes
-        if: ${{ inputs.test_feed == '' || inputs.test_feed == null }}
+        if: ${{ (inputs.test_feed == '' || inputs.test_feed == null) && (inputs.probe_page == '' || inputs.probe_page == null) }}
         run: |
           if [ -z "$(git status --porcelain -- data/live.json)" ]; then
             echo "No new news or events."
