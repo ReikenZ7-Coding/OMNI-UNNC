@@ -1,4 +1,12 @@
 {
  "_howto": "Add RSS or Atom feeds here, for example a public feed of a UNNC WeChat official account. OMNI keeps only the title, date and link of each post, and sends students to the original to read it. kind is news or notice; topic is optional (academic, careers, clubs, sports, culture, wellbeing). Set enabled to false to pause a feed.",
- "feeds": []
+ "feeds": [
+  {
+   "name": "UNNC jobs (academic)",
+   "url": "https://jobs.nottingham.ac.uk/rss/rss.aspx?cat=200",
+   "kind": "notice",
+   "topic": "careers",
+   "note": "Official University of Nottingham jobs feed for the China campus. A real feed used to test the RSS reader; set enabled to false to hide it."
+  }
+ ]
 }

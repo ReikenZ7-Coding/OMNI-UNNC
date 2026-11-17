@@ -217,5 +217,21 @@ async function main() {
   if (!events.length && !news.length) process.exitCode = 1;
 }
 
-if (require.main === module) main();
+// Try a feed without saving anything: node tools/crawl.js --test-feed <url>
+async function testFeed(url) {
+  if (!/^https:\/\//i.test(url || "")) { console.log("Give a feed link that starts with https://"); process.exitCode = 1; return; }
+  let xml;
+  try { xml = await getPage(url); } catch (e) { console.log("Couldn't open the feed: " + (e.message || e)); process.exitCode = 1; return; }
+  const name = decode(tag(xml, "title")) || "Test feed";
+  const items = parseFeed(xml, { name, max: 20 });
+  console.log("Feed: " + name);
+  console.log(items.length ? items.length + " posts OMNI would show (headline, date, link only):" : "No posts found. Is this an RSS or Atom feed link?");
+  items.forEach((i) => console.log("- " + i.date + "  " + i.title + "\n    " + i.url + (i.via === "wechat" ? "  [Read on WeChat]" : "")));
+  if (!items.length) process.exitCode = 1;
+}
+
+if (require.main === module) {
+  const i = process.argv.indexOf("--test-feed");
+  if (i > -1) testFeed(process.argv[i + 1]); else main();
+}
 module.exports = { parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed };
