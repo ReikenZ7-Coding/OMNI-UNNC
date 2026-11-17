@@ -73,6 +73,12 @@
   // 2. COMMUNITY: events and notices people post in OMNI. Shared live through the
   //    page's database when there is one, otherwise kept on this device.
   var COMM = { db: null, me: null, owner: false, canWrite: null, posts: [], regs: [], status: "local" };
+  // With Supabase settings in js/config.js (and outside the claude.ai preview),
+  // OMNI uses real email codes and a shared database for every student.
+  var CFG = window.OMNI_CONFIG || {};
+  var IN_CLAUDE = !!(window.claude && typeof window.claude.use === "function");
+  var BE = !IN_CLAUDE && CFG.supabaseUrl && CFG.supabaseKey && window.OMNI_BACKEND
+    ? window.OMNI_BACKEND.create(CFG, { onSignedOut: function () { if (state.student) { state.student = null; save(); render(); toast("Please sign in again."); } } }) : null;
   var TIME = /^\d{2}:\d{2}$/, DATE = /^\d{4}-\d{2}-\d{2}$/;
   function str(v, max) { return typeof v === "string" ? v.trim().slice(0, max) : ""; }
   function cleanPost(id, d) {
@@ -299,10 +305,10 @@
       form = '<form class="card-panel stack" id="code-form" autocomplete="off">' +
         "<h2>Check your UNNC email</h2>" +
         '<p class="meta">We sent a 6-digit code to <b>' + esc(si.email) + "</b>. It works for 10 minutes. If you can't see it, check your Junk folder.</p>" +
-        '<div class="demo-code">' + I("mail") + '<span>Demo: no email is really sent. Your code is <b>' + esc(si.pending.code) + "</b></span></div>" +
+        (si.pending.real ? "" : '<div class="demo-code">' + I("mail") + '<span>Demo: no email is really sent. Your code is <b>' + esc(si.pending.code) + "</b></span></div>") +
         '<div class="field"><label for="si-code">6-digit code</label><input class="input code-input" id="si-code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" placeholder="000000"></div>' +
         err +
-        '<button class="btn block" type="submit">' + I("key") + "Sign in once</button>" +
+        '<button class="btn block" type="submit"' + (si.busy ? " disabled" : "") + ">" + I("key") + (si.busy ? "Checking…" : "Sign in once") + "</button>" +
         '<div class="row between"><button type="button" class="link-btn" data-act="si-back">Use a different email</button>' +
         '<button type="button" class="link-btn" data-act="si-resend"' + (wait ? " disabled" : "") + ">" + (wait ? "Resend in " + Math.ceil(wait / 1000) + "s" : "Send a new code") + "</button></div>" +
       "</form>";
@@ -319,8 +325,8 @@
           "<li><b>Never:</b> your university password, Moodle login or WeChat account.</li>" +
           "<li><b>Your choice:</b> sign out or delete your data any time in Me → Settings.</li></ul></details>" +
         err +
-        '<button class="btn block" type="submit">' + I("mail") + "Send me a code</button>" +
-        '<p class="demo-note">Student prototype. In this demo the code appears on screen instead of in your inbox, and everything stays on this device.</p>' +
+        '<button class="btn block" type="submit"' + (si.busy ? " disabled" : "") + ">" + I("mail") + (si.busy ? "Sending…" : "Send me a code") + "</button>" +
+        '<p class="demo-note">' + (BE ? "Student prototype, not an official university service. The code arrives by email from OMNI." : "Student prototype. In this demo the code appears on screen instead of in your inbox, and everything stays on this device.") + "</p>" +
       "</form>";
     }
     return '<section class="signin">' +
@@ -801,7 +807,7 @@
     var defDate = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
     var topics = D.categories.map(function (c) { return '<option value="' + c.id + '"' + (c.id === "clubs" ? " selected" : "") + ">" + esc(c.label) + "</option>"; }).join("");
     var where = COMM.db ? (COMM.canWrite === false ? '<div class="banner low">' + I("info") + "You can view OMNI but not post. Ask the owner to give you edit access.</div>"
-        : '<div class="banner ok">' + I("checkCircle") + "Live: everyone using this OMNI link sees your post straight away.</div>")
+        : '<div class="banner ok">' + I("checkCircle") + (BE ? "Live: every student using OMNI sees your post straight away, with your name on it." : "Live: everyone using this OMNI link sees your post straight away.") + "</div>")
       : '<div class="banner plain">' + I("info") + "This copy isn't connected to the shared database, so posts are saved on this device only.</div>";
     var kinds = [["event", "Event"], ["notice", "Notice"], ["news", "News"]].map(function (x) {
       return '<button type="button" data-newkind="' + x[0] + '" aria-pressed="' + (k === x[0]) + '">' + x[1] + "</button>";
@@ -1035,7 +1041,10 @@
         '<li><span>Moodle deadlines, timetable</span><span class="pill ' + (state.calendar ? 'ok">' + I("check") + "imported" : 'plain">import a file') + "</span></li>" +
         '<li><span>Email, WeChat</span><span class="pill plain">paste to post</span></li></ul>' +
         '<p class="meta small">Sign-ins this session: ' + Math.max(1, state.logins) + "</p></section>" +
-      '<div class="row"><button class="btn secondary" data-act="signout">' + I("out") + "Sign out</button><button class=\"btn quiet\" data-act=\"reset\">" + (ui.confirm === "reset" ? "Tap again to reset" : "Reset demo data") + "</button></div>";
+      '<div class="row"><button class="btn secondary" data-act="signout">' + I("out") + "Sign out</button>" +
+        (BE ? '<button class="btn quiet" data-act="delete-me">' + (ui.confirm === "delete-me" ? "Tap again to delete for good" : "Delete my account") + "</button>"
+          : '<button class="btn quiet" data-act="reset">' + (ui.confirm === "reset" ? "Tap again to reset" : "Reset demo data") + "</button>") + "</div>" +
+      (BE ? '<p class="meta small">Deleting your account removes your sign-in, your posts and your registrations from OMNI.</p>' : "");
   }
 
   // ---------- Router ----------
@@ -1200,7 +1209,15 @@
       location.hash = "discover"; return;
     }
     else if (act === "pick-food") ui.foodPick = L.pickFood(D.food, Math.random());
-    else if (act === "signout") { state.student = null; save(); ui.signin = { step: "email", name: "", email: "", pending: null, sends: ui.signin.sends, error: "" }; location.hash = ""; toast("Signed out."); }
+    else if (act === "delete-me") {
+      if (ui.confirm !== "delete-me") { ui.confirm = "delete-me"; render({ keepScroll: true }); return; }
+      ui.confirm = null;
+      BE.deleteMe().then(function () {
+        state = blankState(); COMM.me = null; COMM.canWrite = null; COMM.owner = false; save(); location.hash = ""; render(); toast("Your OMNI account is deleted.");
+      }, function (e) { toast(BE.explain(e)); });
+      return;
+    }
+    else if (act === "signout") { if (BE) { BE.signOut(); COMM.me = null; COMM.canWrite = null; COMM.owner = false; } state.student = null; save(); ui.signin = { step: "email", name: "", email: "", pending: null, sends: ui.signin.sends, error: "" }; location.hash = ""; toast("Signed out."); }
     else if (act === "si-back") { ui.signin.step = "email"; ui.signin.pending = null; ui.signin.error = ""; }
     else if (act === "si-resend") { sendCode(); return; }
     else if (act === "reset") {
@@ -1293,8 +1310,23 @@
     var si = ui.signin, t = Date.now();
     var wait = L.sendWait(si.sends[si.email], t);
     if (wait) { si.error = "Please wait " + (wait > 60000 ? Math.ceil(wait / 60000) + " minutes" : Math.ceil(wait / 1000) + " seconds") + " before asking for another code."; render({ keepScroll: true }); return; }
+    if (BE) {
+      if (si.busy) return;
+      si.busy = true; si.error = ""; render({ keepScroll: true });
+      BE.sendCode(si.email, si.name).then(function () {
+        si.busy = false;
+        si.sends[si.email] = (si.sends[si.email] || []).concat([t]);
+        si.pending = { real: true, sentAt: t };
+        codeSent();
+      }, function (e) { si.busy = false; si.error = BE.explain(e, "send"); render({ keepScroll: true }); });
+      return;
+    }
     si.sends[si.email] = (si.sends[si.email] || []).concat([t]);
     si.pending = { code: L.makeCode(), sentAt: t, tries: 0 };
+    codeSent();
+  }
+  function codeSent() {
+    var si = ui.signin;
     si.step = "code"; si.error = "";
     render.focus = "si-code";
     render({ keepScroll: true });
@@ -1325,6 +1357,19 @@
       sendCode();
     } else if (f.id === "code-form") {
       var sc = ui.signin;
+      if (BE && sc.pending && sc.pending.real) {
+        var typed = f.querySelector("#si-code").value.replace(/\D/g, "");
+        if (typed.length !== 6) { sc.error = "The code has 6 digits."; render({ keepScroll: true }); return; }
+        if (sc.busy) return;
+        sc.busy = true; sc.error = ""; render({ keepScroll: true });
+        BE.verifyCode(sc.email, typed).then(function (u) {
+          sc.busy = false;
+          COMM.me = u.id; COMM.canWrite = true;
+          BE.isAdmin().then(function (v) { COMM.owner = v; if (v) softRender(); });
+          finishSignIn(sc, u.id);
+        }, function (e) { sc.busy = false; sc.error = BE.explain(e, "verify"); render({ keepScroll: true }); });
+        return;
+      }
       var result = L.checkCode(sc.pending, f.querySelector("#si-code").value, Date.now());
       if (result !== "ok") {
         if (result === "wrong") sc.pending.tries = (sc.pending.tries || 0) + 1;
@@ -1335,8 +1380,15 @@
           : "That code isn't right. " + left + (left === 1 ? " try" : " tries") + " left.";
         render({ keepScroll: true }); return;
       }
+      finishSignIn(sc, sc.email);
+    } else if (f.id === "post-form") {
+      postForm(f);
+    }
+  });
+
+  function finishSignIn(sc, id) {
       var first = !state.logins;
-      state.student = { name: sc.name, email: sc.email, id: sc.email };
+      state.student = { name: sc.name, email: sc.email, id: id };
       ui.signin = { step: "email", name: "", email: "", pending: null, sends: sc.sends, error: "" };
       state.logins = (state.logins || 0) + 1;
       if (first) seedDemo();
@@ -1344,7 +1396,9 @@
       location.hash = "home";
       render();
       toast("Signed in. You won't be asked again.");
-    } else if (f.id === "post-form") {
+  }
+
+  function postForm(f) {
       var g = function (id) { var el = f.querySelector("#" + id); return el ? el.value : ""; };
       var doc = { kind: ui.newKind, title: g("np-title").trim(), organiser: g("np-org").trim() || state.student.name, topic: g("np-topic"),
         body: g("np-body").trim(), zh: g("np-zh").trim(), url: g("np-link").trim(), createdBy: COMM.me || "this-device", createdAt: now().toISOString() };
@@ -1364,22 +1418,13 @@
         toast(COMM.db ? "Posted. Everyone using OMNI can see it now." : "Posted on this device.");
       };
       if (COMM.db) {
-        COMM.db.collection("posts").add(doc).then(function (ref) { done(ref.id); }, function () { btn.disabled = false; toast("Couldn't post. You may need edit access from the owner."); });
+        COMM.db.collection("posts").add(doc).then(function (ref) { done(ref.id); }, function (e) { btn.disabled = false; toast(BE ? "Couldn't post. " + BE.explain(e) : "Couldn't post. You may need edit access from the owner."); });
       } else {
         var lid = "l" + Date.now().toString(36);
         state.localPosts = (state.localPosts || []).concat([Object.assign({ id: lid }, doc)]);
         save(); done(lid);
       }
-    } else if (f.id === "req-form") {
-      var subject = f.querySelector("#rq-subject").value.trim();
-      if (!subject) { toast("Add a short subject first."); return; }
-      state.requests.push({ office: f.dataset.office, subject: subject, body: f.querySelector("#rq-body").value.trim(), at: now().toISOString(), status: "Received" });
-      save();
-      ui.helpQuery = "";
-      location.hash = "help";
-      toast("Request sent to " + officeById(f.dataset.office).name + ".");
-    }
-  });
+  }
 
   // First sign-in: give the demo a past event and one booking so screens aren't empty.
   function seedDemo() {
@@ -1413,17 +1458,28 @@
         user.isOwner().then(function (v) { COMM.owner = !!v; }, function () {});
         user.can("data.write").then(function (v) { COMM.canWrite = v; if (route().name === "new") render({ keepScroll: true }); }, function () {});
       }
-      idP.then(function (id) {
-        COMM.me = id;
-        db.collection("posts").orderBy("createdAt", "desc").limit(200).onSnapshot(function (snap) {
-          COMM.posts = snap.docs.map(function (d) { return cleanPost(d.id, d.data()); }).filter(Boolean);
-          COMM.status = "live"; softRender();
-        }, function () { COMM.status = "error"; });
-        db.collection("regs").limit(2000).onSnapshot(function (snap) {
-          COMM.regs = snap.docs.map(function (d) { var x = d.data() || {}; return { event: String(x.event || ""), by: String(x.by || ""), status: x.status === "waitlist" ? "waitlist" : "registered" }; });
-          softRender();
-        }, function () {});
-      });
+      idP.then(function (id) { COMM.me = id; listenShared(db); });
+    }, function () {});
+  }
+
+  // Or connect to Supabase when OMNI runs as its own website.
+  if (BE) {
+    var who = BE.user();
+    if (state.student && (!who || String(who.email).toLowerCase() !== String(state.student.email).toLowerCase())) { state.student = null; save(); } // demo or expired sign-in: ask once more
+    COMM.db = BE; COMM.status = "connecting";
+    COMM.me = who ? who.id : null; COMM.canWrite = who ? true : null;
+    if (who) BE.isAdmin().then(function (v) { COMM.owner = v; if (v) softRender(); });
+    listenShared(BE);
+  }
+
+  function listenShared(db) {
+    db.collection("posts").orderBy("createdAt", "desc").limit(200).onSnapshot(function (snap) {
+      COMM.posts = snap.docs.map(function (d) { return cleanPost(d.id, d.data()); }).filter(Boolean);
+      COMM.status = "live"; softRender();
+    }, function () { COMM.status = "error"; });
+    db.collection("regs").limit(2000).onSnapshot(function (snap) {
+      COMM.regs = snap.docs.map(function (d) { var x = d.data() || {}; return { event: String(x.event || ""), by: String(x.by || ""), status: x.status === "waitlist" ? "waitlist" : "registered" }; });
+      softRender();
     }, function () {});
   }
 

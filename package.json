@@ -5,7 +5,7 @@
   "description": "OMNI-UNNC: find campus events, register in one tap and get help, signing in only once. Student prototype.",
   "scripts": {
     "start": "npx --yes serve@14.2.4 .",
-    "test": "node --test tests/logic.test.js",
+    "test": "node --test tests/*.test.js",
     "build:preview": "node tools/build-preview.js",
     "crawl": "node tools/crawl.js"
   }

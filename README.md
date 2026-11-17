@@ -26,7 +26,11 @@ Most campus apps collect links: you find an event, then tap "Registration option
 
 ## How to try it
 
-**Easiest:** double-click `index.html`. It opens in your browser and works straight away. On your phone it looks and feels like an app.
+**Live website:** https://reikenz7-coding.github.io/OMNI-UNNC/ (after GitHub Pages is turned on, see [docs/SETUP.md](docs/SETUP.md)). It publishes itself after every change and every crawl.
+
+**Real sign-in and shared posts:** follow [docs/SETUP.md](docs/SETUP.md) to connect a free Supabase project. Until `js/config.js` has its URL and key, OMNI runs as a demo: the code shows on screen and posts stay on each device.
+
+**On your computer:** double-click `index.html`. It opens in your browser and works straight away. On your phone it looks and feels like an app.
 
 **Or run a small local server** (needs [Node.js](https://nodejs.org)):
 
@@ -86,11 +90,15 @@ Those sources are behind logins, so OMNI never asks for anyone's UNNC password a
 ```
 index.html           the page itself
 css/app.css          all the styling (colours, light and dark mode)
+js/config.js         your Supabase URL and publishable key (empty = demo)
+js/backend.js        talks to Supabase: email codes, shared posts and registrations
+supabase/setup.sql   the database tables and safety rules (paste into Supabase once)
+docs/SETUP.md        step-by-step guide to put OMNI online
 js/data.js           offices, help answers, tools and food (sample)
 js/logic.js          search, filters, one-tap registration, help routing (no screen code)
 js/icons.js          the line icons
 js/app.js            draws each screen and handles taps
-tests/logic.test.js  automatic checks for logic.js
+tests/*.test.js      automatic checks (logic, and the Supabase link with a pretend server)
 tools/crawl.js       reads UNNC's public news and events pages into data/live.json
 data/live.json       the latest crawled news and events (updated by GitHub every 30 min)
 tools/build-preview.js  bundles everything into one file for sharing
@@ -107,9 +115,9 @@ No frameworks and no build step: it is plain HTML, CSS and JavaScript, so anyone
 
 ## What a real version would need
 
-1. **Real email codes.** The screens are ready; the missing piece is a small server that emails the code (for example Cloudflare Workers + Resend, plus a domain at about $10 a year). It should keep each code for 10 minutes, allow 5 tries, send at most 3 codes per email per hour, and never send the code back to the app. The rules are already in `js/logic.js` (`unncEmail`, `checkCode`, `sendWait`). Moodle and the portal stay separate: OMNI opens the official page and the student logs in there, so OMNI never holds a university password or cookie. Longer term, the university's own single sign-on would be the ideal.
+1. **Real email codes.** Built: with Supabase connected (see [docs/SETUP.md](docs/SETUP.md)), codes are emailed, last 10 minutes, and only @nottingham.edu.cn addresses can sign in. Moodle and the portal stay separate: OMNI opens the official page and the student logs in there, so OMNI never holds a university password or cookie. Longer term, the university's own single sign-on would be the ideal.
 2. **Real event data.** Let clubs, the Student Union and departments post events into OMNI (or pull them from existing systems) instead of typing them into `data.js`.
-3. **A small server and database** so bookings and help requests reach the real organisers and offices.
+3. **A shared database.** Built for posts and registrations (Supabase). Help requests come with Phase 2.
 4. **A WeChat mini program version.** Most UNNC students live in WeChat, so that is where OMNI should end up. The logic in `js/logic.js` is plain JavaScript and can be reused there.
 
 ## Ideas to test with students
