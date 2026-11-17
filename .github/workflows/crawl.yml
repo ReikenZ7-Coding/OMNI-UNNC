@@ -41,7 +41,20 @@ jobs:
         if: ${{ inputs.discover != '' && inputs.discover != null }}
         env:
           SEEDS: ${{ inputs.discover }}
-        run: if [ "$SEEDS" = "default" ]; then node tools/discover.js; elif [ "${SEEDS#--raw }" != "$SEEDS" ]; then node tools/discover.js --raw "${SEEDS#--raw }"; else node tools/discover.js $SEEDS; fi
+        run: |
+          # Several jobs can be given, separated by ";". Each is "default", "--raw <url>", "--try <source or url> [pattern]" or a list of urls.
+          IFS=';' read -ra JOBS <<< "$SEEDS"
+          for J in "${JOBS[@]}"; do
+            J="$(echo "$J" | xargs)"
+            echo "########## $J"
+            case "$J" in
+              default) node tools/discover.js || true ;;
+              --raw*) node tools/discover.js --raw ${J#--raw } || true ;;
+              --try*) node tools/crawl.js --try ${J#--try } || true ;;
+              *) node tools/discover.js $J || true ;;
+            esac
+            sleep 1
+          done
       - name: Try a feed (nothing is saved)
         if: ${{ inputs.test_feed != '' && inputs.test_feed != null }}
         env:

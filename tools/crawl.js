@@ -33,7 +33,7 @@ function decode(s) {
     .replace(/<[^>]+>/g, " ")
     .replace(/&amp;/g, "&").replace(/&#39;|&#x27;|&apos;/g, "'").replace(/&quot;/g, '"')
     .replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n))
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n)).replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)))
     .replace(/\s+/g, " ").trim();
 }
 function abs(href) {
@@ -234,6 +234,11 @@ function readPrevious() {
   try { return JSON.parse(fs.readFileSync(OUT, "utf8")); } catch (e) { return { events: [], news: [], feeds: [] }; }
 }
 
+function parse(html, src) {
+  return src.type === "uniEvents" ? parseUniEvents(html, src) : src.type === "facultyEvents" ? parseFacultyEvents(html, src)
+    : src.type === "keyDates" ? parseKeyDates(html, src) : src.type === "list" ? parseLinkList(html, src) : parseNews(html, src);
+}
+
 async function main() {
   const prev = readPrevious();
   const today = new Date().toISOString().slice(0, 10);
@@ -242,8 +247,7 @@ async function main() {
   for (const src of SOURCES) {
     try {
       const html = await getPage(src.url);
-      const items = src.type === "uniEvents" ? parseUniEvents(html, src) : src.type === "facultyEvents" ? parseFacultyEvents(html, src)
-        : src.type === "keyDates" ? parseKeyDates(html, src) : parseNews(html, src);
+      const items = parse(html, src);
       report[src.id] = { ok: true, items: items.length };
       (src.type === "news" ? news : src.type === "keyDates" ? dates : events).push(...items);
     } catch (e) {
@@ -300,6 +304,54 @@ async function testFeed(url) {
   if (!items.length) process.exitCode = 1;
 }
 
+/*
+ * A simple list of links, for pages without a special layout (for example a
+ * faculty news list, or UNNC's Chinese articles mirrored on NetEase).
+ * src.item is the pattern every item link matches. The date is the first one
+ * found next to the link, in English ("12 Nov 2026") or Chinese / ISO style
+ * ("2026-11-12", "2026年11月12日").
+ */
+function findDate(text) {
+  let m = /(20\d\d)\s*[-/.年]\s*(\d{1,2})\s*[-/.月]\s*(\d{1,2})/.exec(text);
+  if (m && +m[2] <= 12 && +m[3] <= 31) return ymd(m[1], +m[2], +m[3]);
+  m = /\b(\d{1,2})(?:st|nd|rd|th)?\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?,?\s+(20\d\d)\b/i.exec(text);
+  if (m) return ymd(m[3], MONTHS[m[2].toLowerCase()], +m[1]);
+  m = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+(\d{1,2}),?\s+(20\d\d)\b/i.exec(text);
+  if (m) return ymd(m[3], MONTHS[m[1].toLowerCase()], +m[2]);
+  return "";
+}
+function parseLinkList(html, src) {
+  const seen = new Set(), out = [];
+  const re = /<a\b([^>]*)href="([^"]+)"([^>]*)>([\s\S]*?)<\/a>/gi;
+  const item = new RegExp(src.item, "i");
+  let m;
+  while ((m = re.exec(html))) {
+    const href = m[2].replace(/&amp;/g, "&");
+    if (!item.test(href)) continue;
+    const url = /^https?:/i.test(href) ? href : new URL(href, src.url).href;
+    if (seen.has(url)) continue;
+    const titleAttr = (/title="([^"]+)"/.exec(m[1] + m[3]) || [])[1];
+    const title = decode(m[4]) || decode(titleAttr);
+    if (title.length < 6) continue;
+    const near = html.slice(Math.max(0, m.index - (src.before || 300)), m.index + m[0].length + (src.after || 700));
+    const date = findDate(decode(near.slice(0, (src.before || 300))) + " | " + decode(near.slice(src.before || 300))) || findDate(decode(near));
+    if (!date) continue;
+    seen.add(url);
+    out.push({ id: src.id + "-" + hashId(url), kind: src.kind || "news", title: title.slice(0, 160), date, organiser: src.organiser, url, image: "", source: src.id, lang: src.lang || "en" });
+  }
+  return out;
+}
+
+// For developers: run one source and print what OMNI would get. node tools/crawl.js --try <source id or url> [item pattern]
+async function trySource(idOrUrl, pattern) {
+  const src = SOURCES.find((s) => s.id === idOrUrl) || { id: "try", type: "list", url: idOrUrl, item: pattern || "Article", organiser: "Test" };
+  const html = await getPage(src.url);
+  const items = parse(html, src);
+  console.log(src.id + ": " + items.length + " items from " + src.url);
+  items.slice(0, 25).forEach((x) => console.log("  " + (x.date || x.start) + "  " + x.title + "\n      " + x.url));
+  if (!items.length) process.exitCode = 1;
+}
+
 // For developers: show how a page is built, to write a parser for it.
 async function probe(url) {
   const html = await getPage(url);
@@ -310,9 +362,10 @@ async function probe(url) {
 }
 
 if (require.main === module) {
-  const i = process.argv.indexOf("--test-feed"), j = process.argv.indexOf("--probe");
-  if (i > -1) testFeed(process.argv[i + 1]);
+  const i = process.argv.indexOf("--test-feed"), j = process.argv.indexOf("--probe"), k = process.argv.indexOf("--try");
+  if (k > -1) trySource(process.argv[k + 1], process.argv[k + 2]).catch((e) => { console.log(String(e)); process.exitCode = 1; });
+  else if (i > -1) testFeed(process.argv[i + 1]);
   else if (j > -1) probe(process.argv[j + 1]).catch((e) => { console.log(String(e)); process.exitCode = 1; });
   else main();
 }
-module.exports = { parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed, parseKeyDates, parseDatePhrase };
+module.exports = { parseLinkList, findDate, parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed, parseKeyDates, parseDatePhrase };
