@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-17T05:21:23.031Z",
+ "updatedAt": "2026-11-17T05:22:41.062Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -337,9 +337,9 @@
    "topic": "academic"
   },
   {
-   "id": "kd-2027-05-02-labor-day",
+   "id": "kd-2027-05-01-labor-day",
    "title": "Holiday · Labor Day",
-   "start": "2027-05-02T00:00",
+   "start": "2027-05-01T00:00",
    "end": "2027-05-02T23:59",
    "location": "UNNC",
    "organiser": "UNNC Key Dates",
