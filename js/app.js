@@ -81,6 +81,8 @@
     if (!kind || !title) return null;
     var p = { id: String(id), kind: kind, title: title, organiser: str(d.organiser, 80) || "A student", topic: D.categories.some(function (c) { return c.id === d.topic; }) ? d.topic : "clubs",
       body: str(d.body, 1500), zh: str(d.zh, 1500), createdBy: str(d.createdBy, 80), createdAt: DATE.test(String(d.createdAt).slice(0, 10)) ? String(d.createdAt) : new Date().toISOString() };
+    var link = L.linkSource(d.url);
+    if (link) { p.url = link.url; p.source = link.source; p.linkLabel = link.label; }
     if (kind === "event") {
       if (!DATE.test(d.date) || !TIME.test(d.start) || !TIME.test(d.end)) return null;
       p.date = d.date; p.start = d.start; p.end = d.end; p.location = str(d.location, 100) || "To be confirmed";
@@ -88,21 +90,23 @@
     }
     return p;
   }
-  function communityRaw() { return COMM.db ? COMM.posts : (state.localPosts || []); }
+  function communityRaw() {
+    return COMM.db ? COMM.posts : (state.localPosts || []).map(function (p) { return cleanPost(p.id, p); }).filter(Boolean);
+  }
   function takenFor(cid) {
     return COMM.regs.filter(function (r) { return r.event === cid && r.status === "registered" && r.by !== COMM.me; }).length;
   }
   function communityEvents() {
     return communityRaw().filter(function (p) { return p.kind === "event"; }).map(function (p) {
       var day = L.dayOffset(p.date, now());
-      return { id: "c-" + p.id, cid: p.id, title: p.title, category: p.topic, organiser: p.organiser, source: "omni", day: day, start: p.start, end: p.end < p.start ? "23:59" : p.end,
+      return { id: "c-" + p.id, cid: p.id, title: p.title, category: p.topic, organiser: p.organiser, source: p.source || "omni", url: p.url, linkLabel: p.linkLabel, day: day, start: p.start, end: p.end < p.start ? "23:59" : p.end,
         location: p.location, capacity: p.capacity, taken: Math.min(p.capacity, takenFor(p.id)), tags: [], description: p.body, zh: p.zh,
         posted: L.dayOffset(p.createdAt, now()) || 0, community: true, createdBy: p.createdBy };
     }).filter(function (e) { return e.day != null; });
   }
   function communityPosts() {
     return communityRaw().filter(function (p) { return p.kind !== "event"; }).map(function (p) {
-      return { id: "c-" + p.id, cid: p.id, kind: p.kind, title: p.title, organiser: p.organiser, source: "omni", posted: L.dayOffset(p.createdAt, now()) || 0,
+      return { id: "c-" + p.id, cid: p.id, kind: p.kind, title: p.title, organiser: p.organiser, source: p.source || "omni", url: p.url, linkLabel: p.linkLabel, posted: L.dayOffset(p.createdAt, now()) || 0,
         topic: p.topic, body: p.body, zh: p.zh, community: true, createdBy: p.createdBy };
     });
   }
@@ -430,11 +434,20 @@
         '<div class="fact">' + I("users") + '<span class="fact-k">Organiser</span><span class="fact-v">' + esc(e.organiser) + "</span></div>" +
         places +
       "</div>" +
+      (e.community && e.url ? originLink(e) : "") +
       '<section class="stack">' + sectionHead("About this event") + langSwitch() +
-        '<p class="body-text">' + esc(lang() === "zh" && e.zh ? e.zh : e.description) + "</p></section>" +
+        '<p class="body-text">' + esc(lang() === "zh" && e.zh ? e.zh : (e.description || e.zh)) + "</p></section>" +
       (e.external ? '<p class="was">' + I("info") + "<span>OMNI read this from UNNC's public events page" + (WEB.updatedAt ? " (checked " + esc(updatedWord(WEB.updatedAt)) + ")" : "") + ". In the full version, organisers would post into OMNI directly so you could register here in one tap.</span></p>"
-        : e.community ? '<p class="was">' + I("info") + "<span>Posted straight into OMNI by <b>" + esc(e.organiser) + "</b>. Everyone using OMNI sees it the moment it's posted" + (COMM.db ? "" : " (in this offline copy, only on this device)") + ".</span></p>" + deleteButton(e)
+        : e.community ? '<p class="was">' + I("info") + "<span>Posted into OMNI by <b>" + esc(e.organiser) + "</b>" + (e.url ? ", with a link to the original on " + esc(D.sources[e.source] || "its own page") : "") + ". Everyone using OMNI sees it the moment it's posted" + (COMM.db ? "" : " (in this offline copy, only on this device)") + ".</span></p>" + deleteButton(e)
         : '<p class="was">' + I("info") + "<span>Before OMNI, this was only posted on <b>" + esc(D.sources[e.source]) + "</b>, and registering meant following a link to another portal and logging in again.</span></p>");
+  }
+
+  // A card that sends people to the original post (WeChat, portal, Moodle, a form...).
+  function originLink(it) {
+    var host = ""; try { host = new URL(it.url).hostname.replace(/^www\./, ""); } catch (er) { /* keep empty */ }
+    return '<a class="origin-link card-panel" href="' + esc(it.url) + '" target="_blank" rel="noopener noreferrer">' +
+      '<span class="tile t-' + (it.source === "wechat" ? "green" : it.source === "moodle" ? "amber" : "blue") + '">' + I(it.source === "wechat" ? "mail" : it.source === "moodle" ? "cap" : "globe") + "</span>" +
+      '<span class="row-text"><b>' + esc(it.linkLabel || "Open original post") + "</b><span>Full details on the original" + (host ? " · " + esc(host) : "") + "</span></span>" + I("chevron", "chev") + "</a>";
   }
 
   function deleteButton(it) {
@@ -469,10 +482,11 @@
     return backBar("discover", "Discover", kindLabel(p.kind)) +
       '<div class="post-hero k-' + p.kind + '">' + I(p.kind === "notice" ? "bell" : "news") + "</div>" +
       '<section class="stack tight"><span class="eyebrow accent">' + kindLabel(p.kind) + "</span><h1>" + esc(p.title) + "</h1>" +
-        '<p class="meta">' + esc(p.organiser) + " · posted " + esc(postedWord(postedAt)) + " · " + (p.source === "web" ? "live from the UNNC website" : p.community ? "posted in OMNI" : "originally on " + esc(D.sources[p.source])) + "</p></section>" +
+        '<p class="meta">' + esc(p.organiser) + " · posted " + esc(postedWord(postedAt)) + " · " + (p.community ? "posted in OMNI" + (p.url ? " · from " + esc(D.sources[p.source] || "a link") : "") : p.source === "web" ? "live from the UNNC website" : "originally on " + esc(D.sources[p.source])) + "</p></section>" +
       (p.zh ? langSwitch() : "") +
       (p.body || p.zh ? '<p class="body-text">' + esc(lang() === "zh" && p.zh ? p.zh : p.body) + "</p>" : '<p class="body-text">Read the full story on the UNNC website.</p>') +
       (p.image ? '<img class="post-img" alt="" loading="lazy" src="' + esc(p.image) + '">' : "") +
+      (p.community && p.url ? originLink(p) : "") +
       (p.community ? deleteButton(p) : "") +
       (related && isUpcoming(related) ? '<section class="stack">' + sectionHead("Related event") + feedCard(Object.assign({ kind: "event", postedAt: now() }, related)) + "</section>" : "");
   }
@@ -480,7 +494,7 @@
   function postActionBar(p) {
     var saved = !!state.saved[p.id];
     return '<button class="bar-btn' + (saved ? " on" : "") + '" data-act="save" data-id="' + p.id + '" aria-pressed="' + saved + '">' + I("bookmark") + "<span>" + (saved ? "Saved" : "Save") + "</span></button>" +
-      '<span class="bar-sep"></span>' + (p.url ? '<a class="btn grow" href="' + esc(p.url) + '" target="_blank" rel="noopener">Read on UNNC website</a>' : '<a class="btn grow soft" href="#discover">More updates</a>');
+      '<span class="bar-sep"></span>' + (p.url ? '<a class="btn grow" href="' + esc(p.url) + '" target="_blank" rel="noopener noreferrer">' + esc(p.linkLabel || "Read on UNNC website") + "</a>" : '<a class="btn grow soft" href="#discover">More updates</a>');
   }
 
   function screenMyEvents() {
@@ -779,6 +793,8 @@
           '<div class="field"><label for="np-loc">Where</label><input class="input" id="np-loc" maxlength="100" placeholder="e.g. Student Union Lounge"></div>' +
           '<div class="field"><label for="np-cap">Places (0 = drop-in, no registration)</label><input class="input" id="np-cap" type="number" min="0" max="5000" value="30"></div>' : "") +
         '<div class="field"><label for="np-body">Details</label><textarea class="input" id="np-body" maxlength="1500" placeholder="What is it, who is it for, what to bring..."></textarea></div>' +
+        '<div class="field"><label for="np-link">Link to the original (optional)</label><input class="input" id="np-link" type="text" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="WeChat article, portal page, Moodle or sign-up form">' +
+          '<span class="meta small">People see a button to read the full post there. OMNI shows the summary, the original keeps the full article.</span></div>' +
         '<div class="field"><label for="np-zh">中文介绍 (optional)</label><textarea class="input" id="np-zh" maxlength="1500" placeholder="可选：中文描述"></textarea></div>' +
         '<button class="btn block" type="submit"' + (COMM.db && COMM.canWrite === false ? " disabled" : "") + ">" + I("plus") + "Post " + (k === "event" ? "event" : k) + "</button>" +
         (k === "event" ? '<p class="meta small">Students register in one tap inside OMNI. You can see the count go up live.</p>' : "") +
@@ -806,7 +822,7 @@
     "</section>";
   }
 
-  var FORM_FIELDS = { title: "np-title", organiser: "np-org", topic: "np-topic", date: "np-date", start: "np-start", end: "np-end", location: "np-loc", capacity: "np-cap", body: "np-body", zh: "np-zh" };
+  var FORM_FIELDS = { link: "np-link", title: "np-title", organiser: "np-org", topic: "np-topic", date: "np-date", start: "np-start", end: "np-end", location: "np-loc", capacity: "np-cap", body: "np-body", zh: "np-zh" };
   function formValues() {
     var out = {};
     Object.keys(FORM_FIELDS).forEach(function (k) { var el = document.getElementById(FORM_FIELDS[k]); if (el) out[k] = el.value; });
@@ -1219,12 +1235,15 @@
     } else if (f.id === "post-form") {
       var g = function (id) { var el = f.querySelector("#" + id); return el ? el.value : ""; };
       var doc = { kind: ui.newKind, title: g("np-title").trim(), organiser: g("np-org").trim() || state.student.name, topic: g("np-topic"),
-        body: g("np-body").trim(), zh: g("np-zh").trim(), createdBy: COMM.me || "this-device", createdAt: now().toISOString() };
+        body: g("np-body").trim(), zh: g("np-zh").trim(), url: g("np-link").trim(), createdBy: COMM.me || "this-device", createdAt: now().toISOString() };
       if (doc.kind === "event") {
         doc.date = g("np-date"); doc.start = g("np-start"); doc.end = g("np-end"); doc.location = g("np-loc").trim(); doc.capacity = parseInt(g("np-cap"), 10) || 0;
         var off = L.dayOffset(doc.date, now());
         if (off == null || off < 0) { toast("Pick a date from today onwards."); return; }
       }
+      if (doc.url && !/^https?:\/\//i.test(doc.url)) doc.url = "https://" + doc.url;
+      if (doc.url && !L.linkSource(doc.url)) { toast("The link should start with https://"); return; }
+      if (!doc.url) delete doc.url;
       if (!cleanPost("check", doc)) { toast("Add a title" + (doc.kind === "event" ? ", date and times" : "") + " first."); return; }
       var btn = f.querySelector("button[type=submit]"); btn.disabled = true;
       var done = function (id) {

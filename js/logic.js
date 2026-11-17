@@ -316,7 +316,8 @@
       location: clip(raw.location, 100),
       capacity: raw.capacity > 0 && raw.capacity <= 5000 ? Math.round(raw.capacity) : null,
       body: body,
-      zh: clip(raw.zh, 1500)
+      zh: clip(raw.zh, 1500),
+      link: (linkSource(raw.link) || {}).url || ""
     };
   }
 
@@ -329,6 +330,9 @@
     var t = String(text || "").replace(/\r/g, "");
     var lines = t.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
     var out = { kind: "event" };
+    var url = t.match(/https?:\/\/[^\s<>"'，。）)]+/i);
+    if (url) { out.link = url[0]; t = t.replace(url[0], " "); }
+    lines = t.split("\n").map(function (l) { return l.trim(); }).filter(Boolean);
     var title = lines.find(function (l) { return !/^(date|time|when|where|venue|location|地点|时间|日期)\s*[:：]/i.test(l); }) || "";
     out.title = title.replace(/^#+\s*/, "").replace(/[【】\[\]]/g, " ").replace(/\s+/g, " ").trim();
     var m;
@@ -376,11 +380,30 @@
       (hasImage ? "Read the attached poster or screenshot" + (text ? " and the pasted text below" : "") + ".\n" : "Read the pasted text below (it may be from WeChat, email or a poster).\n") +
       "Reply with only one JSON object with these keys:\n" +
       '{"kind":"event"|"notice"|"news", "title":string, "organiser":string, "topic":"academic"|"careers"|"clubs"|"sports"|"culture"|"wellbeing", ' +
-      '"date":"YYYY-MM-DD" or "", "start":"HH:MM" (24h) or "", "end":"HH:MM" or "", "location":string, "capacity":number or null, ' +
+      '"date":"YYYY-MM-DD" or "", "start":"HH:MM" (24h) or "", "end":"HH:MM" or "", "location":string, "capacity":number or null, "link":string (a full https link to the original post, portal page or sign-up form if one is written out, else ""), ' +
       '"description":string (2-4 plain English sentences: what it is, who it is for, how to join), "zh":string (a short Chinese description if the source has Chinese, else "")}\n' +
       "Use \"\" for anything not stated. Never invent a date, time or place. If no year is given, use the next upcoming date. " +
       "If there is no end time, leave end empty. Copy QR-code or sign-up instructions into the description." +
       (text ? "\n\nPASTED TEXT:\n" + String(text).slice(0, 6000) : "");
+  }
+
+  /*
+   * Where a pasted link points, so OMNI can label the button ("Read on WeChat")
+   * and file the post under the right source. Only http(s) links are accepted.
+   */
+  function linkSource(url) {
+    var u = String(url || "").trim();
+    var m = u.match(/^https?:\/\/([^\/?#\s:]+)(?::\d+)?((?:[\/?#][^\s]*)?)$/i);
+    if (!m || u.length > 500 || m[1].indexOf(".") < 0) return null;
+    var host = m[1].toLowerCase(), path = m[2] || "";
+    var r = function (source, label) { return { url: u, source: source, label: label }; };
+    if (/(^|\.)(weixin|wechat)\.(qq\.)?com$|^mp\.weixin\.qq\.com$/.test(host)) return r("wechat", "Read on WeChat");
+    if (/moodle/.test(host) || /^\/moodle/i.test(path)) return r("moodle", "Open in Moodle");
+    if (/(^|\.)nottingham\.edu\.cn$/.test(host)) return /^(www\.)?nottingham\.edu\.cn$/.test(host) ? r("web", "Read on UNNC website") : r("portal", "Open in the UNNC portal");
+    if (/(^|\.)nottingham\.ac\.uk$/.test(host)) return r("web", "Open on University website");
+    if (/(^|\.)(wjx\.(cn|top)|jinshuju\.(net|com)|forms\.office\.com|forms\.gle)$/.test(host) || /^docs\.(google|qq)\.com$/.test(host) && /form/i.test(path))
+      return r("omni", "Open sign-up form");
+    return r("omni", "Open original post");
   }
 
   // ---------- Import my calendar (.ics from Moodle or a timetable) ----------
@@ -472,7 +495,8 @@
     cleanExtract: cleanExtract,
     guessFromText: guessFromText,
     extractPrompt: extractPrompt,
-    parseICS: parseICS
+    parseICS: parseICS,
+    linkSource: linkSource
   };
   root.OmniLogic = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

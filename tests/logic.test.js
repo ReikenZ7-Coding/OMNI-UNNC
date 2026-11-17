@@ -161,3 +161,20 @@ test("reads a Moodle or timetable calendar file", () => {
   assert.equal(new Date(ws[0].end) - new Date(ws[0].start), 2 * 3600 * 1000);
   assert.equal(items.find((i) => i.course === "BUSI1116").title, "Essay 2 is due");
 });
+
+test("labels links to the original post by where they point", () => {
+  assert.equal(L.linkSource("https://mp.weixin.qq.com/s/AbC123").label, "Read on WeChat");
+  assert.equal(L.linkSource("https://mp.weixin.qq.com/s/AbC123").source, "wechat");
+  assert.equal(L.linkSource("https://moodle.nottingham.edu.cn/course/view.php?id=1").source, "moodle");
+  assert.equal(L.linkSource("https://portal.nottingham.edu.cn/events/123").label, "Open in the UNNC portal");
+  assert.equal(L.linkSource("https://www.nottingham.edu.cn/en/news").source, "web");
+  assert.equal(L.linkSource("https://www.wjx.cn/vm/abc.aspx").label, "Open sign-up form");
+  assert.equal(L.linkSource("https://example.org/x").label, "Open original post");
+  assert.equal(L.linkSource("javascript:alert(1)"), null);
+  assert.equal(L.linkSource("not a link"), null);
+  assert.equal(L.linkSource("https://javascript:alert(1)"), null);
+  const now = new Date(2026, 10, 17, 10, 0);
+  const g = L.guessFromText("Charity Run\n22 Nov 08:00\nSign up: https://www.wjx.cn/vm/run.aspx", now);
+  assert.equal(g.link, "https://www.wjx.cn/vm/run.aspx");
+  assert.equal(g.date, "2026-11-22");
+});

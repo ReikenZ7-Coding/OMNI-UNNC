@@ -25,6 +25,7 @@
     group: "Club WeChat group",
     mini: "Mini program",
     web: "UNNC website",
+    portal: "UNNC portal",
     omni: "Posted in OMNI"
   };
 
