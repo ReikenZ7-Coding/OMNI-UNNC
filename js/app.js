@@ -65,7 +65,8 @@
   // 1. WEB: real news and events read from UNNC's public website by tools/crawl.js.
   var WEB = { events: [], posts: [], updatedAt: null };
   function setWebData(live) {
-    var c = L.fromWebsite(live, now());
+    WEB.raw = live; WEB.lang = lang();
+    var c = L.fromWebsite(live, now(), WEB.lang);
     WEB.events = c.events; WEB.posts = c.posts; WEB.updatedAt = live && live.updatedAt;
   }
   if (window.OMNI_LIVE) setWebData(window.OMNI_LIVE);
@@ -1031,7 +1032,7 @@
     }
     return backBar("me", "Me") + pageHead("Settings") +
       '<section class="card-panel stack"><span class="eyebrow">Appearance</span>' + seg("theme", [["system", "System"], ["light", "Light"], ["dark", "Dark"]], state.prefs.theme) + "</section>" +
-      '<section class="card-panel stack"><span class="eyebrow">Show descriptions in</span>' + seg("lang", [["en", "English"], ["zh", "中文"]], state.prefs.lang) + "</section>" +
+      '<section class="card-panel stack"><span class="eyebrow">Show titles and descriptions in</span>' + seg("lang", [["en", "English"], ["zh", "中文"]], state.prefs.lang) + "</section>" +
       '<section class="card-panel stack"><span class="eyebrow">Remind me</span>' + seg("remind", [["15", "15 min before"], ["60", "1 hour before"], ["1440", "1 day before"]], state.prefs.remind) +
         '<label class="toggle"><input type="checkbox" id="notify"' + (state.prefs.notify ? " checked" : "") + "> Notifications for events I'm going to</label></section>" +
       '<section class="card-panel stack"><span class="eyebrow">Signed in once, used everywhere</span><ul class="sso-list">' +
@@ -1074,6 +1075,7 @@
 
   var lastRoute = "";
   function render(opts) {
+    if (WEB.raw && WEB.lang !== lang()) setWebData(WEB.raw); // titles follow the chosen language
     var r = route();
     var html, bar = "";
     switch (r.name) {

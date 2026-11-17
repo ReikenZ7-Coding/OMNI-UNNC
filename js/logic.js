@@ -236,7 +236,8 @@
    * Turns crawled UNNC website data (data/live.json) into OMNI events and posts.
    * live = { events: [{id, title, start, end, location, organiser, url, summary}], news: [{id, title, date, url, summary, organiser}] }
    */
-  function fromWebsite(live, now) {
+  function fromWebsite(live, now, lang) {
+    var pick = function (x) { return String(lang === "zh" && x.titleZh ? x.titleZh : x.title); };
     var out = { events: [], posts: [] };
     if (!live) return out;
     // Key dates (semesters, exams, holidays) are events too; skip long ones already well under way.
@@ -249,7 +250,7 @@
       var endDay = e.end ? dayOffset(e.end, now) : day;
       var st = /T(\d\d:\d\d)/.exec(e.start), en = /T(\d\d:\d\d)/.exec(e.end || "");
       out.events.push({
-        id: "web-" + e.id, title: String(e.title).slice(0, 160), category: TOPIC_IDS.indexOf(e.topic) >= 0 ? e.topic : guessTopic(e.title + " " + (e.summary || "")),
+        id: "web-" + e.id, title: pick(e).slice(0, 160), category: TOPIC_IDS.indexOf(e.topic) >= 0 ? e.topic : guessTopic(e.title + " " + (e.summary || "")),
         organiser: e.organiser || "UNNC", source: "web", day: day, endDay: endDay == null ? day : endDay,
         start: st ? st[1] : "00:00", end: en ? en[1] : "23:59", location: e.location || "See event page",
         capacity: 0, taken: 0, tags: [], description: e.summary || "", zh: e.summaryZh || "", url: e.url,
@@ -261,7 +262,7 @@
       var posted = dayOffset(n.date, now);
       if (posted == null) return;
       out.posts.push({
-        id: "web-" + n.id, kind: n.kind === "notice" ? "notice" : "news", title: String(n.title).slice(0, 200),
+        id: "web-" + n.id, kind: n.kind === "notice" ? "notice" : "news", title: pick(n).slice(0, 200),
         organiser: n.organiser || "UNNC", source: "web", posted: posted, topic: guessTopic(n.title),
         body: n.summary || "", zh: n.summaryZh || "", url: n.url, image: n.image || "", external: true
       });
@@ -417,6 +418,7 @@
     if (/moodle/.test(host) || /^\/moodle/i.test(path)) return r("moodle", "Open in Moodle");
     if (/(^|\.)nottingham\.edu\.cn$/.test(host)) return /^(www\.)?nottingham\.edu\.cn$/.test(host) ? r("web", "Read on UNNC website") : r("portal", "Open in the UNNC portal");
     if (/(^|\.)nottingham\.ac\.uk$/.test(host)) return r("web", "Open on University website");
+    if (/(^|\.)163\.com$/.test(host)) return r("web", "Read on NetEase (网易)");
     if (/(^|\.)(wjx\.(cn|top)|jinshuju\.(net|com)|forms\.office\.com|forms\.gle)$/.test(host) || /^docs\.(google|qq)\.com$/.test(host) && /form/i.test(path))
       return r("omni", "Open sign-up form");
     return r("omni", "Open original post");

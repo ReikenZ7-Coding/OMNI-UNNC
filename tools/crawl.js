@@ -22,7 +22,15 @@ const SOURCES = [
   { id: "fse-events", type: "facultyEvents", organiser: "Faculty of Science and Engineering", url: BASE + "/en/science-engineering/events/listing.aspx" },
   { id: "news", type: "news", organiser: "UNNC News", url: BASE + "/en/press-release/news-listing.aspx" },
   { id: "campus-news", type: "news", pattern: "Article\\.aspx", organiser: "UNNC Faculty news", url: BASE + "/en/university-life/news/index.aspx" },
-  { id: "key-dates", type: "keyDates", organiser: "UNNC Key Dates", url: BASE + "/en/about/key-dates/key-dates.aspx" }
+  { id: "key-dates", type: "keyDates", organiser: "UNNC Key Dates", url: BASE + "/en/about/key-dates/key-dates.aspx" },
+  // Chinese versions. Items that also exist in English get their Chinese title added;
+  // Chinese-only items are kept in Chinese.
+  { id: "cn-uni-events-1", lang: "zh", type: "uniEvents", organiser: "宁波诺丁汉大学", url: BASE + "/cn/events/event-listing.aspx" },
+  { id: "cn-uni-events-2", lang: "zh", type: "uniEvents", organiser: "宁波诺丁汉大学", url: BASE + "/cn/events/event-listing.aspx?EVTPageIndex=2" },
+  { id: "cn-news", lang: "zh", type: "news", organiser: "宁诺新闻", url: BASE + "/cn/press-release/news-listing.aspx" },
+  { id: "cn-campus-news", lang: "zh", type: "news", pattern: "Article\\.aspx", organiser: "宁诺校园新闻", url: BASE + "/cn/university-life/news/index.aspx" },
+  // UNNC's Chinese account on NetEase (网易号), which republishes its WeChat articles as public web pages.
+  { id: "netease-unnc", lang: "zh", type: "list", item: "/dy/article/[A-Z0-9]+\\.html", organiser: "宁波诺丁汉大学 · 网易号", url: "https://www.163.com/dy/media/T1562640267479.html" }
 ];
 
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
@@ -111,8 +119,9 @@ function parseFacultyEvents(html, src) {
 function parseNews(html, src) {
   return parseTiles(html, src.pattern || "News-Article\\.aspx").map((t) => {
     const r = parseRange(t.desc);
-    if (!r) return null;
-    return { id: t.id, kind: "news", title: t.title, date: r.start.slice(0, 10), organiser: src.organiser, url: t.url, image: t.image ? abs(t.image) : "", source: src.id };
+    const date = r ? r.start.slice(0, 10) : findDate(t.desc) || findDate(t.title);
+    if (!date) return null;
+    return { id: t.id, kind: "news", title: t.title, date, organiser: src.organiser, url: t.url, image: t.image ? abs(t.image) : "", source: src.id };
   }).filter(Boolean);
 }
 
@@ -234,6 +243,19 @@ function readPrevious() {
   try { return JSON.parse(fs.readFileSync(OUT, "utf8")); } catch (e) { return { events: [], news: [], feeds: [] }; }
 }
 
+// The English and Chinese UNNC pages share item ids: keep one item, with both titles.
+const CJK = /[\u3400-\u9fff]/;
+function mergeLanguages(list) {
+  const byId = new Map(), out = [];
+  for (const x of list) {
+    const y = byId.get(x.id);
+    if (!y) { byId.set(x.id, x); out.push(x); continue; }
+    if (x.lang === "zh" && y.lang !== "zh") { if (CJK.test(x.title) && x.title !== y.title) y.titleZh = x.title; }
+    else if (y.lang === "zh" && x.lang !== "zh") { const zh = y.title; Object.assign(y, x); if (CJK.test(zh) && zh !== x.title) y.titleZh = zh; }
+  }
+  return out;
+}
+
 function parse(html, src) {
   return src.type === "uniEvents" ? parseUniEvents(html, src) : src.type === "facultyEvents" ? parseFacultyEvents(html, src)
     : src.type === "keyDates" ? parseKeyDates(html, src) : src.type === "list" ? parseLinkList(html, src) : parseNews(html, src);
@@ -247,7 +269,7 @@ async function main() {
   for (const src of SOURCES) {
     try {
       const html = await getPage(src.url);
-      const items = parse(html, src);
+      const items = parse(html, src).map((x) => Object.assign(x, { lang: src.lang || "en" }));
       report[src.id] = { ok: true, items: items.length };
       (src.type === "news" ? news : src.type === "keyDates" ? dates : events).push(...items);
     } catch (e) {
@@ -275,8 +297,8 @@ async function main() {
   }
   const seen = new Set();
   const dedupe = (x) => (seen.has(x.id) ? false : (seen.add(x.id), true));
-  events = events.filter(dedupe).filter((e) => e.end.slice(0, 10) >= today).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 40);
-  news = news.filter(dedupe).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 30);
+  events = mergeLanguages(events).filter((e) => e.end.slice(0, 10) >= today).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 60);
+  news = mergeLanguages(news).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60);
   dates = dates.filter(dedupe).filter((e) => e.end.slice(0, 10) >= today).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 30);
   feeds = feeds.filter(dedupe).filter((f) => f.date >= oldest).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 60);
 
@@ -368,4 +390,4 @@ if (require.main === module) {
   else if (j > -1) probe(process.argv[j + 1]).catch((e) => { console.log(String(e)); process.exitCode = 1; });
   else main();
 }
-module.exports = { parseLinkList, findDate, parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed, parseKeyDates, parseDatePhrase };
+module.exports = { mergeLanguages, parseLinkList, findDate, parseUniEvents, parseFacultyEvents, parseNews, parseRange, parseStamp, decode, parseFeed, parseKeyDates, parseDatePhrase };
