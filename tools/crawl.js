@@ -167,7 +167,7 @@ function parseDatePhrase(text, firstYear) {
   let m;
   while ((m = re.exec(main))) {
     const mon = m[2] && MONTHS[m[2].slice(0, 3).toLowerCase()];
-    if (m[2] && !mon) continue;
+    if (m[2] && !mon) { toks.push({ d: +m[1], m: 0, y: 0 }); re.lastIndex = m.index + m[1].length; continue; }
     toks.push({ d: +m[1], m: mon || 0, y: m[3] ? +m[3] : 0 });
   }
   if (!toks.length) return null;
