@@ -151,6 +151,62 @@
     return { offices: officeScores, faqs: faqScores.slice(0, 4) };
   }
 
+
+  /*
+   * The Discover feed mixes events, notices and news.
+   * filters = { kinds: {event, notice, news}, query, topic, when: "any" | "today" | "week" | "month",
+   *             source, available, sort: "soonest" | "latest" }
+   */
+  function filterFeed(events, posts, filters, now, registrations) {
+    var f = filters || {};
+    var kinds = f.kinds || { event: true, notice: true, news: true };
+    var today = startOfDay(now);
+    var span = { today: 1, week: 7, month: 31 }[f.when] || 0;
+    var items = [];
+    if (kinds.event) {
+      filterEvents(events, { query: f.query, category: f.topic, available: f.available }, now, registrations).forEach(function (e) {
+        if (span && e.startAt >= new Date(today.getTime() + span * DAY)) return;
+        items.push(Object.assign({ kind: "event", postedAt: new Date(today.getTime() + e.posted * DAY) }, e));
+      });
+    }
+    posts.forEach(function (p) {
+      if (!kinds[p.kind]) return;
+      if (f.available) return; // notices and news have no places
+      var postedAt = new Date(today.getTime() + p.posted * DAY);
+      if (span && postedAt < new Date(today.getTime() - (span - 1) * DAY)) return;
+      if (f.topic && f.topic !== "all" && p.topic !== f.topic) return;
+      var hay = { title: p.title, organiser: p.organiser, location: "", description: p.body, tags: [] };
+      if (!eventMatches(hay, f.query)) return;
+      items.push(Object.assign({ postedAt: postedAt }, p));
+    });
+    var filtered = items.filter(function (it) { return !f.source || f.source === "all" || it.source === f.source; });
+    if (f.sort === "latest") {
+      filtered.sort(function (a, b) { return b.postedAt - a.postedAt; });
+    } else {
+      // Soonest first: events by start time, then notices and news newest first.
+      filtered.sort(function (a, b) {
+        if (a.kind === "event" && b.kind === "event") return a.startAt - b.startAt;
+        if (a.kind === "event") return -1;
+        if (b.kind === "event") return 1;
+        return b.postedAt - a.postedAt;
+      });
+    }
+    return filtered;
+  }
+
+  // "What to eat?" picks a random shop; pass a random number in [0, 1) so it can be tested.
+  function pickFood(places, rand) {
+    var all = [];
+    places.forEach(function (pl) { pl.shops.forEach(function (sh) { all.push({ place: pl, shop: sh }); }); });
+    return all[Math.floor(rand * all.length) % all.length];
+  }
+
+  // Masks a student ID for display, e.g. 20512345 -> 205***45
+  function maskId(id) {
+    var s = String(id || "");
+    return s.length > 5 ? s.slice(0, 3) + "***" + s.slice(-2) : s;
+  }
+
   var api = {
     DAY: DAY,
     startOfDay: startOfDay,
@@ -162,7 +218,10 @@
     register: register,
     cancel: cancel,
     ticketCode: ticketCode,
-    routeHelp: routeHelp
+    routeHelp: routeHelp,
+    filterFeed: filterFeed,
+    pickFood: pickFood,
+    maskId: maskId
   };
   root.OmniLogic = api;
   if (typeof module !== "undefined" && module.exports) module.exports = api;

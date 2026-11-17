@@ -11,11 +11,17 @@ OMNI is a working prototype built for our BUSI1116 project (Workshop 02, Problem
 | Screen | What it does |
 | --- | --- |
 | **Sign in** | Sign in once (demo: name + student ID, no password). Every other screen trusts that sign-in, so you are never asked again. |
-| **Discover** | One feed of events from all five places students used to check. Search, filter by category (Academic, Careers, Clubs & societies, Sports, Culture, Wellbeing), by date, or show only events with places left. |
-| **One-tap registration** | Tap **Register** right in the feed. If an event is full, the same tap puts you on the waitlist. You get a ticket with a check-in code. |
-| **My events** | Your tickets, upcoming and past. Cancel from the event page. |
-| **Help** | Type your problem in plain words ("my dorm air conditioner is broken", "签证") and OMNI tells you which office handles it, shows quick answers, and lets you send that office a request without logging in again. |
-| **Me** | Your profile, how many sign-ins it took (one!), and a reset button for the demo. |
+| **Home** | Featured events and news, a Quick access grid you can edit, your next tickets, and the latest campus notices. |
+| **Discover** | One feed of events, notices and news from all five places students used to check. Switch each type on or off, search, filter by topic, date or original source, and sort. |
+| **Event details** | Generated poster, time, place, organiser and places left, a 中文 / English switch for the description, and a bottom bar to **Save**, **Add reminder** and **Register in one tap** right inside the app. If it's full, the same tap joins the waitlist. |
+| **Help** | Type a problem in plain words ("my dorm air conditioner is broken", "签证") and OMNI tells you which office handles it, shows quick answers, and lets you send that office a request without logging in again. |
+| **Tools** | A searchable directory of campus systems with favourites. Each one opens already signed in. Timetable, room booking (one tap per slot), printing credit and a building finder work in the demo. |
+| **Food** | Campus places to eat, shops with opening hours, and a "What to eat" picker. |
+| **Me** | Verified profile, My schedule, tickets, saved items, help requests, and settings (theme, description language, reminder timing). |
+
+### How OMNI differs from other campus mini programs
+
+Most campus apps collect links: you find an event, then tap "Registration options" and land in another portal that asks you to log in again. OMNI's bet is that the student signs in **once**, and registering, booking a room or asking an office for help all happen **inside** OMNI with that one sign-in.
 
 ## How to try it
 
@@ -34,8 +40,9 @@ Everything you do (bookings, requests) is saved in your own browser only. Use **
 ```
 index.html           the page itself
 css/app.css          all the styling (colours, light and dark mode)
-js/data.js           sample events, offices and FAQ answers  <- edit this to add events
+js/data.js           sample events, notices, news, offices, tools and food  <- edit this to add content
 js/logic.js          search, filters, one-tap registration, help routing (no screen code)
+js/icons.js          the line icons
 js/app.js            draws each screen and handles taps
 tests/logic.test.js  automatic checks for logic.js
 tools/build-preview.js  bundles everything into one file for sharing

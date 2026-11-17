@@ -54,3 +54,22 @@ test("help routing sends students to the right office", () => {
   assert.equal(top("help me with my CV for an internship"), "careers");
   assert.deepEqual(L.routeHelp("", data.offices, data.faqs).offices, []);
 });
+
+test("Discover mixes events, notices and news, and each switch works", () => {
+  const all = L.filterFeed(events, data.posts, {}, now, {});
+  const kinds = new Set(all.map((i) => i.kind));
+  assert.deepEqual([...kinds].sort(), ["event", "news", "notice"]);
+  const onlyNews = L.filterFeed(events, data.posts, { kinds: { news: true } }, now, {});
+  assert.ok(onlyNews.length > 0 && onlyNews.every((i) => i.kind === "news"));
+  const latest = L.filterFeed(events, data.posts, { sort: "latest" }, now, {});
+  for (let i = 1; i < latest.length; i++) assert.ok(latest[i - 1].postedAt >= latest[i].postedAt);
+  const fromEmail = L.filterFeed(events, data.posts, { source: "email" }, now, {});
+  assert.ok(fromEmail.length > 0 && fromEmail.every((i) => i.source === "email"));
+  assert.ok(L.filterFeed(events, data.posts, { query: "exam timetable" }, now, {}).some((i) => i.id === "n-exams"));
+});
+
+test("food picker and ID masking", () => {
+  const pick = L.pickFood(data.food, 0.5);
+  assert.ok(pick.place && pick.shop);
+  assert.equal(L.maskId("20512345"), "205***45");
+});
