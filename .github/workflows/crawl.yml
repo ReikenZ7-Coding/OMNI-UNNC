@@ -14,6 +14,10 @@ on:
         description: "For developers: show how a UNNC page is built (nothing is saved)."
         required: false
         default: ""
+      discover:
+        description: "For developers: list news/event links on these pages, or 'default' (nothing is saved)."
+        required: false
+        default: ""
 permissions:
   contents: write
 concurrency:
@@ -33,16 +37,21 @@ jobs:
         env:
           PAGE: ${{ inputs.probe_page }}
         run: for u in $PAGE; do echo "===== $u"; node tools/crawl.js --probe "$u" || true; sleep 2; done
+      - name: Find sources (nothing is saved)
+        if: ${{ inputs.discover != '' && inputs.discover != null }}
+        env:
+          SEEDS: ${{ inputs.discover }}
+        run: if [ "$SEEDS" = "default" ]; then node tools/discover.js; elif [ "${SEEDS#--raw }" != "$SEEDS" ]; then node tools/discover.js --raw "${SEEDS#--raw }"; else node tools/discover.js $SEEDS; fi
       - name: Try a feed (nothing is saved)
         if: ${{ inputs.test_feed != '' && inputs.test_feed != null }}
         env:
           FEED: ${{ inputs.test_feed }}
         run: node tools/crawl.js --test-feed "$FEED"
       - name: Read UNNC pages
-        if: ${{ (inputs.test_feed == '' || inputs.test_feed == null) && (inputs.probe_page == '' || inputs.probe_page == null) }}
+        if: ${{ (inputs.test_feed == '' || inputs.test_feed == null) && (inputs.probe_page == '' || inputs.probe_page == null) && (inputs.discover == '' || inputs.discover == null) }}
         run: node tools/crawl.js
       - name: Save changes
-        if: ${{ (inputs.test_feed == '' || inputs.test_feed == null) && (inputs.probe_page == '' || inputs.probe_page == null) }}
+        if: ${{ (inputs.test_feed == '' || inputs.test_feed == null) && (inputs.probe_page == '' || inputs.probe_page == null) && (inputs.discover == '' || inputs.discover == null) }}
         run: |
           if [ -z "$(git status --porcelain -- data/live.json)" ]; then
             echo "No new news or events."
