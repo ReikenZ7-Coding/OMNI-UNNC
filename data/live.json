@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-18T03:51:45.194Z",
+ "updatedAt": "2026-11-18T12:58:11.189Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -899,6 +899,17 @@
   }
  ],
  "feeds": [
+  {
+   "id": "f1lrjya4",
+   "kind": "notice",
+   "title": "Assistant Professor in Applied Mathematics/Statistics (184759)",
+   "date": "2026-11-18",
+   "url": "https://jobs.nottingham.ac.uk/rss/click.aspx?ref=184759",
+   "organiser": "UNNC jobs (academic)",
+   "topic": "careers",
+   "via": "web",
+   "source": "feed-unnc-jobs-academic"
+  },
   {
    "id": "f1nzdmbx",
    "kind": "notice",
