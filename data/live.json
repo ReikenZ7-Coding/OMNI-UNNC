@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-17T13:49:06.474Z",
+ "updatedAt": "2026-11-18T03:51:45.194Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -48,7 +48,8 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=ca8fd431-455c-4bee-a996-c77ed6531880&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261114-Graduation-Ceremony/2026-Graduation-Ceremony-image6.xd641bade.jpg",
    "source": "news",
-   "lang": "en"
+   "lang": "en",
+   "titleZh": "下一种可能，由你开启 ｜ 宁波诺丁汉大学举行2026届冬季毕业典礼"
   },
   {
    "id": "netease-unnc-1c0ry84",
@@ -85,6 +86,17 @@
    "lang": "zh"
   },
   {
+   "id": "3447147d-9a36-41f8-a00e-7a5752c34b3f",
+   "kind": "news",
+   "title": "市委副书记、市长沈铭权调研宁波诺丁汉大学",
+   "date": "2026-11-10",
+   "organiser": "宁诺新闻",
+   "url": "https://www.nottingham.edu.cn/cn/Press-Release/News-Article.aspx?id=3447147d-9a36-41f8-a00e-7a5752c34b3f&language=zh",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260626-Ranking-media-release/ranking-media-release-image7.x1d6f7c3a.jpg",
+   "source": "cn-news",
+   "lang": "zh"
+  },
+  {
    "id": "netease-unnc-2a1cqx",
    "kind": "news",
    "title": "市委副书记、市长沈铭权调研宁波诺丁汉大学",
@@ -117,6 +129,18 @@
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
+  },
+  {
+   "id": "dbee3077-9119-4dd8-926b-f77bf3b369d0",
+   "kind": "news",
+   "title": "UNNC students’ research turns wheat straw into potential sustainable aviation fuel feedstock",
+   "date": "2026-11-03",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=dbee3077-9119-4dd8-926b-f77bf3b369d0&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/2026110turns-wheat-straw-into-fuel-feedstock/UNNC-researchers-turn-wheat-straw-into-potential-sustainable-aviation-fuel-feedstock-image-image4.x3dc8a63a.jpeg",
+   "source": "news",
+   "lang": "en",
+   "titleZh": "一根麦秆也能助力飞机“加油”？ 宁诺学子研究登上权威期刊"
   },
   {
    "id": "ea78379c-8013-4e35-9249-bd554594c752",
@@ -504,8 +528,7 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=58865e6f-5267-486b-846a-14380b476dde&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260921global-pitch/Global-Pitch-image1.xdfb5b7f2.jpg",
    "source": "news",
-   "lang": "en",
-   "titleZh": "宁波市高校技术转移中心暨宁波诺丁汉大学国际科技园启用"
+   "lang": "en"
   },
   {
    "id": "netease-unnc-1336cqe",
@@ -517,18 +540,6 @@
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
-  },
-  {
-   "id": "71e7c925-74ec-410f-b1b3-a7d0d3adc26f",
-   "kind": "news",
-   "title": "Speech at the 2026 New Student Welcome Ceremony",
-   "date": "2026-09-21",
-   "organiser": "UNNC News",
-   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=71e7c925-74ec-410f-b1b3-a7d0d3adc26f&language=en-GB",
-   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260921Speech-at-New-Student-Welcome-Ceremony/Speech-at-the-2026-New-Student-Welcome-Ceremony.x38e2bf9c.jpg",
-   "source": "news",
-   "lang": "en",
-   "titleZh": "“舒适区就是天花板” “别把本质问题外包给机器” | 宁诺执行校长新生开学典礼致辞"
   },
   {
    "id": "netease-unnc-1jyy1sc",
@@ -561,17 +572,6 @@
    "url": "https://www.163.com/dy/article/L7244ASF05369NFG.html",
    "image": "",
    "source": "netease-unnc",
-   "lang": "zh"
-  },
-  {
-   "id": "761b07a1-7679-4a46-bf22-9672714f0eeb",
-   "kind": "news",
-   "title": "告别CT辐射！AI“光影神探”上岗，宁诺团队研发新型医学影像技术",
-   "date": "2026-09-16",
-   "organiser": "宁诺新闻",
-   "url": "https://www.nottingham.edu.cn/cn/Press-Release/News-Article.aspx?id=761b07a1-7679-4a46-bf22-9672714f0eeb&language=zh",
-   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260916AI-technology-to-reduce-radiation-in-PET/AI-technology-to-reduce-radiation-in-PET-scans-image4.x8a5857ae.jpg",
-   "source": "cn-news",
    "lang": "zh"
   },
   {
