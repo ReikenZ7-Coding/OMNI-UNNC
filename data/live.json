@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-18T12:58:11.189Z",
+ "updatedAt": "2026-11-19T02:47:17.351Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -388,10 +388,10 @@
    "kind": "news",
    "title": "FoSE Liberal Arts Workshop: A Guqin Concert Bridging Science and Tradition",
    "date": "2026-10-14",
-   "organiser": "UNNC Faculty news",
-   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=61d38bd6-130b-4763-80bd-e3619bb7e944&language=en-GB",
-   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/FoSE-Liberal-Arts-Workshop-Guqin-Concert1.x272594f8.jpg",
-   "source": "campus-news",
+   "organiser": "Faculty of Science and Engineering",
+   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=61d38bd6-130b-4763-80bd-e3619bb7e944&language=en-GB",
+   "image": "",
+   "source": "fse-news",
    "lang": "en"
   },
   {
