@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-19T02:47:17.351Z",
+ "updatedAt": "2026-11-19T11:30:17.562Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -899,6 +899,17 @@
   }
  ],
  "feeds": [
+  {
+   "id": "f1i5fnrk",
+   "kind": "notice",
+   "title": "Assistant Professor in Computer Science (184764)",
+   "date": "2026-11-19",
+   "url": "https://jobs.nottingham.ac.uk/rss/click.aspx?ref=184764",
+   "organiser": "UNNC jobs (academic)",
+   "topic": "careers",
+   "via": "web",
+   "source": "feed-unnc-jobs-academic"
+  },
   {
    "id": "f1lrjya4",
    "kind": "notice",
