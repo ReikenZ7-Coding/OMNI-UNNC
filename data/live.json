@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-19T11:30:17.562Z",
+ "updatedAt": "2026-11-20T09:07:50.088Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -106,6 +106,18 @@
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
+  },
+  {
+   "id": "2c59bb7e-fd57-4af6-b223-00f202279b38",
+   "kind": "news",
+   "title": "UNNC Ingenuity Lab turns student ideas into real-world ventures",
+   "date": "2026-11-04",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=2c59bb7e-fd57-4af6-b223-00f202279b38&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261104UNNC-Ingenuity-Lab/UNNC-Ingenuity-Lab-image3.xd74e6cf2.jpg",
+   "source": "news",
+   "lang": "en",
+   "titleZh": "宁诺这堂 \"赚到真钱\" 的课，让学生跑出创新创业“加速度”"
   },
   {
    "id": "2679487e-57ff-4b8d-b19b-3634c32f2245",
@@ -438,8 +450,7 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=1f361414-e56f-45a8-a8c8-a304c6735cd8&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261010International-Youth-River-Exchange/International-Youth-River-Exchange-2026-image4.xc1007f0c.jpg",
    "source": "news",
-   "lang": "en",
-   "titleZh": "借鉴中国千年治水智慧，宁诺外籍博士生为城市降温寻解！斩获2026年度河流大使"
+   "lang": "en"
   },
   {
    "id": "netease-unnc-1t0gav2",
@@ -518,17 +529,6 @@
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
-  },
-  {
-   "id": "58865e6f-5267-486b-846a-14380b476dde",
-   "kind": "news",
-   "title": "UNNC brings global innovation together at 2026 Global Pitch",
-   "date": "2026-09-22",
-   "organiser": "UNNC News",
-   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=58865e6f-5267-486b-846a-14380b476dde&language=en-GB",
-   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20260921global-pitch/Global-Pitch-image1.xdfb5b7f2.jpg",
-   "source": "news",
-   "lang": "en"
   },
   {
    "id": "netease-unnc-1336cqe",
