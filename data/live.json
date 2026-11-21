@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-20T17:46:11.274Z",
+ "updatedAt": "2026-11-21T15:17:34.747Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -28,6 +28,17 @@
   }
  ],
  "news": [
+  {
+   "id": "netease-unnc-15x731q",
+   "kind": "news",
+   "title": "祝贺！宁波诺丁汉大学师生荣获宝钢教育奖",
+   "date": "2026-11-21",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LC9DKO4A05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
   {
    "id": "netease-unnc-fohm9y",
    "kind": "news",
@@ -411,10 +422,10 @@
    "kind": "news",
    "title": "FoSE Liberal Arts Workshop: A Guqin Concert Bridging Science and Tradition",
    "date": "2026-10-14",
-   "organiser": "Faculty of Science and Engineering",
-   "url": "https://www.nottingham.edu.cn/en/science-engineering/news/article.aspx?id=61d38bd6-130b-4763-80bd-e3619bb7e944&language=en-GB",
-   "image": "",
-   "source": "fse-news",
+   "organiser": "UNNC Faculty news",
+   "url": "https://www.nottingham.edu.cn/en/university-life/News/Article.aspx?id=61d38bd6-130b-4763-80bd-e3619bb7e944&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Department-News/Engineering/FoSE-Liberal-Arts-Workshop-Guqin-Concert1.x272594f8.jpg",
+   "source": "campus-news",
    "lang": "en"
   },
   {
@@ -559,17 +570,6 @@
    "date": "2026-09-21",
    "organiser": "宁波诺丁汉大学 · 网易号",
    "url": "https://www.163.com/dy/article/L7CFVIUM05369NFG.html",
-   "image": "",
-   "source": "netease-unnc",
-   "lang": "zh"
-  },
-  {
-   "id": "netease-unnc-1h4x56i",
-   "kind": "news",
-   "title": "上新了，宁诺！你不在，校园有这了这些新变化",
-   "date": "2026-09-18",
-   "organiser": "宁波诺丁汉大学 · 网易号",
-   "url": "https://www.163.com/dy/article/L74OJEDH05369NFG.html",
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
