@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-23T03:04:08.989Z",
+ "updatedAt": "2026-11-23T12:16:45.111Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -28,6 +28,17 @@
   }
  ],
  "news": [
+  {
+   "id": "netease-unnc-1nveabu",
+   "kind": "news",
+   "title": "全国高校稀有掉落：宁诺这间影视工作室是世界标准、院线配置",
+   "date": "2026-11-23",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LCEO395K05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
   {
    "id": "netease-unnc-15x731q",
    "kind": "news",
@@ -559,17 +570,6 @@
    "date": "2026-09-22",
    "organiser": "宁波诺丁汉大学 · 网易号",
    "url": "https://www.163.com/dy/article/L7F88EVI05369NFG.html",
-   "image": "",
-   "source": "netease-unnc",
-   "lang": "zh"
-  },
-  {
-   "id": "netease-unnc-1jyy1sc",
-   "kind": "news",
-   "title": "“舒适区就是天花板” “别把本质问题外包给机器” | 宁诺执行校长新生开学典礼致辞",
-   "date": "2026-09-21",
-   "organiser": "宁波诺丁汉大学 · 网易号",
-   "url": "https://www.163.com/dy/article/L7CFVIUM05369NFG.html",
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
