@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-25T14:15:29.709Z",
+ "updatedAt": "2026-11-26T05:25:25.534Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -28,6 +28,17 @@
   }
  ],
  "news": [
+  {
+   "id": "netease-unnc-1copn0o",
+   "kind": "news",
+   "title": "校园坐标+1！从这里，把宁诺“打包带走”",
+   "date": "2026-11-26",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LCLNALO205369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
   {
    "id": "netease-unnc-1v16fs0",
    "kind": "news",
@@ -570,17 +581,6 @@
    "date": "2026-09-24",
    "organiser": "宁波诺丁汉大学 · 网易号",
    "url": "https://www.163.com/dy/article/L7K3FQ3405369NFG.html",
-   "image": "",
-   "source": "netease-unnc",
-   "lang": "zh"
-  },
-  {
-   "id": "netease-unnc-13em25u",
-   "kind": "news",
-   "title": "宁波市高校技术转移中心暨宁波诺丁汉大学国际科技园启用",
-   "date": "2026-09-23",
-   "organiser": "宁波诺丁汉大学 · 网易号",
-   "url": "https://www.163.com/dy/article/L7HEUJS505369NFG.html",
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
