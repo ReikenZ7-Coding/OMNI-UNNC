@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-26T05:25:25.534Z",
+ "updatedAt": "2026-11-27T09:00:53.913Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -40,6 +40,18 @@
    "lang": "zh"
   },
   {
+   "id": "65cce75a-7e52-4080-a193-5ac5b63636be",
+   "kind": "news",
+   "title": "Connecting China and the UK through international education: UNNC Provost shares the University’s experience at the UK-China Education Summit",
+   "date": "2026-11-25",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=65cce75a-7e52-4080-a193-5ac5b63636be&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261125UK-China-Education-Summit/UK-China-Education-Summit-2026-image3.x9cb02333.jpg",
+   "source": "news",
+   "lang": "en",
+   "titleZh": "以高水平开放教育连接中英！宁诺执行校长出席中英大学校长对话会，分享“宁诺实践”"
+  },
+  {
    "id": "netease-unnc-1v16fs0",
    "kind": "news",
    "title": "以高水平开放教育连接中英！宁诺执行校长出席中英大学校长对话会，分享“宁诺实践”",
@@ -60,6 +72,18 @@
    "image": "https://www.nottingham.edu.cn/image-library/Department-News/GraduateSchool/2026news/KV2026-portal.xfeceb3c1.jpg",
    "source": "campus-news",
    "lang": "en"
+  },
+  {
+   "id": "e3f20f3a-ab15-4133-bbc1-102f48acd72a",
+   "kind": "news",
+   "title": "One room, two global standards: UNNC unveils its Dolby Atmos & DCI Production Studio",
+   "date": "2026-11-23",
+   "organiser": "UNNC News",
+   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=e3f20f3a-ab15-4133-bbc1-102f48acd72a&language=en-GB",
+   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261123UNNC-unveils-its-Dolby-Atmos-DCI-studio/UNNC-unveils-its-Dolby-Atmos-DCI-Production-Studio-image3.x11f7cc48.jpg",
+   "source": "news",
+   "lang": "en",
+   "titleZh": "国内高校罕见配置！一间影厅，两套世界标准。这个影视制作工作室在宁诺揭幕"
   },
   {
    "id": "netease-unnc-1nveabu",
@@ -447,8 +471,7 @@
    "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=e81b45b0-0284-45a6-a010-fc9d6b219edf&language=en-GB",
    "image": "https://www.nottingham.edu.cn/image-library/Press-release/20251018-Red-Dot-Awards/Red-Dot-Awards-image1.x69160611.jpg",
    "source": "news",
-   "lang": "en",
-   "titleZh": "颠覆宝石镶嵌，宁诺珠宝设计获国际大奖！"
+   "lang": "en"
   },
   {
    "id": "netease-unnc-18lm1vv",
@@ -485,18 +508,6 @@
    "titleZh": "聚焦生物交叉研究，宁诺理工博士生在宁波研究生学术节中脱颖而出"
   },
   {
-   "id": "ef1998d3-2640-42b5-85c9-16d7701d78a9",
-   "kind": "news",
-   "title": "UNNC Team Wins Global Championship in AI-Powered Surgical Recognition",
-   "date": "2026-10-12",
-   "organiser": "UNNC News",
-   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=ef1998d3-2640-42b5-85c9-16d7701d78a9&language=en-GB",
-   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261012MICCAI/MICCAI-2026-image1.xf9aacbc4.jpg",
-   "source": "news",
-   "lang": "en",
-   "titleZh": "中国首个全球冠军！宁诺方案教AI“看懂”手术，推动医疗机器人发展"
-  },
-  {
    "id": "netease-unnc-1ax6niq",
    "kind": "news",
    "title": "中国首个全球冠军！宁诺方案教AI“看懂”手术，推动医疗机器人发展",
@@ -506,17 +517,6 @@
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
-  },
-  {
-   "id": "1f361414-e56f-45a8-a8c8-a304c6735cd8",
-   "kind": "news",
-   "title": "UNNC PhD student named 2026 River Messenger after winning International Youth River Exchange",
-   "date": "2026-10-10",
-   "organiser": "UNNC News",
-   "url": "https://www.nottingham.edu.cn/en/Press-Release/News-Article.aspx?id=1f361414-e56f-45a8-a8c8-a304c6735cd8&language=en-GB",
-   "image": "https://www.nottingham.edu.cn/image-library/Press-release/20261010International-Youth-River-Exchange/International-Youth-River-Exchange-2026-image4.xc1007f0c.jpg",
-   "source": "news",
-   "lang": "en"
   },
   {
    "id": "netease-unnc-1t0gav2",
@@ -1105,6 +1105,17 @@
   }
  ],
  "feeds": [
+  {
+   "id": "f1knf8ia",
+   "kind": "notice",
+   "title": "Associate Professor in Computer Science (184771)",
+   "date": "2026-11-27",
+   "url": "https://jobs.nottingham.ac.uk/rss/click.aspx?ref=184771",
+   "organiser": "UNNC jobs (academic)",
+   "topic": "careers",
+   "via": "web",
+   "source": "feed-unnc-jobs-academic"
+  },
   {
    "id": "f1i5fnrk",
    "kind": "notice",
