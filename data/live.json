@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-27T09:00:53.913Z",
+ "updatedAt": "2026-11-27T18:52:04.138Z",
  "from": "https://www.nottingham.edu.cn",
  "events": [
   {
@@ -28,6 +28,17 @@
   }
  ],
  "news": [
+  {
+   "id": "netease-unnc-x97xb",
+   "kind": "news",
+   "title": "获批！宁诺新增机械工程博士后科研流动站",
+   "date": "2026-11-27",
+   "organiser": "宁波诺丁汉大学 · 网易号",
+   "url": "https://www.163.com/dy/article/LCP3VVRH05369NFG.html",
+   "image": "",
+   "source": "netease-unnc",
+   "lang": "zh"
+  },
   {
    "id": "netease-unnc-1copn0o",
    "kind": "news",
@@ -570,17 +581,6 @@
    "date": "2026-10-07",
    "organiser": "宁波诺丁汉大学 · 网易号",
    "url": "https://www.163.com/dy/article/L8LHT25D05369NFG.html",
-   "image": "",
-   "source": "netease-unnc",
-   "lang": "zh"
-  },
-  {
-   "id": "netease-unnc-1i4uvfa",
-   "kind": "news",
-   "title": "因为一只校宠鹅，他走出高三低谷，成功圆梦宁诺",
-   "date": "2026-09-24",
-   "organiser": "宁波诺丁汉大学 · 网易号",
-   "url": "https://www.163.com/dy/article/L7K3FQ3405369NFG.html",
    "image": "",
    "source": "netease-unnc",
    "lang": "zh"
